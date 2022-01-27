@@ -1,5 +1,7 @@
 ---
 title: "Lab 03 - Exploratory Data Analysis"
+author: "Joey Hotz"
+date: "January 27, 2022"
 output:
   html_document:
     html_preview: false
