@@ -88,16 +88,31 @@ It looks like the elevation variable has observations with 9999.0, which is prob
 After checking the data we should make the appropriate modifications. Replace elevations with 9999 as `NA`.
 
 ```{r}
-
+met$elev <- na_if(met$elev, 9999)
 ```
 At what elevation is the highest weather station?
 
 - Summarize here
 
-
-Now let's look at the data from this site
 ```{r}
+summary(met$elev)
+```
+As we can see above, the elevation of the weather station with the highest elevation is `r max(met$elev, na.rm = TRUE)` meters.
 
+
+Now let's look at the data from this site:
+
+```{r}
+# Select the observations which are from the highest weather station.
+highest <- met %>%
+  filter(elev == max(met$elev, na.rm = TRUE))
+
+table(highest$year)
+table(highest$day)
+table(highest$hour)
+summary(highest$temp)
+summary(highest$elev)
+summary(highest$wind.sp)
 ```
 
 - Summarize anything unusual
@@ -108,12 +123,35 @@ We should check the suspicious temperature value (where is it located?) and vali
 
 Google is your friend here.
 
+According to https://vacationidea.com/tips/lowest-elevation-in-the-united-states.html, the lowest elevation point in the United States is Badwater Basin, located in California's Death Valley. This basin is 85 meters below sea level, so a minimum elevation of 13 meters below sea level makes sense.
+
+The weather station with the highest elevation in our data is located at a latitude of 39.8 and a longitude of -105.766. According to [Google Maps](https://www.google.ca/maps/place/39%C2%B048'00.0%22N+105%C2%B045'57.6%22W), this corresponds to a mountain in the state of Colorado. Per https://www.thoughtco.com/geography-of-united-states-high-points-1435165, the highest elevation point in Colorado is Mount Elbert, with a peak elevation of 4399 meters, so this weather station's elevation of 4113 meters above sea level seems valid.
+
+```{r}
+met %>% 
+  filter(temp == max(met$temp, na.rm = TRUE)) %>%
+  select(year, month, day, hour, lat, lon, elev, temp)
+```
+
+The highest temperature recorded in our dataset occurred at 11 AM August 26, 2019, in [Auburn, California](https://www.google.ca/maps/place/38%C2%B057'18.0%22N+121%C2%B004'51.6%22W/@38.9550042,-121.0831887,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x1fcc45654bfa2a80!8m2!3d38.955!4d-121.081). Since California is a very hot state, especially in the summer, and this temperature was recorded close to high noon, this high temperature seems very plausible.
+
+```{r}
+met %>% 
+  filter(temp == min(met$temp, na.rm = TRUE)) %>%
+  select(year, month, day, hour, lat, lon, elev, temp)
+```
+
+On the other hand, the lowest recorded temperature in our dataset was -40 degrees Celsius, and it occurred for an entire 24 hour period on August 1, 2019. This recording is strange, as the temperature did not change for the entire day, and the weather station which recorded these values is located in the [Gulf of Mexico](https://www.google.ca/maps/place/29%C2%B007'01.2%22N+89%C2%B033'00.0%22W/@29.304263,-90.0174054,8.88z/data=!4m5!3m4!1s0x0:0x7a29b2b69809951d!8m2!3d29.117!4d-89.55), near the southern end of Louisiana. Temperatures which are well below freezing are unlikely to have occurred in the Gulf of Mexico during the summer for a consecutive 24-hour period, so these recorded results are beyond implausible.
+
 Fix any problems that arise in your checks.
 
 ```{r}
-
+met$temp <- na_if(met$temp, -40)
 ```
+
  - Summarize anything that was removed
+ 
+ The temperatures of -40 degrees Celsius were removed and replaced with NA values.
 
 ### 6. Calculate summary statistics
 
