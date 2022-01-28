@@ -117,6 +117,10 @@ summary(highest$wind.sp)
 
 - Summarize anything unusual
 
+There are not many unusual observations recorded at this particular weather station. 
+
+The strangest thing about these observations is that there are only 60 observations which were recorded at midnight, and there were 110 observations recorded at 6 AM at this weather station, while every other time of day had between 85 and 95 observations recorded.
+
 ### 5. Check the data against an external data source.
 
 We should check the suspicious temperature value (where is it located?) and validate that the range of elevations make sense (-13 m to 4113 m).
@@ -159,29 +163,87 @@ Remember to keep the initial question in mind. We want to pick out the weather s
 
 Some ideas: select the weather station with maximum elevation; look at the correlation between temperature and wind speed; look at the correlation between temperature and wind speed with hour and day of the month.
 
-```{r}
+We defined the data table `highest` above which contains the observations which were recorded at the weather station which had the highest elevation.
 
+```{r}
+cor(highest$temp, highest$wind.sp, use = "complete.obs")
+```
+
+The correlation between the temperature and the wind speed at this weather station is `r cor(highest$temp, highest$wind.sp, use = "complete.obs")`, which corresponds to a weak negative correlation between the temperature and the speed of the wind at this weather station.
+
+```{r}
+cor(highest$temp, highest$day, use = "complete.obs")
+cor(highest$temp, highest$hour, use = "complete.obs")
+cor(highest$wind.sp, highest$day, use = "complete.obs")
+cor(highest$wind.sp, highest$hour, use = "complete.obs")
 ```
 
 ```{r}
-
+library(GGally)
+highest %>%
+  select(temp, wind.sp, hour, day) %>%
+  GGally::ggpairs()
 ```
+
+As we can see from the outputs above, there is a very small negative correlation between the recorded temperature and the day of the month at this weather station, but there is a moderately strong positive correlation between the temperature recorded and the hour at which the temperature was recorded.
+
+On the other hand, the time of day and the day of the month are both positively correlated with the wind speed recorded at this weather station, but the strength of the correlation between the day of the month and the wind's speed is much stronger than the correlation between the time of day and the wind's speed.
+
 
 ### 7. Exploratory graphs
 
 
 We should look at the distributions of all of the key variables (elevation, temp, wind speed) to make sure there are no remaining issues with the data.
 
-```{r }
+```{r}
+ggplot(met, aes(x = elev)) + 
+  geom_histogram(color = "black", fill = "darkgreen", bins = 50) +
+  labs(x = "Weather Station Elevation (m)", y = "Count", 
+       title = "Elevations of Weather Stations in the Continental United States") +
+  theme_bw()
+```
+```{r}
+ggplot(met, aes(x = log(elev, 10))) + 
+  geom_histogram(color = "black", fill = "darkgreen", bins = 50) +
+  labs(x = "log(Weather Station Elevation) (m)", y = "Count", 
+       title = "Elevations of Weather Stations in the Continental United States") +
+  theme_bw()
+```
+```{r}
+ggplot(met, aes(x = wind.sp)) + 
+  geom_histogram(color = "black", fill = "lightblue", bins = 50) +
+  labs(x = "Wind Speed", y = "Count", 
+       title = "Wind Speeds measured at Weather Stations in the Continental United States") +
+  theme_bw()
+```
 
+```{r}
+ggplot(met, aes(x = log(wind.sp, 10))) + 
+  geom_histogram(color = "black", fill = "lightblue", bins = 50) +
+  labs(x = "log(Wind Speed)", y = "Count", 
+       title = "Wind Speeds measured at Weather Stations in the Continental United States") +
+  theme_bw()
+```
+
+```{r}
+ggplot(met, aes(x = temp)) + 
+  geom_histogram(color = "black", fill = "orange", bins = 50) +
+  labs(x = "Temperature (Celsius)", y = "Count", 
+       title = "Temperatures measured at Weather Stations in the Continental United States") +
+  theme_bw()
 ```
 One thing we should consider for later analyses is to log transform wind speed and elevation as the are very skewed.
 
 Look at where the weather station with highest elevation is located (i.e. make a map!)
 
 ```{r}
-
+highest %>% 
+  leaflet() %>%
+  addProviderTiles('OpenStreetMap') %>%
+  addCircles(lat = ~lat, lng = ~lon, opacity = 1, fillOpacity = 1, radius = 100)
 ```
+
+As we can see from the open street map above, the weather station with the highest recorded elevation was in Colorado, due west of Denver. According to the map, the Colorado Mines Peak near this weather station is at an altitude of 3777 m, which reiterates how high this weather station is above sea level, as it is somewhere in the peaks of the Rocky Mountains.
 
 - Summarize
 
@@ -189,17 +251,41 @@ Look at the time series of temperature and wind speed at this location. For this
 
 ```{r message=FALSE}
 library(lubridate)
+highest <- highest %>% 
+  mutate(date = ymd_h(paste(year, month, day, hour, sep = ' ')))
 
+summary(highest$date)
+
+head(highest %>% arrange(date))
 ```
 
 With the date-time variable we can plot the time series of temperature and wind speed.
 
 ```{r}
-
+ggplot(highest, aes(x = date, y = wind.sp)) + 
+  geom_line(color = "lightblue") +
+  labs(x = "Date", y = "Wind speed",
+       title = "Hourly wind speeds recorded at the highest-elevation weather station") +
+  theme_bw()
 ```
+
+```{r}
+ggplot(highest, aes(x = date, y = temp)) + 
+  geom_line(color = "orange") +
+  labs(x = "Date", y = "Recorded temperature (Celsius)",
+       title = "Hourly temperatures recorded at the highest-elevation weather station") +
+  theme_bw()
+```
+
 Summarize any trends that you see in these time series plots.
+
+In both of the time series plots depicted above, there are a few noticeable gaps in the data where the trendlines in the time series plots seem to disappear completely. The largest of these gaps occurs around August 12th, and the data 'cuts out' for a 12 to 24 hour period before returning.
+
+The changes in the hourly wind speeds shown in the first time series plot are quite erratic. A possible explanation for these large and erratic changes in the wind speeds at this weather station is that the wind contains multiple components, such as its magnitude and direction (since it is a vector). Changes in the wind's direction are not depicted in the time series plot above, but these changes may be useful in developing a 'bigger picture' with regard to the changes in the wind's speed, and could possibly lead to a better explanation of the trends shown above.
+
+On the other hand, the time series plot depicting the changes in temperature over time follows a significantly steadier pattern. Although there are rises and falls throughout the plot, the temperature increases and decreases in a steadier period of time, likely corresponding to the sun rising and setting throughout the day, as these periods appear to be about 24 hours in length. A steadier pattern such as this is very intuitive, since the most logical explanation for the temperatures nicely rising and falling (with some variation from day to day) would simply be the cycle of days and nights, and the light from the Sun, or the lack thereof.
 
 
 # Deliverables
 
-Submit your completed lab to quercus as a html or pdf document. Fill in questions in steps 4,5,6,7
+Submit your completed lab to Quercus as a html or pdf document. Fill in questions in steps 4,5,6,7.
