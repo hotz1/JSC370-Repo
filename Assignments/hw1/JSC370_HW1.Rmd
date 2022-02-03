@@ -29,27 +29,46 @@ data_2021 <- read_csv("climate_daily_NU_2402051_2021.csv")
 dim(data_1939)
 dim(data_2021)
 ```
+From above, we can see that both of the datasets which we have imported have 365 observations and 31 variables in total. Both of these datasets should have exactly 365 observations, as these datasets represent the weather at this weather station for each day of the year. 
 
-From above, we can see that both of the datasets which we have imported have 365 observations and 31 variables in total. Although the dimensions of these datasets match, we still need to check whether the actual variables themselves match.
+Although the dimensions of both of these datasets match up, we still need to check whether the actual variables themselves match.
 
-```{r, echo = FALSE}
-lapply(data_1939, class)
-```
-```{r, echo = FALSE}
-lapply(data_2021, class)
-```
+Tables 1 and 2 below depict the names and types (in R) for each of the 31 variables in the datasets, as well as the number of present and missing values for each of the 31 variables.
 
 ```{r, echo = FALSE}
-colSums(!is.na(data_1939))
+knitr::kable(cbind(lapply(data_1939, typeof), colSums(!is.na(data_1939)), colSums(is.na(data_1939))), 
+             col.names = c("Variable Type", "Present Values", "Missing Values"),
+             caption = "Variables which were recorded at the Fort Ross weather station in 1939")
 ```
 
+```{r, echo = FALSE}
+knitr::kable(cbind(lapply(data_2021, typeof), colSums(!is.na(data_2021)), colSums(is.na(data_2021))), 
+             col.names = c("Variable Type", "Present Values", "Missing Values"),
+             caption = "Variables which were recorded at the Fort Ross weather station in 2021")
+```
+
+Based on the legend given on the [Government of Canada's Historical Weather Database](https://climate.weather.gc.ca/climate_data/daily_data_e.html?hlyRange=%7C&dlyRange=1937-10-01%7C1948-02-29&mlyRange=1938-01-01%7C1948-12-01&StationID=1751&Prov=NU&urlExtension=_e.html&searchType=stnName&optLimit=yearRange&StartYear=1840&EndYear=2022&selRowPerPage=25&Line=1&searchMethod=contains&Month=1&Day=1&txtStationName=Fort+Ross&timeframe=2&Year=1938#legendM), which is where these data were sourced from, the "Flag" variables are meant to give some information and context for an observation which has a missing value for a given variable
+
+For example, the "Min Temp Flag" variable in these datasets provides some information about the minimum temperature on that day when the actual daily minimum temperature value was not recorded in the data. However, these flags still cover a wide variety of possibilities, so they are overall quite unreliable as observed values. Since these flag variables are unreliable and the limited information which they provide does not make up for the data which is missing, these flag variables will be removed from our datasets.
+
+As we can see in Tables 1 and 2 above, the "Data Quality" variable does not have a single recorded value in either dataset, and there is no reason to keep this variable in our datasets, as it provides literally no new information.
+
+In this report, our main goal is to determine if there were any changes in the daily temperatures at the Fort Ross weather station between the observations from 1938 and the observations from 2021. As a result, the main variables which we are concerned with correspond to these temperatures, as well as the days and locations corresponding to where and when these temperature values were recorded. 
+
+Since we aim to determine the changes in temperature at the Fort Ross weather station between these two years, there are many variables in these data which are not relevant to our particular analysis, such as the variables containing information about the total amount of rain, snow, and precipitation on a given day, and the variables containing information about the wind.
+
+In addition to these non-temperature variables being removed from our data, we will also remove the Heating and Cooling Degree Days variables from the two datasets. On their [climate data website](https://www.canada.ca/en/environment-climate-change/services/climate-change/canadian-centre-climate-services/display-download/technical-documentation-climate-normals.html#toc1), The Government of Canada defines heating degree days as how far below 18°C the mean temperature is on a given day, and similarly, they define cooling degree days as how far the mean temperature is above 18°C. Since heating and cooling degree days are just functions of the mean temperature for the day, there is no reason to include these variables when we can access the actual mean daily temperatures at Fort Ross instead.
+
+Lastly, we will also remove
 
 
 ```{r, echo = FALSE}
-colSums(!is.na(data_2021))
+table(data_2021$`Longitude (x)`)
 ```
+
 
 ```{r, echo = FALSE}
 weather_data <- rbind(data_1939, data_2021)
 ```
+
 
