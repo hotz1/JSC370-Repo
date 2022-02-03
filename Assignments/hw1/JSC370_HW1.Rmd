@@ -1,0 +1,55 @@
+---
+title: "Turning up the Heat"
+subtitle: "An examination of changes in Arctic temperatures between 1938 and 2021"
+author: "Joey Hotz"
+date: "February 3, 2022"
+output: 
+  pdf_document: default
+header-includes:
+  - \usepackage{hyperref}
+  - \hypersetup{colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=blue}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(knitr)
+```
+
+In this report, we will compare daily weather reports from the weather station in Fort Ross, Nunavut which were recorded in 1938 to weather data recorded at Fort Ross in 2021. We aim to use these data to determine whether there is a significant difference between the daily temperature in Fort Ross in the year 1938 and the year 2021. 
+
+In order to compare these observations, we must first import the data into R.
+
+```{r, include = FALSE}
+data_1939 <- read_csv("climate_daily_NU_2402050_1939.csv")
+data_2021 <- read_csv("climate_daily_NU_2402051_2021.csv")
+```
+
+```{r}
+dim(data_1939)
+dim(data_2021)
+```
+
+From above, we can see that both of the datasets which we have imported have 365 observations and 31 variables in total. Although the dimensions of these datasets match, we still need to check whether the actual variables themselves match.
+
+```{r, echo = FALSE}
+lapply(data_1939, class)
+```
+```{r, echo = FALSE}
+lapply(data_2021, class)
+```
+
+```{r, echo = FALSE}
+colSums(!is.na(data_1939))
+```
+
+
+
+```{r, echo = FALSE}
+colSums(!is.na(data_2021))
+```
+
+```{r, echo = FALSE}
+weather_data <- rbind(data_1939, data_2021)
+```
+
