@@ -4,16 +4,17 @@ subtitle: "An examination of changes in Arctic temperatures between 1938 and 202
 author: "Joey Hotz"
 date: "February 3, 2022"
 output: 
-  pdf_document: default
+  html_document: default
 header-includes:
   - \usepackage{hyperref}
-  - \hypersetup{colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=blue}
+  - \hypersetup{colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=cyan}
 ---
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(knitr)
+library(kableExtra)
 ```
 
 In this report, we will compare daily weather reports from the weather station in Fort Ross, Nunavut which were recorded in 1938 to weather data recorded at Fort Ross in 2021. We aim to use these data to determine whether there is a significant difference between the daily temperature in Fort Ross in the year 1938 and the year 2021. 
@@ -38,13 +39,15 @@ Tables 1 and 2 below depict the names and types (in R) for each of the 31 variab
 ```{r, echo = FALSE}
 knitr::kable(cbind(lapply(data_1939, typeof), colSums(!is.na(data_1939)), colSums(is.na(data_1939))), 
              col.names = c("Variable Type", "Present Values", "Missing Values"),
-             caption = "Variables which were recorded at the Fort Ross weather station in 1939")
+             caption = "Variables which were recorded at the Fort Ross weather station in 1939") %>%
+    kable_styling(latex_options = "hold_position")
 ```
 
 ```{r, echo = FALSE}
 knitr::kable(cbind(lapply(data_2021, typeof), colSums(!is.na(data_2021)), colSums(is.na(data_2021))), 
              col.names = c("Variable Type", "Present Values", "Missing Values"),
-             caption = "Variables which were recorded at the Fort Ross weather station in 2021")
+             caption = "Variables which were recorded at the Fort Ross weather station in 2021") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
 Based on the legend given on the [Government of Canada's Historical Weather Database](https://climate.weather.gc.ca/climate_data/daily_data_e.html?hlyRange=%7C&dlyRange=1937-10-01%7C1948-02-29&mlyRange=1938-01-01%7C1948-12-01&StationID=1751&Prov=NU&urlExtension=_e.html&searchType=stnName&optLimit=yearRange&StartYear=1840&EndYear=2022&selRowPerPage=25&Line=1&searchMethod=contains&Month=1&Day=1&txtStationName=Fort+Ross&timeframe=2&Year=1938#legendM), which is where these data were sourced from, the "Flag" variables are meant to give some information and context for an observation which has a missing value for a given variable
@@ -57,18 +60,146 @@ In this report, our main goal is to determine if there were any changes in the d
 
 Since we aim to determine the changes in temperature at the Fort Ross weather station between these two years, there are many variables in these data which are not relevant to our particular analysis, such as the variables containing information about the total amount of rain, snow, and precipitation on a given day, and the variables containing information about the wind.
 
-In addition to these non-temperature variables being removed from our data, we will also remove the Heating and Cooling Degree Days variables from the two datasets. On their [climate data website](https://www.canada.ca/en/environment-climate-change/services/climate-change/canadian-centre-climate-services/display-download/technical-documentation-climate-normals.html#toc1), The Government of Canada defines heating degree days as how far below 18°C the mean temperature is on a given day, and similarly, they define cooling degree days as how far the mean temperature is above 18°C. Since heating and cooling degree days are just functions of the mean temperature for the day, there is no reason to include these variables when we can access the actual mean daily temperatures at Fort Ross instead.
-
-Lastly, we will also remove
-
-
-```{r, echo = FALSE}
-table(data_2021$`Longitude (x)`)
-```
-
+In addition to these non-temperature variables being removed from our data, we will also remove the Heating and Cooling Degree Days variables from the two datasets. In the [Data Glossary](https://climate.weather.gc.ca/glossary_e.html) on the Government of Canada's website, they define heating degree days as how far below 18°C the mean temperature is on a given day, and similarly, they define cooling degree days as how far the mean temperature is above 18°C. Since heating and cooling degree days are just functions of the mean temperature for the day, there is no reason to include these variables when we can access the actual mean daily temperatures at Fort Ross instead.
 
 ```{r, echo = FALSE}
 weather_data <- rbind(data_1939, data_2021)
+knitr::kable(table(weather_data$`Station Name`), col.names = c("Station Name", "Frequency"),
+             caption = "Distribution of Station Names") %>%
+  kable_styling(latex_options = "hold_position")
 ```
 
+As shown in Table 3 above, the Station Name variable for every one of our 730 observations across our two datasets simply contains the string "FORT ROSS". Since this variableonly ever contains one value, there is no reason to include this variable.
 
+```{r, echo = FALSE}
+knitr::kable(table(weather_data$`Climate ID`), col.names = c("Climate ID", "Frequency"), 
+             caption = "Frequency of different Climate ID values") %>%
+    kable_styling(latex_options = "hold_position")
+```
+Similarly, Table 4 shows that there are only two climate ID values in our entire dataset, and these different values simply correspond to the years, as the Climate ID for this station was 2402050 in the year 1939, and it is 2402051 in the year 2021. Since this variable provides no additional information, we will also remove it from our dataset.
+
+Lastly, we will also remove the "Date/Time" variable, as this variable has no information which is not already present in the datasets based on the day, month, and year of the observations being recorded.
+
+Once all of these excess variables are removed from our dataset, we will have a total of 8 variables remaining in our merged dataset. After merging the two datasets into one, we will convert the Month and Day variables from characters into integers. 
+
+Table 5 below provides some information about the 8 remaining variables.
+
+```{r, echo = FALSE}
+weather_data <- rbind(data_1939, data_2021) %>%
+  select(c(1:2, 8:6, 12, 10, 14)) %>%
+  rename(Longitude = `Longitude (x)`, Latitude = `Latitude (y)`, 
+         MaxTemp = `Max Temp (°C)`, MinTemp = `Min Temp (°C)`, 
+         MeanTemp = `Mean Temp (°C)`) %>%
+  mutate(Day = as.numeric(Day), Month = as.numeric(Month))
+  
+
+knitr::kable(cbind(lapply(weather_data, typeof), colSums(!is.na(weather_data)), colSums(is.na(weather_data))), 
+             col.names = c("Variable Type", "Present Values", "Missing Values"),
+             caption = "Variables of interest in the combined data")
+```
+
+Of the 8 variables remaining, there are only three variables which have important values to summarize; the maximum, minimum, and mean daily temperatures which were recorded.
+
+The basic summary statistics for each of these three variables are presented in Tables 6 and 7 below. Table 6 contains the summary statistics for the observations from 1939, whereas Table 7 contains summary statistics for the observations recorded in 2021.
+
+```{r, echo = FALSE, warning = FALSE}
+# I had to do the sum(is.na) manually since there were no missing values, and it threw an error.
+summary_table_1939 <- rbind(c(summary(data_1939$`Min Temp (°C)`), var(data_1939$`Min Temp (°C)`, na.rm = TRUE)),
+                            c(summary(data_1939$`Max Temp (°C)`), sum(is.na(data_1939$`Max Temp (°C)`)), 
+                              var(data_1939$`Max Temp (°C)`, na.rm = TRUE)),
+                            c(summary(data_1939$`Mean Temp (°C)`), var(data_1939$`Mean Temp (°C)`, na.rm = TRUE))) %>%
+  as.tibble() %>%
+  select(c(1, 2, 3, 5, 6, 4, 8))
+
+row.names(summary_table_1939) <- c("Minimum Daily Temperature", "Maximum Daily Temperature", "Mean Daily Temperature")
+colnames(summary_table_1939) <- c("Minimum", "1st Quartile", "Median", "3rd Quartile", 
+                                  "Maximum", "Mean", "Variance")
+knitr::kable(summary_table_1939, digits = 3, caption = "Summary Statistics of temperatures at Fort Ross, Nunavut in 1939") %>%
+  kable_styling(full_width = TRUE)
+```
+
+```{r, echo = FALSE, warning = FALSE}
+summary_table_2021 <- rbind(c(summary(data_2021$`Min Temp (°C)`), var(data_2021$`Min Temp (°C)`, na.rm = TRUE)),
+                            c(summary(data_2021$`Max Temp (°C)`), var(data_2021$`Max Temp (°C)`, na.rm = TRUE)),
+                            c(summary(data_2021$`Mean Temp (°C)`), var(data_2021$`Mean Temp (°C)`, na.rm = TRUE))) %>%
+  as.tibble() %>%
+  select(c(1, 2, 3, 5, 6, 4, 8))
+
+row.names(summary_table_2021) <- c("Minimum Daily Temperature", "Maximum Daily Temperature", "Mean Daily Temperature")
+colnames(summary_table_2021) <- c("Minimum", "1st Quartile", "Median", "3rd Quartile", 
+                                  "Maximum", "Mean", "Variance")
+knitr::kable(summary_table_2021, digits = 3, caption = "Summary Statistics of temperatures at Fort Ross, Nunavut in 2021") %>%
+  kable_styling(full_width = TRUE)
+```
+
+Based on the values in Tables 6 and 7, we can see that almost every summary statistic regarding the temperatures recorded at Fort Ross increased between 1939 and 2021. These summary statistics have all increased by a few degrees Celsius during this timespan, which could possibly signify an effect of global warming in the 82-year period between these observations being recorded.
+
+However, it is possible that there are some external effects which have caused these data to be skewed. There are more than 40 missing observations for each of the temperatures in the data which was collected in 2021. If these observations which were not recorded fell in the colder months of the year, it is possible that the summary statistics would be skewed to be higher than the 'true data' for the year of 2021, as observations during the winter were not collected.
+
+To compare the data collected in 1939 to the data which was collected in 2021, we will use a paired t-test on each of our three temperature variables, with a 95% level of confidence. We choose to use a paired t-test to compare these data as pairing the values based on the corresponding dates can help to account for changes in temperature which we would expect due to different seasons.
+
+```{r, echo = FALSE, warning = FALSE}
+mintemp_ttest <- t.test(weather_data$MinTemp[1:365], weather_data$MinTemp[366:730], paired = TRUE)
+maxtemp_ttest <- t.test(weather_data$MaxTemp[1:365], weather_data$MaxTemp[366:730], paired = TRUE)
+meantemp_ttest <- t.test(weather_data$MeanTemp[1:365], weather_data$MeanTemp[366:730], paired = TRUE)
+
+ttest_summary <- rbind(c(mintemp_ttest$statistic, mintemp_ttest$p.value),
+      c(maxtemp_ttest$statistic, maxtemp_ttest$p.value),
+      c(meantemp_ttest$statistic, meantemp_ttest$p.value)) %>% 
+  as.tibble()
+
+row.names(ttest_summary) <- c("Minimum Daily Temperature", "Maximum Daily Temperature", "Mean Daily Temperature")
+colnames(ttest_summary) <- c("Test Statistic", "p-value")
+
+knitr::kable(ttest_summary, caption = "Paired t-tests comparing temperatures at Fort Ross, Nunavut in 1939 to temperatured recorded in 2021") %>%
+  kable_styling(full_width = TRUE)
+```
+
+Although the outputs in Table 8 show that all three paired t-tests had corresponding p-values of 0, the p-values shown in the table are slightly incorrect. However, the p-values for all three of these paired t-tests are so incredibly small that they are negligible, and with a 95% level of confidence, we are able to reject the hypothesis that these three temperature metrics have not changed in Fort Ross between 1939 and 2021.
+
+As we saw above, these three temperature metrics all increased between 1939 and 2021, and based on the p-values displayed above, this is a statistically significant result. A likely cause of this significant increase in temperatures in Fort Ross is global warming, although the results of this t-test do not provide conclusive evidence that this was the result of global warming in particular (though that is the most likely scenario).
+
+```{r, echo = FALSE, warning = FALSE, fig.height = 10, fig.width = 8, message = FALSE}
+library(gridExtra)
+
+mintemp_boxplot <- ggplot(weather_data, aes(x = as.factor(Month), y = MinTemp, color = as.factor(Year))) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Month", y = "Temperature (°C)", title = "Minimum Daily Temperatures by Month in Fort Ross, Nunavut",
+       color = "Year") +
+  theme(plot.title = element_text(hjust = 0.5))
+maxtemp_boxplot <- ggplot(weather_data, aes(x = as.factor(Month), y = MaxTemp, color = as.factor(Year))) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Month", y = "Temperature (°C)", title = "Maximum Daily Temperatures by Month in Fort Ross, Nunavut",
+       color = "Year") +
+  theme(plot.title = element_text(hjust = 0.5))
+meantemp_boxplot <- ggplot(weather_data, aes(x = as.factor(Month), y = MeanTemp, color = as.factor(Year))) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Month", y = "Temperature (°C)", title = "Mean Daily Temperatures by Month in Fort Ross, Nunavut",
+       color = "Year") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(mintemp_boxplot, maxtemp_boxplot, meantemp_boxplot)
+```
+
+The three plots above show the distribution of the minimum, mean, and maximum daily temperatures grouped by month, for the years 1939 and 2021. As we can see in the plots above, the mean daily temperatures in 2021 were higher than in 1939 for every single month of the year, and these differences were particularly noticeable in the colder months (October through March).
+
+With some slight outliers, the minimum and maximum daily temperatures followed a similar pattern overall, where these temperatures in 2021 were also higher than the corresponding temperatures measured in 1939 for those months, and the differences primarily occurred in the colder months again.
+
+Based on these three plots, it would appear that there is some significant level of change in the weather patterns which occurred in Fort Ross sometime between 1939 and 2021, and these weather changes have affected the winter months more than the summer months in this area.
+
+```{r, eval = TRUE, echo = FALSE, message = FALSE, warning = FALSE}
+library(leaflet)
+
+pallet <- colorNumeric(c('red', 'blue'), domain = weather_data$Year)
+
+weather_data %>% 
+  leaflet() %>%
+  addProviderTiles('OpenStreetMap') %>%
+  addCircles(lat = ~Latitude, lng = ~Longitude, color = ~pallet(Year), label = ~Year,
+             opacity = 0.75, fillOpacity = 0.25, radius = 100)
+```
+
+The map above shows the locations of the Fort Ross weather station in the year 1939 (the red dot) and the year 2021 (the blue dot). Although the Fort Ross weather station has moved slightly during the 82-year period between these sets of observations being recorded, this slight movement is likely not as significant to the changes in the weather at Fort Ross as the effects of climate change in general.
