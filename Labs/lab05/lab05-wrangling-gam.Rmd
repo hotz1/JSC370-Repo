@@ -87,12 +87,18 @@ Once you are done setting up the project, you can now start working with the MET
 
 1.  Load the `data.table` (and the `dtplyr` and `dplyr` packages if you plan to work with those).
 
+```{r setup}
+library(dtplyr)
+library(dplyr)
+library(data.table)
+```
+
 2.  Load the met data from <https://github.com/JSC370/jsc370-2022/blob/main/labs/lab03/met_all.gz>, and also the station data. For the latter, you can use the code we used during lecture to pre-process the stations data:
 
-```{r stations-data, eval = FALSE}
-library(data.table)
+```{r stations-data, warning = FALSE}
+# library(data.table)
 # Download the data
-stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
+stations <- data.table::fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
 stations[, USAF := as.integer(USAF)]
 
 # Dealing with NAs and 999999
@@ -118,7 +124,7 @@ stations <- stations[n == 1,][, n := NULL]
 Across all weather stations, what is the median station in terms of temperature, wind speed, and atmospheric pressure? Look for the three weather stations that best represent continental US using the `quantile()` function. Do these three coincide?
 
 ```{r}
-
+met <- data.table::fread("met_all.gz")
 ```
 
 Knit the document, commit your changes, and save it on GitHub. Don't forget to add `README.md` to the tree, the first time you render it.
@@ -185,10 +191,12 @@ Let's practice running regression models with smooth functions on X. We need the
 
 ```
 
-# Delivarables
+# Deliverables
 
 -   Answer questions 1-5
 
 -   Paste the link to the github repo you created here
+
+This file is part of my larger repo for the entire course. The link to my JSC370 repo on GitHub is [https://github.com/hotz1/JSC370-Repo](https://github.com/hotz1/JSC370-Repo), and the link to this particular lab is [https://github.com/hotz1/JSC370-Repo/tree/main/Labs/lab05](https://github.com/hotz1/JSC370-Repo/tree/main/Labs/lab05).
 
 -   Submit pdf or html output to Quercus
