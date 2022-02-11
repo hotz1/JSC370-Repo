@@ -124,7 +124,28 @@ stations <- stations[n == 1,][, n := NULL]
 Across all weather stations, what is the median station in terms of temperature, wind speed, and atmospheric pressure? Look for the three weather stations that best represent continental US using the `quantile()` function. Do these three coincide?
 
 ```{r}
+# Read in data
 met <- data.table::fread("met_all.gz")
+
+# Merge data
+weather_stations <- merge(x = met, y = stations, 
+                          all.x = TRUE, all.y = FALSE,
+                          by.x = "USAFID", by.y = "USAF")
+```
+
+```{r}
+# Compute means
+station_avgs <- weather_stations[, .(temp = mean(temp, na.rm = TRUE),
+                                     wind.sp = mean(wind.sp, na.rm = TRUE),
+                                     atm.press = mean(atm.press, na.rm = TRUE)),
+                                 by = .(USAFID, STATE)]
+```
+
+```{r}
+# Compute medians
+station_medians <- station_avgs[, .(temp_50 = quantile(temp, probs = 0.50, na.rm = TRUE),
+                                    wind.sp = quantile(wind.sp, probs = 0.50, na.rm = TRUE),
+                                    atm.press = quantile(atm.press, probs = 0.50, na.rm = TRUE))]
 ```
 
 Knit the document, commit your changes, and save it on GitHub. Don't forget to add `README.md` to the tree, the first time you render it.
@@ -134,17 +155,52 @@ Knit the document, commit your changes, and save it on GitHub. Don't forget to a
 Just like the previous question, you are asked to identify what is the most representative, the median, station per state. This time, instead of looking at one variable at a time, look at the euclidean distance. If multiple stations show in the median, select the one located at the lowest latitude.
 
 ```{r}
+# Finding the station closest to median temperature
+station_avgs[, temp_dist := abs(temp - station_medians$temp_50)]
 
+# Finding the station closest to median wind speed
+station_avgs[, wind.sp_dist := abs(wind.sp - station_medians$wind.sp)]
+
+# Finding the station closest to median atmospheric pressure
+station_avgs[, atm.press_dist := abs(atm.press - station_medians$atm.press)]
+
+median_temp_station <- station_avgs[order(temp_dist)][1]
+median_wind_sp_station <- station_avgs[order(wind.sp_dist)][1]
+median_atm_press_station <- station_avgs[order(atm.press)][1]
+
+median_temp_station
+median_wind_sp_station
+median_atm_press_station
 ```
+
+From the outputs above, we can see that these median stations are not the same. The weather station closest to the median temperature was in Kentucky, the station closest to the median wind speed is in Wisconsin, and the station closes to the median atmospheric pressure is in Illinois.
 
 Knit the doc and save it on GitHub.
 
 ## Question 3: In the middle?
 
-For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all \~100 points in the same figure, applying different colors for those identified in this question.
+For each state, identify what is the station that is closest to the mid-point of the state. Combining these with the stations you identified in the previous question, use `leaflet()` to visualize all \~100 points in the same figure, applying different colours for those identified in this question.
 
 ```{r}
+# Finding midpoints per state
+geographic_midpoint <- weather_stations[, .(lon_50 = quantile(lon, probs = 0.50, na.rm = TRUE),
+                                            lat_50 = quantile(lat, probs = 0.50, na.rm = TRUE)),
+                                        by = STATE]
+midpoints <- merge(x = weather_stations, y = geographic_midpoint, by = "STATE")
 
+# Finding Euclidean Distances
+midpoints[, distance_from_mid := sqrt((lon - lon_50)^2 + (lat - lat_50)^2)]
+midpoint_station <- midpoints[, .SD[which.min(distance_from_mid)], by = "STATE"]
+```
+
+```{r, warning = FALSE}
+library(leaflet)
+# Plotting the mid-point stations of each state on a map
+
+leaflet() %>%
+  addProviderTiles('CartoDB.Positron') %>%
+  addCircles(data = midpoint_station, lat = ~lat, lng = ~lon, popup = "Midpoint of Weather Stations in this state",
+             opacity = 1, fillOpacity = 1, radius = 400, color = "Blue")
 ```
 
 Knit the doc and save it on GitHub.
@@ -160,7 +216,10 @@ Start by computing the states' average temperature. Use that measurement to clas
 -   High: temp \>= 25
 
 ```{r}
-
+weather_stations[, mean_state_temp := mean(temp, na.rm = T), by = "STATE"]
+weather_stations[, temperature_cat := fifelse(mean_state_temp < 20, "low-temp",
+                                              fifelse(mean_state_temp < 25, "mid-temp",
+                                                      "high-temp"))]
 ```
 
 Once you are done with that, you can compute the following:
@@ -174,6 +233,21 @@ Once you are done with that, you can compute the following:
 For each of the temperature levels described before.
 
 ```{r}
+table(weather_stations$temperature_cat, useNA = "always")
+
+info_table <- weather_stations[, .(N_entries = .N,
+                                   N_entries_na = sum(is.na(temperature_cat)),
+                                   N_stations = length(unique(USAFID)),
+                                   N_states = length(unique(STATE)),
+                                   mean_temp = mean(temp, na.rm = TRUE),
+                                   mean_wind.sp = mean(wind.sp, na.rm = TRUE),
+                                   mean_atm.press = mean(atm.press, na.rm = TRUE)),
+                               by = temperature_cat]
+
+knitr::kable(info_table, caption = "Information about Weather Stations in the Continental U.S.",
+             col.names = c("Temperature Category", "Number of Entries", "Number of Missing Entries",
+                           "Number of Weather Stations", "Number of States", "Mean Temperature",
+                           "Mean Wind Speed", "Mean Atmospheric Pressure"))
 
 ```
 
@@ -188,8 +262,30 @@ Let's practice running regression models with smooth functions on X. We need the
 -   fit both a linear model and a spline model (use `gam()` with a cubic regression spline on wind speed). Summarize and plot the results from the models and interpret which model is the best fit and why.
 
 ```{r}
+station_avgs[, temp_50 := quantile(temp, probs = 0.50, na.rm = TRUE), by = 'STATE']
+station_avgs[, wind.sp_50 := quantile(wind.sp, probs = 0.50, na.rm = TRUE), by = 'STATE']
 
+library(ggplot2)
+ggplot(station_avgs, aes(x = wind.sp_50, y = temp_50)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_smooth(method = "gam", col = 2) +
+  theme_bw()
 ```
+
+```{r}
+library(mgcv)
+
+linear_model <- lm(temp_50 ~ wind.sp_50, data = station_avgs)
+summary(linear_model)
+plot(linear_model)
+
+gam_model <- gam(temp_50 ~ s(wind.sp_50, bs = "cr", k = 20), data = station_avgs)
+summary(gam_model)
+plot(gam_model)
+```
+
+Since the R-squared value for the GAM was 0.67, and the R-squared value for the linear model was less than 0.02, we see that the GAM is a significantly better fit for the data than the linear model, which makes sense logically, as a GAM should be a better fit for data which is not necessarily linear.
 
 # Deliverables
 
