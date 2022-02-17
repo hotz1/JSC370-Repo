@@ -188,7 +188,8 @@ pre code {
 <p>Build an automatic counter of sars-cov-2 papers using PubMed. You will need to apply XPath as we did during the lecture to extract the number of results returned by PubMed in the following web address:</p>
 <pre><code>https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2</code></pre>
 <p>Complete the lines of code:</p>
-<pre class="r"><code># Downloading the website
+<pre class="r"><code>library(xml2)
+# Downloading the website
 website &lt;- xml2::read_html(&quot;https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2&quot;)
 
 # Finding the counts
@@ -199,6 +200,7 @@ counts &lt;- as.character(counts)
 
 # Extracting the data using regex
 stringr::str_extract(counts, &quot;[0-9,]+&quot;)</code></pre>
+<pre><code>## [1] &quot;145,420&quot;</code></pre>
 <p>Don’t forget to commit your work!</p>
 </div>
 <div id="question-2-academic-publications-on-covid19-and-canada" class="section level2">
@@ -215,10 +217,10 @@ stringr::str_extract(counts, &quot;[0-9,]+&quot;)</code></pre>
 </ul></li>
 </ol>
 <pre class="r"><code>library(httr)
-query_ids &lt;- GET(
-  url   = &quot;BASELINE URL&quot;,
-  query = list(&quot;QUERY PARAMETERS&quot;)
-)
+query_ids &lt;- GET(url   = &quot;https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi&quot;,
+                 query = list(db = &quot;pubmed&quot;,
+                              term = &quot;covid19 canada&quot;,
+                              retmax = 1000))
 
 # Extracting the content of the response of GET
 ids &lt;- httr::content(query_ids)</code></pre>
@@ -232,10 +234,12 @@ ids &lt;- httr::content(query_ids)</code></pre>
 ids &lt;- as.character(ids)
 
 # Find all the ids 
-ids &lt;- stringr::str_extract_all(ids, &quot;PATTERN&quot;)[[1]]
+ids &lt;- unlist(stringr::str_extract_all(ids, &quot;&lt;Id&gt;[1-9]+&lt;/Id&gt;&quot;)) 
+
+# Note: We use [1-9] instead of [0-9] in the regex above to subset the ids and reduce the size of our request
 
 # Remove all the leading and trailing &lt;Id&gt; &lt;/Id&gt;. Make use of &quot;|&quot;
-ids &lt;- stringr::str_remove_all(ids, &quot;PATTERN&quot;)</code></pre>
+ids &lt;- stringr::str_remove_all(ids, &quot;&lt;Id&gt;|&lt;/Id&gt;&quot;)</code></pre>
 <p>With the ids in hand, we can now try to get the abstracts of the papers. As before, we will need to coerce the contents (results) to a list using:</p>
 <ol style="list-style-type: decimal">
 <li><p>Baseline url: <a href="https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi" class="uri">https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi</a></p></li>
@@ -248,12 +252,11 @@ ids &lt;- stringr::str_remove_all(ids, &quot;PATTERN&quot;)</code></pre>
 </ul></li>
 </ol>
 <p><strong>Pro-tip</strong>: If you want <code>GET()</code> to take some element literal, wrap it around <code>I()</code> (as you would do in a formula in R). For example, the text <code>&quot;123,456&quot;</code> is replaced with <code>&quot;123%2C456&quot;</code>. If you don’t want that behavior, you would need to do the following <code>I(&quot;123,456&quot;)</code>.</p>
-<pre class="r"><code>publications &lt;- GET(
-  url   = &quot;BASELINE URL HERE&quot;,
-  query = list(
-    &quot;PARAMETERS OF THE QUERY&quot;
-    )
-)
+<pre class="r"><code>publications &lt;- GET(url   = &quot;https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi&quot;,
+                    query = list(db = &quot;pubmed&quot;,
+                                 id = paste(ids, collapse = &quot;,&quot;),
+                                 retmax = 1000,
+                                 rettype = &quot;abstract&quot;))
 
 # Turning the output into character vector
 publications &lt;- httr::content(publications)
