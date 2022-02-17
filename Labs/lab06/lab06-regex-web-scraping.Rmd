@@ -140,13 +140,12 @@ Using the function `stringr::str_extract_all()` applied on `publications_txt`, c
 
 Write a regular expression that captures all such instances
 
-```{r univ-institute-regex, eval = FALSE}
-institution <- str_extract_all(
-  publications_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
-  ) 
+```{r univ-institute-regex}
+institution <- stringr::str_extract_all(publications_txt,
+               "[[:alpha:]\\s]*University\\sof[[:alpha:]\\s]* | [[:alpha:]\\s]*Institute\\sof[[:alpha:]\\s]*")
+
 institution <- unlist(institution)
-table(institution)
+head(table(institution), n = 10)
 ```
 
 Repeat the exercise and this time focus on schools and departments in the form of
@@ -156,12 +155,12 @@ Repeat the exercise and this time focus on schools and departments in the form o
 
 And tabulate the results
 
-```{r school-department, eval = FALSE}
-schools_and_deps <- str_extract_all(
-  abstracts_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
-  )
-table(schools_and_deps)
+```{r school-department}
+schools_and_deps <- stringr::str_extract_all(publications_txt,
+               "[[:alpha:]\\s]*School\\sof[[:alpha:]\\s]* | [[:alpha:]\\s]*Department\\sof[[:alpha:]\\s]*")
+
+schools_and_deps <- unlist(schools_and_deps)
+head(table(schools_and_deps), n = 10)
 ```
 
 ## Question 5: Form a database
@@ -175,7 +174,7 @@ the XML a bit. We will use the `xml2::xml_children()` function to keep one eleme
 per id. This way, if a paper is missing the abstract, or something else, we will be able to properly match PUBMED IDS with their corresponding records.
 
 
-```{r one-string-per-response, eval = FALSE}
+```{r one-string-per-response}
 pub_char_list <- xml2::xml_children(publications)
 pub_char_list <- sapply(pub_char_list, as.character)
 ```
@@ -184,27 +183,42 @@ Now, extract the abstract and article title for each one of the elements of
 `pub_char_list`. You can either use `sapply()` as we just did, or simply
 take advantage of vectorization of `stringr::str_extract`
 
-```{r extracting-last-bit, eval = FALSE}
-abstracts <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL THE HTML TAGS]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL EXTRA WHITE SPACE AND NEW LINES]")
+```{r extracting-last-bit}
+abstracts <- stringr::str_extract(pub_char_list, "<AbstractText>(\\n|.)+</AbstractText>")
+abstracts <- stringr::str_remove_all(abstracts, "</?[[:alnum:]]+>")
+abstracts <- stringr::str_replace_all(abstracts, "\\s+", " ")
+table(is.na(abstracts))
+head(abstracts, n = 10)
 ```
 
-How many of these don't have an abstract? Now, the title
+How many of these don't have an abstract? 
 
-```{r process-titles, eval = FALSE}
-titles <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-titles <- str_remove_all(titles, "[CLEAN ALL THE HTML TAGS]")
+Of the 360 articles which we have collected, 184 do not have valid abstracts, whereas the other 176 do.
+
+Now, the title
+
+```{r process-titles}
+titles <- stringr::str_extract(pub_char_list, "<ArticleTitle>(\\n|.)+</ArticleTitle>")
+titles <- stringr::str_remove_all(titles, "</?[[:alnum:]]+>")
+titles <- stringr::str_replace_all(titles, "\\s+", " ")
+table(is.na(titles))
+head(titles, n = 10)
 ```
+
+All of the 360 articles which we have collected have valid titles.
+
 
 Finally, put everything together into a single `data.frame` and use
 `knitr::kable` to print the results
 
-```{r build-db, eval = FALSE}
-database <- data.frame(
-  "[DATA TO CONCATENATE]"
-)
-knitr::kable(database)
+```{r build-db}
+library(kableExtra)
+database <- data.frame(PubMedID = ids,
+                       Title = titles,
+                       Abstract = abstracts)
+knitr::kable(database) %>%
+  kableExtra::kable_styling("striped", full_width = T) %>%
+  scroll_box(height = '500px')
 ```
 
 Done! Knit the document, commit, and push.
