@@ -1,0 +1,429 @@
+---
+title: "California Breathin' on Such a Winter's Day"
+subtitle: "Examining the relationship between children's health outcomes and air quality in Southern California" 
+author: "Joey Hotz"
+date: "February 21, 2022"
+output: 
+  bookdown::html_document2:
+    theme: spacelab
+    number_sections: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(dtplyr)
+library(dplyr)
+library(data.table)
+library(knitr)
+library(kableExtra)
+library(wesanderson)
+library(leaflet)
+```
+
+# Introduction
+
+The data which we are analyzing comes from the Southern California Children’s Health Study. In particular, we will be examining two datasets from this health study; one which contains information about individuals who live in California, and another dataset which contains metrics for individual towns and geographic regions in California. 
+
+We will use these datasets to analyze health metrics of children who live in California based on their geographic location. In particular, we will examine changes in childrens' BMIs and asthma rates relative to air quality factors measured in their towns.
+
+# Data Wrangling
+
+## Importing the Data
+
+First, we will read in the data from our two data files, so that we can analyze the data. 
+
+```{r readdata, echo = FALSE, message = FALSE}
+CHS_individual <- read_csv("chs_individual.csv")
+CHS_regional <- read_csv("chs_regional_geo.csv")
+```
+
+```{r check-data-size-1}
+dim(CHS_individual)
+dim(CHS_regional)
+```
+
+As we see above, the dataset containing observations regarding characteristics of individual children in California contains 1200 observations, which have 23 variables per observation.
+
+Similarly, the regional dataset contains information about 12 regions of California, with 27 observed variables per region in the study.
+
+We will merge these datasets together to create a 'master dataset,' which contains information about each surveyed individual in this study, alongside the information about the geographic region of California which they live in. This merged set of data should contain a total of 49 variables for each of the 1200 individuals who we observed; representing the 23 variables per person in the dataset of individuals' observations and the 27 regionally-based observations, with the exception of the location in question, which is 'double-counted' by virtue of being in both datasets.
+
+```{r mergedata, echo = FALSE}
+CHS_data <- merge(CHS_individual, CHS_regional, by = "townname") %>%
+  as_tibble()
+```
+
+```{r check-data-size-2}
+dim(CHS_data)
+```
+
+Our merged dataset contains 1200 individual observations, with 49 observed variables per observed individual in the dataset, which is the exact outcome that we expected from merging our datasets together to create this new merged dataset. Thus, we know that there were no issues with the merging process.
+
+The table below provides information about the 49 variables which were recorded in the Southern California Children's Health Study, including the number of observations which are recorded or missing in our dataset, and additional information about each of the variables, given in the data dictionary for the Southern California Children’s Health Study.
+
+
+```{r read-data-dict, echo = FALSE, message = FALSE}
+CHS_data_dict <- readxl::read_xlsx("chs_data_dict.xlsx")
+```
+
+```{r table-1, echo = FALSE}
+# Get info about variables
+variables_info <- cbind(colnames(CHS_data),
+                        colSums(!is.na(CHS_data)),
+                        colSums(is.na(CHS_data)))
+colnames(variables_info) <- c("Variable Name", "Recorded Values", "Missing Values")
+
+variables_info <- merge(variables_info, CHS_data_dict, by = "Variable Name") %>%
+  select(c("Variable", "Variable Name", "Recorded Values", "Missing Values", "Description"))
+
+knitr::kable(variables_info,
+             caption = "Variables in the Southern California Children’s Health Study") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                full_width = TRUE,
+                fixed_thead = TRUE) %>%
+  scroll_box(height = '800px')
+```
+
+As we see in Table \@ref(tab:table-1) above, a majority of the necessary observations are recorded in the data, with only a handful of variables having any missing observations, and only one variable (PM2.5 Federal Reference) which does not have a recorded value for more than 10% of the total observations in our dataset.
+
+## Imputation of Missing Values
+
+As displayed in Table \@ref(tab:table-1) in the previous section, some of the variables in our dataset have missing observations. We will fill in these 'gaps' in our dataset via data imputation.
+
+To impute these missing values, we will first split our dataset into four smaller subsets, based on the child's sex (male or not male) and whether or not they self-identified as Hispanic. This will result in four smaller groups of observations; Hispanic males, Hispanic females, non-Hispanic males, and non-Hispanic females.
+
+We will then impute our missing values by replacing any unobserved values with the corresponding mean value of that observation among the observations belonging to the same 'group' as the child where the variable was not recorded. Since the two variables which we are using to subset our data have been recorded for each observation, this choice of variables will be valid for imputing the missing values in our dataset.
+
+```{r imputation, echo = FALSE}
+# Imputing every value where there is a missing variable
+CHS_data <- CHS_data %>%
+  group_by(hispanic, male) %>%
+  mutate(agepft = coalesce(agepft, mean(agepft, na.rm = TRUE))) %>%
+  mutate(allergy = coalesce(allergy, median(allergy, na.rm = TRUE))) %>%
+  mutate(asthma = coalesce(asthma, median(asthma, na.rm = TRUE))) %>%
+  mutate(bmi = coalesce(bmi, mean(bmi, na.rm = TRUE))) %>%
+  mutate(educ_parent = coalesce(educ_parent, median(educ_parent, na.rm = TRUE))) %>%
+  mutate(father_asthma = coalesce(father_asthma, median(father_asthma, na.rm = TRUE))) %>%
+  mutate(fev = coalesce(fev, mean(fev, na.rm = TRUE))) %>%
+  mutate(fvc = coalesce(fvc, mean(fvc, na.rm = TRUE))) %>%
+  mutate(gasstove = coalesce(gasstove, median(gasstove, na.rm = TRUE))) %>%
+  mutate(hayfever = coalesce(hayfever, median(hayfever, na.rm = TRUE))) %>%
+  mutate(height = coalesce(height, mean(height, na.rm = TRUE))) %>%
+  mutate(mmef = coalesce(mmef, mean(fvc, na.rm = TRUE))) %>%
+  mutate(mother_asthma = coalesce(mother_asthma, median(mother_asthma, na.rm = TRUE))) %>%
+  mutate(no_24hr = coalesce(no_24hr, mean(no_24hr, na.rm = TRUE))) %>%
+  mutate(pm2_5_fr = coalesce(pm2_5_fr, mean(pm2_5_fr, na.rm = TRUE))) %>%
+  mutate(smoke = coalesce(smoke, median(smoke, na.rm = TRUE))) %>%
+  mutate(weight = coalesce(weight, mean(weight, na.rm = TRUE))) %>%
+  mutate(wheeze = coalesce(wheeze, median(wheeze, na.rm = TRUE))) %>%
+  collect()
+```
+
+## Creating Categorical Variables
+
+In addition to the 49 variables which were already collected in the Children's Health Survey datasets, we will create categorical variables based on the values which were collected. In particular, the two variables which we will create to analyze our collected data further will be the 'Obesity Level' and the 'Smoke/Gas Exposure'.
+
+The Obesity Level variable will be split into four categories, which are solely determined by the child's BMI (Body Mass Index), which matches the medical definition of obesity. In a medical context, obesity is defined based on BMI benchmarks, and we will use these benchmarks to classify patients in the Children's Health Survey into different groups, based on their BMI.
+
+In particular, we will use the following formula to classify obesity based on BMI:
+
+$$\text{Obesity Level} = \begin{cases}\text{BMI} < 14 & \text{Underweight}\\ 
+14\le \text{BMI} \le 22 & \text{Normal}\\
+22\le \text{BMI} \le 24 & \text{Overweight}\\
+24 < \text{BMI} \le 22 & \text{Obese}\\\end{cases}$$
+
+```{r obesity-level, echo = FALSE}
+CHS_data <- CHS_data %>%
+  mutate(obesity_level = case_when(bmi < 14 ~ "Underweight",
+                                   14 <= bmi & bmi < 22 ~ "Normal",
+                                   22 <= bmi & bmi <= 24 ~ "Overweight",
+                                   24 < bmi ~ "Obese"))
+CHS_data$obesity_level <- factor(CHS_data$obesity_level,
+                                 levels = c("Underweight", "Normal", "Overweight", "Obese"))
+```
+
+```{r obesity-table, echo = FALSE}
+obesity_table <- CHS_data %>% 
+  group_by(obesity_level) %>%
+  summarise(min_BMI = min(bmi, na.rm = TRUE),
+            max_BMI = max(bmi, na.rm = TRUE),
+            count = n())
+  
+
+knitr::kable(obesity_table,
+             digits = 3,
+             caption = "Ranges of BMI values for different obesity levels",
+             col.names = c("Obesity Level", "Minimum", "Maximum", "Number of Children")) %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+As Table \@ref(tab:obesity-table) shows above, the range of BMIs for children placed into each of these four 'buckets' of obesity levels perfectly align with the function which we defined above to classify children into these four groups based on their BMI.
+
+Next, we will create another categorical variable, which represents whether children were exposed to secondhand smoke at home and/or the presence of a gas stove in their home. As seen in Table \@ref(tab:table-1), we already have individual variables representing whether or not a child has been exposed to secondhand smoke in their home (`smoke`) and whether there is a gas stove in their home (`gasstove`), so this new variable will simply summarize these existing variables.
+
+```{r smoke-gas-exposure, echo = FALSE}
+CHS_data <- CHS_data %>%
+  mutate(smoke_gas_exposure = case_when(smoke == 0 & gasstove == 0 ~ "Neither",
+                                        smoke == 1 & gasstove == 0 ~ "Secondhand Smoke",
+                                        smoke == 0 & gasstove == 1 ~ "Gas Stove",
+                                        smoke == 1 & gasstove == 1 ~ "Both"))
+CHS_data$smoke_gas_exposure <- factor(CHS_data$smoke_gas_exposure,
+                                      levels = c("Neither", "Secondhand Smoke", "Gas Stove", "Both"))
+```
+
+Using the new categorical variables which we have just defined, we will create summary tables to examine changes in the observed Forced Expiratory Volume in 1 second (`FEV`) and rates of asthma among children in California, based on factors such as their town, sex, obesity level, and their exposure to secondhand smoke and/or gas stoves in their home. These numerical summaries are presented in Tables \@ref(tab:breathing-by-town), \@ref(tab:breathing-by-sex), \@ref(tab:breathing-by-obesity-level), and \@ref(tab:breathing-by-smoke-gas), respectively.
+
+```{r breathing-by-town, echo = FALSE}
+breathing_by_town <- CHS_data %>% 
+  group_by(townname) %>%
+  summarise("Asthma Proportion" = mean(asthma),
+            "Standard Deviation of Proportion of Asthma" = sqrt(var(asthma)),
+            "Average Forced Expiratory Volume in 1 second (ml)" = mean(fev),
+            "Standard Deviation of Forced Expiratory Volume (ml)" = sqrt(var(fev)),
+            "Number of Children" = n()) %>%
+  rename("Town Name" = townname)
+  
+
+knitr::kable(breathing_by_town,
+             digits = 3,
+             caption = "Asthma Rates and Forced Expiratory Volumes among children in California, grouped by town") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+
+```{r breathing-by-sex, echo = FALSE}
+breathing_by_sex <- CHS_data %>% 
+  group_by(male) %>%
+  summarise("Asthma Proportion" = mean(asthma),
+            "Standard Deviation of Proportion of Asthma" = sqrt(var(asthma)),
+            "Average Forced Expiratory Volume in 1 second (ml)" = mean(fev),
+            "Standard Deviation of Forced Expiratory Volume (ml)" = sqrt(var(fev)),
+            "Number of Children" = n()) %>%
+  rename("Sex" = male)
+breathing_by_sex[,1] <- c("Female", "Male")
+  
+
+knitr::kable(breathing_by_sex,
+             digits = 3,
+             caption = "Asthma Rates and Forced Expiratory Volumes among children in California, grouped by sex") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+
+Based on the outputs in Table \@ref(tab:breathing-by-sex), we see that the proportion of male children in California with asthma is much higher than the proportion of female children with asthma. Additionally, based on our observations, males appear to have higher forced expiratory volumes per second than their female counterparts.
+
+```{r breathing-by-obesity-level, echo = FALSE}
+breathing_by_obesity_level <- CHS_data %>% 
+  group_by(obesity_level) %>%
+  summarise("Asthma Proportion" = mean(asthma),
+            "Standard Deviation of Proportion of Asthma" = sqrt(var(asthma)),
+            "Average Forced Expiratory Volume in 1 second (ml)" = mean(fev),
+            "Standard Deviation of Forced Expiratory Volume (ml)" = sqrt(var(fev)),
+            "Number of Children" = n()) %>%
+  rename("Obesity Level" = obesity_level) 
+  
+
+knitr::kable(breathing_by_obesity_level,
+             digits = 3,
+             caption = "Asthma Rates and Forced Expiratory Volumes among children in California, grouped by obesity level") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+
+Based on the outputs in Table \@ref(tab:breathing-by-obesity-level), we see that the proportion of children in California who have asthma appears to increase with the obesity level of these children, and their BMI. It stands to reason that children with asthma or other breathing issues may also live more unhealthy lives in general and may be less prone to exercising, which could cause their BMI to increase. Additionally, the average forced expiratory volume in 1 second appears to also increase with children's BMI's, as the groups with higher BMI's have higher proportions of asthma, as well as higher average FEV's.
+
+```{r breathing-by-smoke-gas, echo = FALSE}
+breathing_by_smoke_gas <- CHS_data %>% 
+  group_by(smoke_gas_exposure) %>%
+  summarise("Asthma Proportion" = mean(asthma),
+            "Standard Deviation of Proportion of Asthma" = sqrt(var(asthma)),
+            "Average Forced Expiratory Volume in 1 second (ml)" = mean(fev),
+            "Standard Deviation of Forced Expiratory Volume (ml)" = sqrt(var(fev)),
+            "Number of Children" = n()) %>%
+  rename("Secondhand Smoke and Gas Stove Exposure" = smoke_gas_exposure) 
+  
+
+knitr::kable(breathing_by_smoke_gas,
+             digits = 3,
+             caption = "Asthma Rates and Forced Expiratory Volumes among children in California,\ngrouped by exposure to secondhand smoke and gas stoves") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+
+
+# Data Exploration
+
+Now that we have created new categorical variables and summaries of our variables of interest, we can begin to explore the data which we have collected in greater detail.
+
+There are three particular questions which we hope to answer by analyzing the data collected in the Southern California Children's Health Survey. These three driving questions are:
+
+1. What is the relationship between a child's BMI (Body Mass Index) and their FEV (forced expiratory volume in 1 second)? 
+2. What is the relationship between a child's exposure to secondhand smoke and gas stoves, and their FEV? 
+3. What is the relationship between a child's PM 2.5 (particulate matter in air pollution) exposure and their FEV?
+
+
+```{r bmi-vs-fev-by-town, echo = FALSE, fig.dim = c(11, 8.5)}
+ggplot(CHS_data, aes(x = bmi, y = fev, color = townname)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = "black", linetype = "dashed") +
+  labs(x = "BMI", y = "Forced Expiratory Volume in 1 second (ml)",
+       title = "BMI and Forced Expiratory Volume among children in Southern California, aggregated by town",
+       subtitle = "n = 1200 observations",
+       color = "Town Name") +
+  theme_bw() +
+  facet_wrap(~ townname)
+```
+
+As we can see in the scatter plots above, there is definitely a positive relationship between a child's BMI and their FEV over a period of one second. In each of the 12 towns shown in the plots above, there is a positive linear trend between a child's BMI and their FEV, and the linear regression slopes are all approximately similar for each of the 12 towns in California.
+
+This pattern which is present in each of our 12 locations also matches the information displayed in Table \@ref(tab:breathing-by-obesity-level) shown in the previous section, which demonstrated an increase in in FEV relative to changes in childrens' BMI levels.  
+
+
+```{r fev-by-bmi-category, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(CHS_data, aes(x = fev, fill = obesity_level)) + 
+  geom_histogram(bins = 30) + 
+  labs(x = "Forced Expiratory Volume in 1 second (ml)", y = "Count",
+       title = "Forced Expiratory Volumes among children in Southern California, aggregated by obesity level",
+       subtitle = "n = 1200 observations",
+       fill = "Obesity Level") +
+  theme_bw() +
+  scale_fill_manual(values = wes_palette("Darjeeling1", n = 4))
+```
+
+In the plot above, we see that overall, the forced expiratory volumes which were recorded in our dataset are roughly Normally-distributed, with a mean of approximately 2000 ml of forced expiratory volume in a single second.
+
+However, when we examine the relationships which these FEV's have with children's obesity levels, a pattern begins to emerge. Although the overall center of the distribution above is at approximately 2000 ml, the mean expiratory value for children who are overweight or obese ($\text{BMI} \ge 22$) is actually situated closer to 2250 ml/second. This relationship has also appeared in Table \@ref(tab:breathing-by-obesity-level), as well as the plot above, which visually depicted a positive relationship between BMI and FEV among children.
+
+```{r fev-by-smoke-gas-exposure, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(CHS_data, aes(x = fev, fill = smoke_gas_exposure)) + 
+  geom_histogram(bins = 30) + 
+  labs(x = "Forced Expiratory Volume in 1 second (ml)", y = "Count",
+       title = "Forced Expiratory Volumes among children in Southern California, aggregated by secondhand smoke and gas exposure",
+       subtitle = "n = 1200 observations",
+       fill = "Secondhand Smoke\nand Gas Exposure") +
+  theme_bw() +
+  scale_fill_manual(values = wes_palette("Moonrise1", n = 4))
+```
+
+The plot above also shows that the overall mean forced expiratory volume is approximately 2000 ml among the children surveyed in the Children's Health Survey.
+
+However, unlike the plot which depicted changes in FEV relative to the obesity level of the child in question, this plot does not appear to display a particularly significant change in FEV relative to any of the groups of secondhand smoke and/or gas exposure. In this plot, the FEV values among all four of the groups are still approximately Normally-distributed with a mean of 2000 ml/second, which would imply that exposure to secondhand smoke and gas may not have a significant effect on forced expiratory volume in children.
+
+```{r obesity-level-by-smoke-gas-exposure, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(CHS_data, aes(x = obesity_level, fill = smoke_gas_exposure)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Obesity Level", y = "Count",
+       title = "Obesity levels of children in Southern California, aggregated by secondhand smoke and gas exposure",
+       subtitle = "n = 1200 observations",
+       fill = "Secondhand Smoke\nand Gas Exposure") +
+  theme_bw() + 
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))
+```
+
+In the plot above, we see that the most common groups by far in our dataset are for children to be at a normal weight, and children who have past exposure to gas stoves, but not secondhand smoke.
+
+The 'Gas Stove' group has the highest frequency by far among all four obesity levels for children, and similarly, the 'Normal' weight is the largest overall group. Additionally, the distribution of the four categories of smoke/gas exposure appear to be roughly equivalent among all four obesity levels, which signifies that these variables likely do not have a statistically significant relationship.
+
+
+```{r fev-by-bmi-stat-summary, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(CHS_data, aes(x = obesity_level, y = fev)) +
+  stat_summary(fun.data = "mean_sdl", geom = "errorbar") +
+  stat_summary(fun.data = "mean_sdl") +
+  labs(x = "Obesity Level", y = "Forced Expiratory Volume in 1 second (ml)",
+       title = "Forced Expiratory Volumes among children in Southern California, aggregated by obesity level",
+       subtitle = "n = 1200 observations") +
+  theme_bw()
+```
+The plot above shows the forced expiratory volumes of children in each of the four obesity levels, alongside the mean and standard deviations of their FEV's per group. In this plot, we can clearly see that there is an increase in forced expiratory volume relative to a child's obesity level, and the standard deviations of these FEV values are roughly equal among all four groups.
+
+This graph is essentially a visual depiction of the information displayed in Table \@ref(tab:breathing-by-obesity-level), and it presents the same information in a more visual and easily-digestible format.
+
+
+```{r fev-by-smoke-gas-stat-summary, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(CHS_data, aes(x = smoke_gas_exposure, y = fev)) +
+  stat_summary(fun.data = "mean_sdl", geom = "errorbar") +
+  stat_summary(fun.data = "mean_sdl") +
+  labs(x = "Secondhand Smoke and Gas Exposure", y = "Forced Expiratory Volume in 1 second (ml)",
+       title = "Forced Expiratory Volumes among children in Southern California, aggregated by exposure to gas and/or secondhand smoke",
+       subtitle = "n = 1200 observations") +
+  theme_bw()
+```
+
+This plot shows the forced expiratory volumes of children based on their exposure to secondhand smoke and/or a gas stove, alongside the mean and standard deviations of their FEV's per group.
+
+This plot shows that there is not a significant change in the mean forced expiratory volume for children in each of these four groups, nor are there particularly large changes in the standard deviations of FEV values for these groups. Similarly to the previous plot, this plot is also a visual depiction of a table which was created in the prior section; as this information was also displayed numerically in Table \@ref(tab:breathing-by-smoke-gas).
+
+
+```{r pm25-mass-leaflet, echo = FALSE, warning = FALSE, fig.align = 'center'}
+pm_palette <- colorNumeric(c('red', 'purple', 'blue'),
+                           domain = CHS_regional$pm25_mass, na.color = NA)
+
+CHS_regional %>% 
+  leaflet() %>%
+  addProviderTiles('OpenStreetMap') %>%
+  addCircles(lat = ~lat, lng = ~lon, color = ~pm_palette(pm25_mass), 
+             label = ~paste(townname, "Air Pollution:", pm25_mass),
+             radius = 2000) %>%
+  addLegend('bottomleft', pal = pm_palette, values = CHS_regional$pm25_mass,
+            title = "Air Pollution (μg per cubic meter)")
+
+```
+
+The map above shows the air pollution metrics in 12 locations across Southern California. The 5 locations on the map with the highest levels of air pollution are all in the vicinity of Los Angeles. The most likely explanation for these high levels of air pollution are due to general urban sprawl and the level of pollution in cities compared to more rural areas which have lower population densities.
+
+```{r pm25-mass-fev, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(CHS_data, aes(x = pm25_mass, y = fev, color = townname)) + 
+  geom_point() + 
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x, color = "black", linetype = "dashed") +
+  labs(x = "Air Pollution (μg per cubic meter)", y = "Forced Expiratory Volume in 1 second (ml)",
+       title = "Air Pollution and Forced Expiratory Volume among Children in Southern California, aggregated by town",
+       subtitle = "n = 1200 observations",
+       color = "Town Name") +
+  theme_bw()
+```
+
+As we can see in the plot above, there appears to be a slightly negative correlation between the forced expiratory volume of a child and the amount of air pollution in the town which the child lives in. However, the relationship appears to have a slope which is quite close to zero, and there are large variances among the observed FEV values in each town, as shown in the plot above, as well as in Table \@ref(tab:breathing-by-town).
+
+Although the relationship appears to be only slightly negative, we can determine whether or not the relationship is statistically significant in nature. As we can see in the output below, the p-value corresponding to the `pm25_mass` variable having a 'true slope' of 0 is only 0.011, which means that there is a statistically significant effect between air pollution and a child's FEV.
+
+
+```{r pm25-mass-fev-model}
+fev_pm25_mass_model <- lm(fev ~ pm25_mass, data = CHS_data)
+summary(fev_pm25_mass_model)
+```
+
+
+# Regression Models
+
+Now that we have explored the data which we have collected in greater detail, we can create regression models which can be used to determine statistically significant relationships between our variables, and predict outcomes such as asthma or obesity based on other factors.
+
+We will create regression models which examine the relationship between a child's weight and their forced expiratory volume, alongside the age, sex, and race of the child. The first regression model which we will create is a linear regression model which uses these four predictors, and the second model which we will create is a generalized additive model, which smooths the child's weight using a cubic spline.
+
+```{r advanced-model-1, echo = FALSE, message = FALSE, warning = FALSE}
+library(mgcv)
+fev_weight_linear <- lm(fev ~ weight + agepft + male + as.factor(race), data = CHS_data)
+fev_weight_cubic_spline <- gam(fev ~ s(weight, bs = "cr", k = 4) + agepft + male + as.factor(race), data = CHS_data)
+```
+
+```{r advanced-model-2}
+summary(fev_weight_linear)
+```
+Based on the summary of the linear model shown above, we see that a child's FEV has a statistically significant relationship with nearly all of the variables which we used as potential predictors, including their age, weight, and sex. Some races did not have statistically significant differences when compared to the default category (identifying as Asian), but other races in the data did.
+
+Although these variables have statistically significant relationships with the FEV, there may be some collinearity, as we could reasonably expect many of these variables to be correlated with one another as well. For example, we would expect a 10-year-old boy to weigh more on average than an 8-year-old girl, so the estimated relationship between these parameters and a child's FEV may be affected by this correlation. 
+
+```{r advanced-model-3, echo = FALSE, fig.dim = c(11, 8.5)}
+plot(fev_weight_linear)
+```
+
+```{r advanced-model-4}
+summary(fev_weight_cubic_spline)
+```
+
+Similarly to the multivariate linear model which we created earlier, based on the summary of the cubic spline model shown above, many of the variables which we used as potential predictors have statistically significant effects on a child's FEV. However, as mentioned above with the linear model, this result may be (in part) due to correlation among the variables which we used as predictors, as we have not checked whether or not these variables are truly independent of one another, and we have reason to suspect that they may not be independent. 
+
+```{r advanced-model-5, echo = FALSE, fig.dim = c(11, 8.5)}
+plot(fev_weight_cubic_spline)
+```
