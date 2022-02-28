@@ -1,0 +1,35 @@
+---
+title: "Music Make You Lose Control"
+subtitle: "Examining the relationship between" 
+author: "Joey Hotz"
+date: "March 3, 2022"
+output: 
+  bookdown::html_document2:
+    theme: spacelab
+    number_sections: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, message = FALSE, echo = FALSE, warning = FALSE}
+library(tidyverse)
+library(dtplyr)
+library(dplyr)
+library(data.table)
+library(spotifyr)
+library(knitr)
+library(kableExtra)
+library(wesanderson)
+library(leaflet)
+```
+
+# Introduction
+
+
+```{r read-password, echo = FALSE}
+client_id <- read_file("spotify_client_id.txt")
+client_secret <- read_file("spotify_client_secret.txt")
+print(client_id)
+```
