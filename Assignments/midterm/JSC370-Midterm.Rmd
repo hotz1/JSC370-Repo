@@ -1,0 +1,54 @@
+---
+title: "Music Make You Lose Control"
+subtitle: "Examining the relationship between" 
+author: "Joey Hotz"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  bookdown::html_document2:
+    theme: readable
+    highlight: tango
+    number_sections: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd("C:/Users/Joey/Desktop/Joey's Files/University/Third Year/JSC370/JSC370-Repo/Assignments/midterm")
+```
+
+```{r libraries, message = FALSE, echo = FALSE, warning = FALSE}
+library(tidyverse)
+library(dtplyr)
+library(dplyr)
+library(data.table)
+library(knitr)
+library(kableExtra)
+library(spotifyr)
+# library(httr)
+# library(wesanderson)
+# library(leaflet)
+```
+
+# Introduction
+
+The United Nations' [World Happiness Report](https://worldhappiness.report/ed/2021/) and [Human Development Report](https://www.hdr.undp.org/en/2020-report)
+
+```{r spotify-setup, echo = FALSE}
+client_id <- read_file("spotify_client_id.txt")
+client_secret <- read_file("spotify_client_secret.txt")
+Sys.setenv(SPOTIFY_CLIENT_ID = client_id)
+Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
+access_token <- get_spotify_access_token()
+```
+
+```{r import-data, echo = FALSE, warning = FALSE}
+library(readxl)
+human_development <- read_xlsx("2020_Statistical_Annex_Table_1.xlsx")
+happiness_index <- read_xls("DataForFigure2.1WHR2021C2.xls")
+```
+
+```{r view-data-1, echo = FALSE}
+head(human_development, 10)
+head(happiness_index, 10)
+```
+
+# Works Cited:
