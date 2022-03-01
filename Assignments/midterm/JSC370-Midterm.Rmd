@@ -40,7 +40,7 @@ Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
 access_token <- get_spotify_access_token()
 ```
 
-```{r import-data, echo = FALSE, warning = FALSE}
+```{r import-data, echo = FALSE, warning = FALSE, message = FALSE}
 library(readxl)
 human_development <- read_xlsx("2020_Statistical_Annex_Table_1.xlsx")
 happiness_index <- read_xls("DataForFigure2.1WHR2021C2.xls")
