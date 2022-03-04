@@ -1,0 +1,257 @@
+---
+title: "Lab 08 - Text Mining"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = F, include  = T, warning = F)
+```
+
+# Learning goals
+
+- Use `unnest_tokens()` and `unnest_ngrams()` to extract tokens and ngrams from text.
+- Use dplyr and ggplot2 to analyze text data
+
+# Lab description
+
+For this lab we will be working with the medical record transcriptions from https://www.mtsamples.com/. And is loaded and "fairly" cleaned at https://github.com/JSC370/jsc370-2022/blob/main/data/medical_transcriptions/mtsamples.csv.
+
+This markdown document should be rendered using `github_document` document.
+
+
+
+### Setup packages
+
+You should load in `dplyr`, (or `data.table` if you want to work that way), `ggplot2` and `tidytext`.
+If you don't already have `tidytext` then you can install with
+
+```{r, eval=FALSE}
+install.packages("tidytext")
+```
+
+### read in Medical Transcriptions
+
+Loading in reference transcription samples from https://www.mtsamples.com/
+
+```{r, warning=FALSE, message=FALSE}
+library(tidytext)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(wordcloud)
+
+mt_samples <- read_csv("https://raw.githubusercontent.com/JSC370/jsc370-2022/main/data/medical_transcriptions/mtsamples.csv")
+mt_samples <- mt_samples %>%
+  select(description, medical_specialty, transcription)
+
+head(mt_samples)
+```
+
+---
+
+## Question 1: What specialties do we have?
+
+We can use `count()` from `dplyr` to figure out how many different catagories do we have? Are these catagories related? overlapping? evenly distributed?
+
+```{r}
+mt_samples %>%
+  count(medical_specialty, sort = TRUE) %>%
+  ggplot(aes(x = medical_specialty, y = n)) + 
+  geom_col() + 
+  coord_flip()
+```
+
+There are many different medical specialties listed in the chart above, which for the most part, do not seem to overlap with one another. Surgery is by far the most common specialty listed in the chart above, as it is more than twice as popular as the next-highest specialty. 
+
+---
+
+## Question 2
+
+- Tokenize the the words in the `transcription` column
+- Count the number of times each token appears
+- Visualize the top 20 most frequent words
+
+Explain what we see from this result. Does it makes sense? What insights (if any) do we get?
+
+```{r}
+tokens <- mt_samples %>%
+  select(transcription) %>%
+  unnest_tokens(word, transcription) %>%
+  group_by(word) %>%
+  summarise(word_frequency = n()) %>%
+  arrange(across(word_frequency, desc)) %>%
+  head(20)
+
+tokens %>%
+  ggplot(aes(reorder(word, word_frequency), word_frequency)) +
+  geom_bar(stat = 'identity') +
+  coord_flip()
+
+wordcloud(tokens$word, tokens$word_frequency)
+```
+
+There are not many insights to get from the chart above, since all of the words listed (except for "patient") are stopwords which don't provide any real information about the medical data we are examining.
+---
+
+## Question 3
+
+- Redo visualization but remove stopwords before
+- Bonus points if you remove numbers as well
+
+What do we see know that we have removed stop words? Does it give us a better idea of what the text is about?
+
+```{r}
+tokens2 <- mt_samples %>%
+  select(transcription) %>%
+  unnest_tokens(word, transcription) %>%
+  anti_join(stop_words, by = "word") %>%
+  subset(!grepl("^\\d+$", word)) %>%
+  group_by(word) %>%
+  summarise(word_frequency = n()) %>%
+  arrange(across(word_frequency, desc)) %>%
+  head(20)
+
+tokens2 %>%
+  ggplot(aes(word, word_frequency)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+
+wordcloud(tokens2$word, tokens2$word_frequency)
+```
+
+---
+
+Once the stopwords are removed, we get more information about the actual notes which doctors have written. A majority of doctor's notes contain information about their patients, as we saw in the graph produced before, alongside other common medical information such as patients' conditions, blood levels, diseases, and medical histories. Many surgery-related words such as "anesthesia" and "incision" appear here too, which likely occurred because surgical notes were the most common source of data in our dataset.
+
+# Question 4
+
+Repeat question 2, but this time tokenize into bi-grams. How does the result change if you look at tri-grams?
+
+```{r}
+tokens3 <- mt_samples %>%
+  select(transcription) %>%
+  unnest_tokens(bigram, transcription, token = "ngrams", n = 2) %>%
+  group_by(bigram) %>%
+  summarise(bigram_frequency = n()) %>%
+  separate(bigram, c("word1", "word2"), extra = "drop", remove = FALSE,
+           sep = " ", fill = "right")
+
+tokens3 %>% 
+  anti_join(stop_words, by = c("word1" = "word")) %>%
+  anti_join(stop_words, by = c("word2" = "word")) %>%
+  subset(!grepl("\\d+$", bigram)) %>%
+  arrange(across(bigram_frequency, desc)) %>%
+  head(20) %>%
+  ggplot(aes(bigram, bigram_frequency)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+```{r}
+tokens4 <- mt_samples %>%
+  select(transcription) %>%
+  unnest_tokens(trigram, transcription, token = "ngrams", n = 3) %>%
+  group_by(trigram) %>%
+  summarise(trigram_frequency = n()) %>%
+  separate(trigram, c("word1", "word2", "word3"), extra = "drop", remove = FALSE,
+           sep = " ", fill = "right")
+
+tokens4 %>% 
+  anti_join(stop_words, by = c("word1" = "word")) %>%
+  anti_join(stop_words, by = c("word2" = "word")) %>% 
+  anti_join(stop_words, by = c("word3" = "word")) %>%
+  subset(!grepl("\\d+$", trigram)) %>%
+  arrange(across(trigram_frequency, desc)) %>%
+  head(20) %>%
+  ggplot(aes(trigram, trigram_frequency)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+Many of the popular trigrams are also popular bigrams, but with a third word added on the end. This suggests that there are not a lot of two-word phrases which come up in medical reports, and most of these phrases are actually segments of phrases of three (or more) words.
+---
+
+# Question 5
+
+Using the results you got from question 4. Pick a word and count the words that appears after and before it.
+
+```{r}
+tokens4 %>%
+  subset(word2 == "heart") %>%
+  group_by(word1) %>%
+  summarise(word1_freq = n()) %>%
+  arrange(across(word1_freq, desc)) %>%
+  head(20) %>%
+  ggplot(aes(word1, word1_freq)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+
+tokens4 %>%
+  subset(word2 == "heart") %>%
+  group_by(word3) %>%
+  summarise(word3_freq = n()) %>%
+  arrange(across(word3_freq, desc)) %>%
+  head(20) %>%
+  ggplot(aes(word3, word3_freq)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+I chose the word "heart". Based on these plots above, the most common trigram where the second word is "heart" is likely "the heart rate", as "the" often precedes "heart", and "rate" often succeeds it.
+---
+
+# Question 6 
+
+Which words are most used in each of the specialties. you can use `group_by()` and `top_n()` from `dplyr` to have the calculations be done within each specialty. Remember to remove stopwords. How about the most 5 used words?
+
+```{r}
+library(kableExtra)
+mt_samples %>%
+  unnest_tokens(word, transcription) %>%
+  anti_join(stop_words, by = "word") %>%
+  subset(!grepl("^\\d+$", word)) %>%
+  group_by(medical_specialty) %>%
+  count(word, sort = TRUE) %>%
+  top_n(5, n) %>%
+  kable() %>%
+  kable_styling(full_width = TRUE) %>%
+  scroll_box(height = '800px')
+```
+
+# Question 7 - extra
+
+Find your own insight in the data:
+
+Ideas:
+
+- Interesting ngrams
+- See if certain words are used more in some specialties then others
+
+```{r}
+tokens6 <- mt_samples %>%
+  select(transcription) %>%
+  unnest_tokens(quadrigram, transcription, token = "ngrams", n = 4) %>%
+  group_by(quadrigram) %>%
+  summarise(quadrigram_frequency = n()) %>%
+  separate(quadrigram, c("word1", "word2", "word3", "word4"), extra = "drop",
+           remove = FALSE, sep = " ", fill = "right")
+
+tokens6 %>% 
+  anti_join(stop_words, by = c("word1" = "word")) %>%
+  anti_join(stop_words, by = c("word2" = "word")) %>% 
+  anti_join(stop_words, by = c("word3" = "word")) %>%
+  anti_join(stop_words, by = c("word4" = "word")) %>%
+  subset(!grepl("\\d+$", quadrigram)) %>%
+  arrange(across(quadrigram_frequency, desc)) %>%
+  head(20) %>%
+  ggplot(aes(quadrigram, quadrigram_frequency)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+Similarly to the plot of the common trigrams in our medical dataset, quite a few of these popular "quadrigrams" contain the popular trigrams within them as substrings, and add an additional word at the beginning or the end. A few of these seem grammatically incorrect, such as "examination vital signs temperature", which was likely read from the headers and information in a chart, instead of actually being written down directly by a doctor.
+
+
+# Deliverables
+
+1. Questions 1-7 answered, pdf or html output uploaded to quercus
