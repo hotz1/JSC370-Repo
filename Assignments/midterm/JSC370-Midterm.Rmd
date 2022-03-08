@@ -23,6 +23,7 @@ library(data.table)
 library(knitr)
 library(kableExtra)
 library(spotifyr)
+
 # library(httr)
 # library(wesanderson)
 # library(leaflet)
@@ -51,4 +52,24 @@ head(human_development, 10)
 head(happiness_index, 10)
 ```
 
+```{r spotifycharts-scrape, echo = FALSE}
+library(rvest)
+testurl <- "https://charts.spotify.com/charts/view/regional-ar-daily/2022-03-05"
+```
+
+```{python scrapecharts, echo = FALSE}
+x = 'hello, world'
+print(x)
+```
+
+
+```{r}
+
+```
+
 # Works Cited:
+
+- https://medium.com/\@aaron.turnbull76/exploring-spotifys-top-200-for-2018-b6fb1cb7b3de
+- https://charts.spotify.com/
+- https://worldhappiness.report/ed/2021/
+- https://hdr.undp.org/en
