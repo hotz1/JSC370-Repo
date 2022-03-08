@@ -12,10 +12,10 @@ output:
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-setwd("C:/Users/Joey/Desktop/Joey's Files/University/Third Year/JSC370/JSC370-Repo/Assignments/midterm")
 ```
 
 ```{r libraries, message = FALSE, echo = FALSE, warning = FALSE}
+# setwd("C:/Users/Joey/Desktop/Joey's Files/University/Third Year/JSC370/JSC370-Repo/Assignments/midterm")
 library(tidyverse)
 library(dtplyr)
 library(dplyr)
@@ -60,11 +60,24 @@ testurl <- "https://charts.spotify.com/charts/view/regional-ar-daily/2022-03-05"
 ```{python scrapecharts, echo = FALSE}
 x = 'hello, world'
 print(x)
+# print(testurl)
+print(r.testurl)
 ```
 
 
 ```{r}
+library(stringr)
+hurricane_url <- "https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd"
+hurricane_url2 <- "6Hfu9sc7jvv6coyy2LlzBF"
 
+strip_url <- function(url){
+  # url <- stringr::remove_all(url, "https://open.spotify.com/track/")
+  # url <- stringr::remove_all()
+  return(url)
+}
+
+get_track(hurricane_url2)
+get_track_audio_features(hurricane_url2)
 ```
 
 # Works Cited:

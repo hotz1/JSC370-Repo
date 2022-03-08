@@ -11,7 +11,7 @@
 
 <meta name="author" content="Joey Hotz" />
 
-<meta name="date" content="2022-03-07" />
+<meta name="date" content="2022-03-08" />
 
 <title>Music Make You Lose Control</title>
 
@@ -43,6 +43,100 @@
     </style>
 
 
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -156,7 +250,7 @@ pre code {
 <h1 class="title toc-ignore">Music Make You Lose Control</h1>
 <h3 class="subtitle">Examining the relationship between</h3>
 <h4 class="author">Joey Hotz</h4>
-<h4 class="date">March 07, 2022</h4>
+<h4 class="date">March 08, 2022</h4>
 
 </div>
 
@@ -165,7 +259,7 @@ pre code {
 <h1>Introduction</h1>
 <p>The United Nations’ <a href="https://worldhappiness.report/ed/2021/">World Happiness Report</a> and <a href="https://www.hdr.undp.org/en/2020-report">Human Development Report</a></p>
 <pre><code>## # A tibble: 10 x 15
-##    ...1   `Table 1. Huma~` ...3  ...4  ...5  ...6  ...7  ...8  ...9  ...10 ...11
+##    ...1   `Table 1. Human~ ...3  ...4  ...5  ...6  ...7  ...8  ...9  ...10 ...11
 ##    &lt;chr&gt;  &lt;chr&gt;            &lt;chr&gt; &lt;lgl&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
 ##  1 &lt;NA&gt;   &lt;NA&gt;             &lt;NA&gt;  NA    &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
 ##  2 &lt;NA&gt;   &lt;NA&gt;             &lt;NA&gt;  NA    SDG3  &lt;NA&gt;  SDG4~ &lt;NA&gt;  SDG4~ &lt;NA&gt;  SDG8~
@@ -179,7 +273,7 @@ pre code {
 ## 10 2      Switzerland      0.95~ NA    83.78 &lt;NA&gt;  16.3~ &lt;NA&gt;  13.3~ &lt;NA&gt;  6939~
 ## # ... with 4 more variables: ...12 &lt;chr&gt;, ...13 &lt;chr&gt;, ...14 &lt;lgl&gt;, ...15 &lt;chr&gt;</code></pre>
 <pre><code>## # A tibble: 10 x 20
-##    `Country name` `Regional indic~` `Ladder score` `Standard erro~` upperwhisker
+##    `Country name` `Regional indica~ `Ladder score` `Standard error~ upperwhisker
 ##    &lt;chr&gt;          &lt;chr&gt;                      &lt;dbl&gt;            &lt;dbl&gt;        &lt;dbl&gt;
 ##  1 Finland        Western Europe              7.84           0.0316         7.90
 ##  2 Denmark        Western Europe              7.62           0.0347         7.69
@@ -191,23 +285,184 @@ pre code {
 ##  8 Luxembourg     Western Europe              7.32           0.0367         7.40
 ##  9 New Zealand    North America an~           7.28           0.0402         7.36
 ## 10 Austria        Western Europe              7.27           0.0355         7.34
-## # ... with 15 more variables: lowerwhisker &lt;dbl&gt;,
-## #   `Logged GDP per capita` &lt;dbl&gt;, `Social support` &lt;dbl&gt;,
-## #   `Healthy life expectancy` &lt;dbl&gt;, `Freedom to make life choices` &lt;dbl&gt;,
-## #   Generosity &lt;dbl&gt;, `Perceptions of corruption` &lt;dbl&gt;,
-## #   `Ladder score in Dystopia` &lt;dbl&gt;, `Explained by: Log GDP per capita` &lt;dbl&gt;,
-## #   `Explained by: Social support` &lt;dbl&gt;,
-## #   `Explained by: Healthy life expectancy` &lt;dbl&gt;, ...</code></pre>
-<pre><code>## Warning: package &#39;rvest&#39; was built under R version 4.1.2</code></pre>
+## # ... with 15 more variables: lowerwhisker &lt;dbl&gt;, Logged GDP per capita &lt;dbl&gt;,
+## #   Social support &lt;dbl&gt;, Healthy life expectancy &lt;dbl&gt;,
+## #   Freedom to make life choices &lt;dbl&gt;, Generosity &lt;dbl&gt;,
+## #   Perceptions of corruption &lt;dbl&gt;, Ladder score in Dystopia &lt;dbl&gt;,
+## #   Explained by: Log GDP per capita &lt;dbl&gt;, Explained by: Social support &lt;dbl&gt;,
+## #   Explained by: Healthy life expectancy &lt;dbl&gt;,
+## #   Explained by: Freedom to make life choices &lt;dbl&gt;, ...</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;rvest&#39;</code></pre>
 <pre><code>## The following object is masked from &#39;package:readr&#39;:
 ## 
 ##     guess_encoding</code></pre>
-<pre><code>## hello</code></pre>
+<pre><code>## hello, world</code></pre>
+<pre><code>## https://charts.spotify.com/charts/view/regional-ar-daily/2022-03-05</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stringr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>hurricane_url <span class="ot">&lt;-</span> <span class="st">&quot;https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd&quot;</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>hurricane_url2 <span class="ot">&lt;-</span> <span class="st">&quot;6Hfu9sc7jvv6coyy2LlzBF&quot;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>strip_url <span class="ot">&lt;-</span> <span class="cf">function</span>(url){</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># url &lt;- stringr::remove_all(url, &quot;https://open.spotify.com/track/&quot;)</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># url &lt;- stringr::remove_all()</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(url)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">get_track</span>(hurricane_url2)</span></code></pre></div>
+<pre><code>## $album
+## $album$album_type
+## [1] &quot;album&quot;
+## 
+## $album$artists
+##                                                        href
+## 1 https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x
+##                       id       name   type
+## 1 5K4W6rqBFWDnAN6FQUkS6x Kanye West artist
+##                                     uri
+## 1 spotify:artist:5K4W6rqBFWDnAN6FQUkS6x
+##                                    external_urls.spotify
+## 1 https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x
+## 
+## $album$available_markets
+##   [1] &quot;AD&quot; &quot;AE&quot; &quot;AG&quot; &quot;AL&quot; &quot;AM&quot; &quot;AO&quot; &quot;AR&quot; &quot;AT&quot; &quot;AU&quot; &quot;AZ&quot; &quot;BA&quot; &quot;BB&quot; &quot;BD&quot; &quot;BE&quot; &quot;BF&quot;
+##  [16] &quot;BG&quot; &quot;BH&quot; &quot;BI&quot; &quot;BJ&quot; &quot;BN&quot; &quot;BO&quot; &quot;BR&quot; &quot;BS&quot; &quot;BT&quot; &quot;BW&quot; &quot;BY&quot; &quot;BZ&quot; &quot;CA&quot; &quot;CD&quot; &quot;CG&quot;
+##  [31] &quot;CH&quot; &quot;CI&quot; &quot;CL&quot; &quot;CM&quot; &quot;CO&quot; &quot;CR&quot; &quot;CV&quot; &quot;CW&quot; &quot;CY&quot; &quot;CZ&quot; &quot;DE&quot; &quot;DJ&quot; &quot;DK&quot; &quot;DM&quot; &quot;DO&quot;
+##  [46] &quot;DZ&quot; &quot;EC&quot; &quot;EE&quot; &quot;EG&quot; &quot;ES&quot; &quot;FI&quot; &quot;FJ&quot; &quot;FM&quot; &quot;FR&quot; &quot;GA&quot; &quot;GB&quot; &quot;GD&quot; &quot;GE&quot; &quot;GH&quot; &quot;GM&quot;
+##  [61] &quot;GN&quot; &quot;GQ&quot; &quot;GR&quot; &quot;GT&quot; &quot;GW&quot; &quot;GY&quot; &quot;HK&quot; &quot;HN&quot; &quot;HR&quot; &quot;HT&quot; &quot;HU&quot; &quot;ID&quot; &quot;IE&quot; &quot;IL&quot; &quot;IN&quot;
+##  [76] &quot;IQ&quot; &quot;IS&quot; &quot;IT&quot; &quot;JM&quot; &quot;JO&quot; &quot;JP&quot; &quot;KE&quot; &quot;KG&quot; &quot;KH&quot; &quot;KI&quot; &quot;KM&quot; &quot;KN&quot; &quot;KR&quot; &quot;KW&quot; &quot;KZ&quot;
+##  [91] &quot;LA&quot; &quot;LB&quot; &quot;LC&quot; &quot;LI&quot; &quot;LK&quot; &quot;LR&quot; &quot;LS&quot; &quot;LT&quot; &quot;LU&quot; &quot;LV&quot; &quot;LY&quot; &quot;MA&quot; &quot;MC&quot; &quot;MD&quot; &quot;ME&quot;
+## [106] &quot;MG&quot; &quot;MH&quot; &quot;MK&quot; &quot;ML&quot; &quot;MN&quot; &quot;MO&quot; &quot;MR&quot; &quot;MT&quot; &quot;MU&quot; &quot;MV&quot; &quot;MW&quot; &quot;MX&quot; &quot;MY&quot; &quot;MZ&quot; &quot;NA&quot;
+## [121] &quot;NE&quot; &quot;NG&quot; &quot;NI&quot; &quot;NL&quot; &quot;NO&quot; &quot;NP&quot; &quot;NR&quot; &quot;NZ&quot; &quot;OM&quot; &quot;PA&quot; &quot;PE&quot; &quot;PG&quot; &quot;PH&quot; &quot;PK&quot; &quot;PL&quot;
+## [136] &quot;PS&quot; &quot;PT&quot; &quot;PW&quot; &quot;PY&quot; &quot;QA&quot; &quot;RO&quot; &quot;RS&quot; &quot;RU&quot; &quot;RW&quot; &quot;SA&quot; &quot;SB&quot; &quot;SC&quot; &quot;SE&quot; &quot;SG&quot; &quot;SI&quot;
+## [151] &quot;SK&quot; &quot;SL&quot; &quot;SM&quot; &quot;SN&quot; &quot;SR&quot; &quot;ST&quot; &quot;SV&quot; &quot;SZ&quot; &quot;TD&quot; &quot;TG&quot; &quot;TH&quot; &quot;TJ&quot; &quot;TL&quot; &quot;TN&quot; &quot;TO&quot;
+## [166] &quot;TR&quot; &quot;TT&quot; &quot;TV&quot; &quot;TW&quot; &quot;TZ&quot; &quot;UA&quot; &quot;UG&quot; &quot;US&quot; &quot;UY&quot; &quot;UZ&quot; &quot;VC&quot; &quot;VE&quot; &quot;VN&quot; &quot;VU&quot; &quot;WS&quot;
+## [181] &quot;XK&quot; &quot;ZA&quot; &quot;ZM&quot; &quot;ZW&quot;
+## 
+## $album$external_urls
+## $album$external_urls$spotify
+## [1] &quot;https://open.spotify.com/album/5CnpZV3q5BcESefcB3WJmz&quot;
+## 
+## 
+## $album$href
+## [1] &quot;https://api.spotify.com/v1/albums/5CnpZV3q5BcESefcB3WJmz&quot;
+## 
+## $album$id
+## [1] &quot;5CnpZV3q5BcESefcB3WJmz&quot;
+## 
+## $album$images
+##   height                                                              url width
+## 1    640 https://i.scdn.co/image/ab67616d0000b273cad190f1a73c024e5a40dddd   640
+## 2    300 https://i.scdn.co/image/ab67616d00001e02cad190f1a73c024e5a40dddd   300
+## 3     64 https://i.scdn.co/image/ab67616d00004851cad190f1a73c024e5a40dddd    64
+## 
+## $album$name
+## [1] &quot;Donda&quot;
+## 
+## $album$release_date
+## [1] &quot;2021-08-29&quot;
+## 
+## $album$release_date_precision
+## [1] &quot;day&quot;
+## 
+## $album$total_tracks
+## [1] 27
+## 
+## $album$type
+## [1] &quot;album&quot;
+## 
+## $album$uri
+## [1] &quot;spotify:album:5CnpZV3q5BcESefcB3WJmz&quot;
+## 
+## 
+## $artists
+##                                                        href
+## 1 https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x
+##                       id       name   type
+## 1 5K4W6rqBFWDnAN6FQUkS6x Kanye West artist
+##                                     uri
+## 1 spotify:artist:5K4W6rqBFWDnAN6FQUkS6x
+##                                    external_urls.spotify
+## 1 https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x
+## 
+## $available_markets
+##   [1] &quot;AD&quot; &quot;AE&quot; &quot;AG&quot; &quot;AL&quot; &quot;AM&quot; &quot;AO&quot; &quot;AR&quot; &quot;AT&quot; &quot;AU&quot; &quot;AZ&quot; &quot;BA&quot; &quot;BB&quot; &quot;BD&quot; &quot;BE&quot; &quot;BF&quot;
+##  [16] &quot;BG&quot; &quot;BH&quot; &quot;BI&quot; &quot;BJ&quot; &quot;BN&quot; &quot;BO&quot; &quot;BR&quot; &quot;BS&quot; &quot;BT&quot; &quot;BW&quot; &quot;BY&quot; &quot;BZ&quot; &quot;CA&quot; &quot;CD&quot; &quot;CG&quot;
+##  [31] &quot;CH&quot; &quot;CI&quot; &quot;CL&quot; &quot;CM&quot; &quot;CO&quot; &quot;CR&quot; &quot;CV&quot; &quot;CW&quot; &quot;CY&quot; &quot;CZ&quot; &quot;DE&quot; &quot;DJ&quot; &quot;DK&quot; &quot;DM&quot; &quot;DO&quot;
+##  [46] &quot;DZ&quot; &quot;EC&quot; &quot;EE&quot; &quot;EG&quot; &quot;ES&quot; &quot;FI&quot; &quot;FJ&quot; &quot;FM&quot; &quot;FR&quot; &quot;GA&quot; &quot;GB&quot; &quot;GD&quot; &quot;GE&quot; &quot;GH&quot; &quot;GM&quot;
+##  [61] &quot;GN&quot; &quot;GQ&quot; &quot;GR&quot; &quot;GT&quot; &quot;GW&quot; &quot;GY&quot; &quot;HK&quot; &quot;HN&quot; &quot;HR&quot; &quot;HT&quot; &quot;HU&quot; &quot;ID&quot; &quot;IE&quot; &quot;IL&quot; &quot;IN&quot;
+##  [76] &quot;IQ&quot; &quot;IS&quot; &quot;IT&quot; &quot;JM&quot; &quot;JO&quot; &quot;JP&quot; &quot;KE&quot; &quot;KG&quot; &quot;KH&quot; &quot;KI&quot; &quot;KM&quot; &quot;KN&quot; &quot;KR&quot; &quot;KW&quot; &quot;KZ&quot;
+##  [91] &quot;LA&quot; &quot;LB&quot; &quot;LC&quot; &quot;LI&quot; &quot;LK&quot; &quot;LR&quot; &quot;LS&quot; &quot;LT&quot; &quot;LU&quot; &quot;LV&quot; &quot;LY&quot; &quot;MA&quot; &quot;MC&quot; &quot;MD&quot; &quot;ME&quot;
+## [106] &quot;MG&quot; &quot;MH&quot; &quot;MK&quot; &quot;ML&quot; &quot;MN&quot; &quot;MO&quot; &quot;MR&quot; &quot;MT&quot; &quot;MU&quot; &quot;MV&quot; &quot;MW&quot; &quot;MX&quot; &quot;MY&quot; &quot;MZ&quot; &quot;NA&quot;
+## [121] &quot;NE&quot; &quot;NG&quot; &quot;NI&quot; &quot;NL&quot; &quot;NO&quot; &quot;NP&quot; &quot;NR&quot; &quot;NZ&quot; &quot;OM&quot; &quot;PA&quot; &quot;PE&quot; &quot;PG&quot; &quot;PH&quot; &quot;PK&quot; &quot;PL&quot;
+## [136] &quot;PS&quot; &quot;PT&quot; &quot;PW&quot; &quot;PY&quot; &quot;QA&quot; &quot;RO&quot; &quot;RS&quot; &quot;RU&quot; &quot;RW&quot; &quot;SA&quot; &quot;SB&quot; &quot;SC&quot; &quot;SE&quot; &quot;SG&quot; &quot;SI&quot;
+## [151] &quot;SK&quot; &quot;SL&quot; &quot;SM&quot; &quot;SN&quot; &quot;SR&quot; &quot;ST&quot; &quot;SV&quot; &quot;SZ&quot; &quot;TD&quot; &quot;TG&quot; &quot;TH&quot; &quot;TJ&quot; &quot;TL&quot; &quot;TN&quot; &quot;TO&quot;
+## [166] &quot;TR&quot; &quot;TT&quot; &quot;TV&quot; &quot;TW&quot; &quot;TZ&quot; &quot;UA&quot; &quot;UG&quot; &quot;US&quot; &quot;UY&quot; &quot;UZ&quot; &quot;VC&quot; &quot;VE&quot; &quot;VN&quot; &quot;VU&quot; &quot;WS&quot;
+## [181] &quot;XK&quot; &quot;ZA&quot; &quot;ZM&quot; &quot;ZW&quot;
+## 
+## $disc_number
+## [1] 1
+## 
+## $duration_ms
+## [1] 243187
+## 
+## $explicit
+## [1] FALSE
+## 
+## $external_ids
+## $external_ids$isrc
+## [1] &quot;USUM72116311&quot;
+## 
+## 
+## $external_urls
+## $external_urls$spotify
+## [1] &quot;https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF&quot;
+## 
+## 
+## $href
+## [1] &quot;https://api.spotify.com/v1/tracks/6Hfu9sc7jvv6coyy2LlzBF&quot;
+## 
+## $id
+## [1] &quot;6Hfu9sc7jvv6coyy2LlzBF&quot;
+## 
+## $is_local
+## [1] FALSE
+## 
+## $name
+## [1] &quot;Hurricane&quot;
+## 
+## $popularity
+## [1] 83
+## 
+## $preview_url
+## NULL
+## 
+## $track_number
+## [1] 5
+## 
+## $type
+## [1] &quot;track&quot;
+## 
+## $uri
+## [1] &quot;spotify:track:6Hfu9sc7jvv6coyy2LlzBF&quot;</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_track_audio_features</span>(hurricane_url2)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 18
+##   danceability energy   key loudness  mode speechiness acousticness
+##          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+## 1        0.587  0.561     0    -6.57     1       0.146       0.0466
+## # ... with 11 more variables: instrumentalness &lt;int&gt;, liveness &lt;dbl&gt;,
+## #   valence &lt;dbl&gt;, tempo &lt;dbl&gt;, type &lt;chr&gt;, id &lt;chr&gt;, uri &lt;chr&gt;,
+## #   track_href &lt;chr&gt;, analysis_url &lt;chr&gt;, duration_ms &lt;int&gt;,
+## #   time_signature &lt;int&gt;</code></pre>
 </div>
 <div id="works-cited" class="section level1">
 <h1>Works Cited:</h1>
+<ul>
+<li><a href="https://medium.com/\@aaron.turnbull76/exploring-spotifys-top-200-for-2018-b6fb1cb7b3de" class="uri">https://medium.com/\@aaron.turnbull76/exploring-spotifys-top-200-for-2018-b6fb1cb7b3de</a></li>
+<li><a href="https://charts.spotify.com/" class="uri">https://charts.spotify.com/</a></li>
+<li><a href="https://worldhappiness.report/ed/2021/" class="uri">https://worldhappiness.report/ed/2021/</a></li>
+<li><a href="https://hdr.undp.org/en" class="uri">https://hdr.undp.org/en</a></li>
+</ul>
 </div>
 
 
