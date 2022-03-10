@@ -1,6 +1,6 @@
 ---
-title: "Music Make You Lose Control"
-subtitle: "Examining the relationship between" 
+title: "[Placeholder]"
+subtitle: "Examining the correlation between songs on Spotify and Happiness" 
 author: "Joey Hotz"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output: 
@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r libraries, message = FALSE, echo = FALSE, warning = FALSE}
-# setwd("C:/Users/Joey/Desktop/Joey's Files/University/Third Year/JSC370/JSC370-Repo/Assignments/midterm")
 library(tidyverse)
 library(dtplyr)
 library(dplyr)
@@ -31,7 +30,8 @@ library(spotifyr)
 
 # Introduction
 
-The United Nations' [World Happiness Report](https://worldhappiness.report/ed/2021/) and [Human Development Report](https://www.hdr.undp.org/en/2020-report)
+The [World Happiness Report](https://worldhappiness.report/ed/2021/) is an annually-published report which is written by members of the [United Nations Sustainable Development Solutions Network](https://www.unsdsn.org/)
+
 
 ```{r spotify-setup, echo = FALSE}
 client_id <- read_file("spotify_client_id.txt")
@@ -41,29 +41,44 @@ Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
 access_token <- get_spotify_access_token()
 ```
 
+# Methods
+
+The first steps of any statistical project are to collect the data which we want to analyze and make conclusions about, and to then explore and clean the data which we have collected, to ensure that our data fits our requirements.
+
+## Data Collection
+
 ```{r import-data, echo = FALSE, warning = FALSE, message = FALSE}
 library(readxl)
-human_development <- read_xlsx("2020_Statistical_Annex_Table_1.xlsx")
+# human_development <- read_xlsx("2020_Statistical_Annex_Table_1.xlsx")
 happiness_index <- read_xls("DataForFigure2.1WHR2021C2.xls")
+spotify_data <- read.csv("spotify_data_weekly.csv")
 ```
+
+The SDSN publicly publishes a new World Happiness Report every year, and their organization ensures that their data is easily accessible. To collect the data from the most recent [World Happiness Report](https://worldhappiness.report/ed/2021/) (released in March 2021), we simply need to navigate the the 2021 report on the World Happiness Report website, and click the button labelled "Data for Figure 2.1". In the 2021 World Happiness Report, Figure 2.1 represents the main table containing the SDSN's findings, including the happiness index values which they computed for each country.
+
+We can then download the dataset directly from the World Happiness Report's website as a Microsoft Excel document, and read this data into R using the `readxl` library.
+
+Table \@ref(tab:view-data-1), which is shown below, depicts the top 7 rows of the data which were loaded into R from the downloaded Microsoft Excel document. In the World Happiness Report itself, as well as the data downloaded from their website, the rows in this table are sorted in descending order based on the happiness index of each country, which is listed under the "Ladder Score" column.
 
 ```{r view-data-1, echo = FALSE}
-head(human_development, 10)
-head(happiness_index, 10)
+knitr::kable(head(happiness_index, 7),
+             caption = "Data from Table 2.1 of the 2021 World Happiness Report") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(width = "100%")
 ```
 
-```{r spotifycharts-scrape, echo = FALSE}
-library(rvest)
-testurl <- "https://charts.spotify.com/charts/view/regional-ar-daily/2022-03-05"
+Unlike the data which we collected from the 2021 edition of the World Happiness Report, the information about the Top 200 songs on Spotify in each country was significantly more difficult to collect and load into R.
+
+```{r view-data-2, echo = FALSE}
+knitr::kable(head(spotify_data, 10),
+             caption = "Variables in the Southern California Children’s Health Study") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(height = '800px', width = "100%")
 ```
 
-```{python scrapecharts, echo = FALSE}
-x = 'hello, world'
-print(x)
-# print(testurl)
-print(r.testurl)
-```
-
+## Data Cleaning
 
 ```{r}
 library(stringr)
@@ -86,3 +101,5 @@ get_track_audio_features(hurricane_url2)
 - https://charts.spotify.com/
 - https://worldhappiness.report/ed/2021/
 - https://hdr.undp.org/en
+- https://www.geeksforgeeks.org/scrape-tables-from-any-website-using-python/
+- https://github.com/kelvingakuo/fycharts
