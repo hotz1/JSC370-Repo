@@ -25,13 +25,17 @@ library(spotifyr)
 library(stringr)
 
 # library(httr)
-# library(wesanderson)
+library(wesanderson)
 # library(leaflet)
 ```
 
 # Introduction
 
 The [World Happiness Report](https://worldhappiness.report/ed/2021/) is an annually-published report which is written by members of the [United Nations Sustainable Development Solutions Network](https://www.unsdsn.org/)
+
+
+In this report, we seek to answer the following question: "*Is there a correlation between countries' happiness levels and the happiness of the music which they listen to on Spotify?*" 
+
 
 # Methods
 
@@ -93,7 +97,7 @@ In particular, the only variables which we need from the World Happiness Report 
 ```{r clean-happiness-data, echo = FALSE}
 happiness_small <- happiness_index %>%
   select(country = `Country name`, region = `Regional indicator`, happiness = `Ladder score`) %>%
-  mutate(rank = rank(-happiness))
+  mutate(happiness_rank = rank(-happiness))
 ```
 
 On the other hand, the Spotify data which we collected via web scraping in Python requires serious changes in order for the data to be viable. The most important alteration which we need to make to this dataset is to edit the contents of each cell, to select the necessary contents of the cell which are wrapped in the HTML code, without keeping the rest of the unneeded HTML in the table.
@@ -229,7 +233,9 @@ knitr::kable(cbind(lapply(spotify_clean, typeof),
                    colSums(!is.na(spotify_clean)),
                    colSums(is.na(spotify_clean))),
              col.names = c("Variable Type", "Present Values", "Missing Values"),
-             caption = "Counts of Variables in our Spotify Dataset")
+             caption = "Counts of Variables in our Spotify Dataset") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE)
 ```
 
 As we see in Table \@ref(tab:check-nas-1) above, there are no missing values for a majority of the variables in our dataset. The only non-recorded values are three missing values in each of the danceability, energy, and valence columns in our Spotify dataset.
@@ -248,7 +254,7 @@ Due to the lack of clarity surrounding how Spotify computes the danceability, en
 Although these three countries (Argentina, Italy, and Uruguay) will only have 199 tracks instead of 200 tracks, this is not a particularly large discrepancy, especially since these songs were not massively popular tracks in their respective countries.
 
 ```{r remove-missing-valences, echo = FALSE}
-spotify_clean <- spotify_clean%>%
+spotify_clean <- spotify_clean %>%
   filter(!is.na(valence))
 ```
 
@@ -268,30 +274,72 @@ weighted_means_by_country %>%
   scroll_box(height = "800px")
 ```
 
-Lastly, we can merge these weighted means which are grouped by country with the World Happiness Report's findings, to put all of our accumulated information into one dataset. 
-
-As the Spotify Charts website may use different names for countries than the World Happiness Report, we will first merge these datasets together using a 'full join' on the names of the countries, and we will manually examine any countries which appear twice under slightly different names.
-
-```{r merge-tables-fulljoin, echo = FALSE}
-fully_merged <- merge(happiness_small, weighted_means_by_country, by = "country", all = TRUE)
-kable(fully_merged, caption = "'Full joining' our tables based on the country names") %>%
-  kable_styling(bootstrap_options = c("striped", "bordered"),
-                fixed_thead = TRUE) %>%
-  scroll_box(height = "800px", width = "100%")
-```
-As we can see in 
-
-
 ## Data Merging
 
-Now that we have collected the song-related data from the Spotify API, we can merge our two separate datasets together
+Lastly, we can merge our datasets together, to create larger sets of data which we can use to analyze and answer our questions.
 
-Now that we have cleaned the data in each of our two separate datasets and prepared it for use, we can merge the tables together.
+We will create two new larger sets of data through merging the Spotify Charts information and the World Happiness Report data. One of these new datasets will be a track-based dataset, created by combining our larger Spotify dataset which we cleaned with the World Happiness Report's data.
 
+The second dataset will contain country-based information, and we will create it by merging the weighted means by country shown in Table \@ref(tab:compute-weighted-means), and the World Happiness Report data.
+
+Before we merge the tables together, we have to ensure that this merging process will be successful. The Spotify Charts website might use different names for countries than the World Happiness Report, we will need to determine if there are any countries whose names may be different in these two datasets. To do this, we will determine which country names are present in the Spotify Charts dataset (shown in Table \@ref(tab:compute-weighted-means)) and are not present in the happiness index.
+
+We can do this by taking the intersection of all country names which are present in both datasets, and subtracting this intersection from the set of country names present in the Spotify Charts data.
+
+```{r get-country-names}
+setdiff(weighted_means_by_country$country, intersect(weighted_means_by_country$country, happiness_small$country))
+```
+
+From the output above, we see that Hong Kong and Taiwan are the only countries which have observations in the Spotify Charts data but not present in the World Happiness Report's dataset.
+
+Examining the list of countries in the World Happiness Report data, we see that there are observations for both of these countries recorded in the World Happiness Report. However, Hong Kong is referred to as "Hong Kong S.A.R. of China", and Taiwan is referred to as "Taiwan Province of China". If we replace these names in the World Happiness Report data, we will be able to properly merge our datasets together.
+
+```{r merge-datasets, echo = FALSE}
+happiness_small[happiness_small == "Hong Kong S.A.R. of China"] <- "Hong Kong"
+happiness_small[happiness_small == "Taiwan Province of China"] <- "Taiwan"
+tracks_data <- merge(spotify_clean, happiness_small, by = "country")
+countries_data <- merge(weighted_means_by_country, happiness_small, by = "country")
+```
+
+```{r view-merged-data-1, echo = FALSE}
+knitr::kable(head(filter(tracks_data, country == "Canada"), 5),
+             caption = "Example of per-track data, using the Top 5 songs from Canada") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(width = "100%")
+```
+
+```{r view-merged-data-2, echo = FALSE}
+knitr::kable(head(countries_data, 5),
+             caption = "Example of per-country data") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(width = "100%")
+```
 
 ## Data Exploration
 
+Now that our tables have been thoroughly cleaned and merged, we can begin to explore the data which we collected in greater detail.
+
+```{r basic-plot-1, echo = FALSE, fig.dim = c(11, 8.5)}
+ggplot(countries_data, aes(x = mean_valence, y = happiness, color = region)) + 
+  geom_point() + 
+  labs(x = "Mean Valence", y = "Happiness",
+       title = "Mean valence of Top 200 Spotify tracks and overall happiness per country",
+       color = "Region") +
+  theme_bw()
+```
+
+
 # Methods
+
+The key question which guided our research was "is there a correlation between countries' happiness levels and the happiness of the music which they listen to on Spotify?" 
+
+To answer this question, we will compare each country's average Spotify valence to their happiness. We will compute the correlation between these variables using two different correlation metrics; the Pearson correlation coefficient, and Spearman's rank correlation coefficient.
+
+The Pearson correlation coefficient is a measure of how linear a relationship is between two sets of values. The closer that the Pearson coefficient is to 1 (or -1), the more linear the relationship is. Although the Pearson correlation coefficient is the most commonly-used correlation coefficient, it may not always indicate the presence of a relationship between two variables, if the relationship is non-linear.
+
+[Spearman's rank correlation coefficient](https://statisticsbyjim.com/basics/spearmans-correlation/) is a distinct measure of the correlation between two numerical variables. Instead of directly measuring how linear the relationship is between the two variables, this metric ranks each of the variables, and then determines whether the rankings of these variables are associated with one another.
 
 # Preliminary Results
 
@@ -303,7 +351,7 @@ Overall, the most noticeable limitation of this research project is that the res
 
 There are a variety of reasons why this assumption may not be well-founded, from a statistical perspective. Two particularly large issues with this assumption are:
 - Spotify demographics may not represent
-- The set of people who have access to Spotify 
+- The set of people who have access to Spotify in each country
 
 In addition, there are only 72 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries. 
 

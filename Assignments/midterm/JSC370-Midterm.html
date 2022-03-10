@@ -45,6 +45,100 @@
     </style>
 
 
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #c4a000; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #000000; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #000000; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #000000; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -166,6 +260,7 @@ pre code {
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>The <a href="https://worldhappiness.report/ed/2021/">World Happiness Report</a> is an annually-published report which is written by members of the <a href="https://www.unsdsn.org/">United Nations Sustainable Development Solutions Network</a></p>
+<p>In this report, we seek to answer the following question: “<em>Is there a correlation between countries’ happiness levels and the happiness of the music which they listen to on Spotify?</em>”</p>
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
@@ -1101,27 +1196,26 @@ ca
 <p>In Spotify’s implementation of their platform, every track (songs, podcasts, etc.) has a unique identifier, which is part of the URL to that specific track on the Spotify client. The <code>spotifyr</code> package uses these identifiers in order to retrieve information about a particular track from the Spotify API.</p>
 <p>To collect information about each of the tracks in the Top 200 lists, we will first determine the unique IDs for each of these tracks by using a regular expression to remove the Spotify domain from the track’s URL.</p>
 <p>Once we have collected the track IDs for each of the tracks, we will then collect information about these tracks using Spotify’s API. For each track, we will collect three numeric values from the Spotify API corresponding to the given track; its ‘danceability’, ‘energy’, and ‘valence’.</p>
-<pre><code>## Request failed [503]. Retrying in 1.6 seconds...</code></pre>
 </div>
 <div id="data-grouping" class="section level2">
 <h2>Data Grouping</h2>
 <p>In order to determine the average danceability, energy, and valence of the Top 200 songs for a particular country, we will use a weighted mean of each of these metrics, where the songs are weighted based on the number of streams which each track had in the given country during the specific time period.</p>
 <p>Before we compute these weighted averages, we will check to see how many missing values there are among the 11 variables in our dataset, as missing values can cause our weighted mean computation to be error-prone if not accounted for.</p>
-<table>
+<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
 <caption>
 <span id="tab:check-nas-1">Table 4: </span>Counts of Variables in our Spotify Dataset
 </caption>
 <thead>
 <tr>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Variable Type
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Present Values
 </th>
-<th style="text-align:left;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 Missing Values
 </th>
 </tr>
@@ -2472,548 +2566,103 @@ Vietnam
 </tbody>
 </table>
 </div>
-<p>Lastly, we can merge these weighted means which are grouped by country with the World Happiness Report’s findings, to put all of our accumulated information into one dataset.</p>
-<p>As the Spotify Charts website may use different names for countries than the World Happiness Report, we will first merge these datasets together using a ‘full join’ on the names of the countries, and we will manually examine any countries which appear twice under slightly different names.</p>
-<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
+</div>
+<div id="data-merging" class="section level2">
+<h2>Data Merging</h2>
+<p>Lastly, we can merge our datasets together, to create larger sets of data which we can use to analyze and answer our questions.</p>
+<p>We will create two new larger sets of data through merging the Spotify Charts information and the World Happiness Report data. One of these new datasets will be a track-based dataset, created by combining our larger Spotify dataset which we cleaned with the World Happiness Report’s data.</p>
+<p>The second dataset will contain country-based information, and we will create it by merging the weighted means by country shown in Table <a href="#tab:compute-weighted-means">6</a>, and the World Happiness Report data.</p>
+<p>Before we merge the tables together, we have to ensure that this merging process will be successful. The Spotify Charts website might use different names for countries than the World Happiness Report, we will need to determine if there are any countries whose names may be different in these two datasets. To do this, we will determine which country names are present in the Spotify Charts dataset (shown in Table <a href="#tab:compute-weighted-means">6</a>) and are not present in the happiness index.</p>
+<p>We can do this by taking the intersection of all country names which are present in both datasets, and subtracting this intersection from the set of country names present in the Spotify Charts data.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">setdiff</span>(weighted_means_by_country<span class="sc">$</span>country, <span class="fu">intersect</span>(weighted_means_by_country<span class="sc">$</span>country, happiness_small<span class="sc">$</span>country))</span></code></pre></div>
+<pre><code>## [1] &quot;Hong Kong&quot; &quot;Taiwan&quot;</code></pre>
+<p>From the output above, we see that Hong Kong and Taiwan are the only countries which have observations in the Spotify Charts data but not present in the World Happiness Report’s dataset.</p>
+<p>Examining the list of countries in the World Happiness Report data, we see that there are observations for both of these countries recorded in the World Happiness Report. However, Hong Kong is referred to as “Hong Kong S.A.R. of China”, and Taiwan is referred to as “Taiwan Province of China”. If we replace these names in the World Happiness Report data, we will be able to properly merge our datasets together.</p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
 <table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
 <caption>
-<span id="tab:merge-tables-fulljoin">Table 7: </span>Joining our tables based on the country names
+<span id="tab:view-merged-data-1">Table 7: </span>Example of per-track data, using the Top 5 songs from Canada
 </caption>
 <thead>
 <tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 country
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+country_code
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+begin
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+end
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+plays
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+song_rank
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+track_link
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+track_id
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+danceability
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+energy
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+valence
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 region
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 happiness
 </th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-rank
-</th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-mean_danceability
-</th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-mean_energy
-</th>
-<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-mean_valence
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+happiness_rank
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:left;">
-Afghanistan
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-2.5229
-</td>
-<td style="text-align:right;">
-149
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Albania
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.1174
-</td>
-<td style="text-align:right;">
-93
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Algeria
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.8871
-</td>
-<td style="text-align:right;">
-109
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Argentina
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.9293
-</td>
-<td style="text-align:right;">
-57
-</td>
-<td style="text-align:right;">
-0.7305649
-</td>
-<td style="text-align:right;">
-0.6688815
-</td>
-<td style="text-align:right;">
-0.6551697
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Armenia
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.2826
-</td>
-<td style="text-align:right;">
-86
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Australia
-</td>
-<td style="text-align:left;">
-North America and ANZ
-</td>
-<td style="text-align:right;">
-7.1835
-</td>
-<td style="text-align:right;">
-11
-</td>
-<td style="text-align:right;">
-0.6559271
-</td>
-<td style="text-align:right;">
-0.6612825
-</td>
-<td style="text-align:right;">
-0.5141292
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Austria
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.2678
-</td>
-<td style="text-align:right;">
-10
-</td>
-<td style="text-align:right;">
-0.6806558
-</td>
-<td style="text-align:right;">
-0.6762681
-</td>
-<td style="text-align:right;">
-0.5194063
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Azerbaijan
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.1708
-</td>
-<td style="text-align:right;">
-90
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Bahrain
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-6.6469
-</td>
-<td style="text-align:right;">
-22
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Bangladesh
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-5.0246
-</td>
-<td style="text-align:right;">
-101
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Belarus
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.5335
-</td>
-<td style="text-align:right;">
-75
-</td>
-<td style="text-align:right;">
-0.6841963
-</td>
-<td style="text-align:right;">
-0.6668493
-</td>
-<td style="text-align:right;">
-0.4595995
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Belgium
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-6.8340
-</td>
-<td style="text-align:right;">
-20
-</td>
-<td style="text-align:right;">
-0.6708035
-</td>
-<td style="text-align:right;">
-0.6573458
-</td>
-<td style="text-align:right;">
-0.5310949
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Benin
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.0452
-</td>
-<td style="text-align:right;">
-99
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Bolivia
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.7159
-</td>
-<td style="text-align:right;">
-69
-</td>
-<td style="text-align:right;">
-0.7239904
-</td>
-<td style="text-align:right;">
-0.6766358
-</td>
-<td style="text-align:right;">
-0.6260286
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Bosnia and Herzegovina
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.8131
-</td>
-<td style="text-align:right;">
-64
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Botswana
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.4665
-</td>
-<td style="text-align:right;">
-146
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Brazil
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.3301
-</td>
-<td style="text-align:right;">
-35
-</td>
-<td style="text-align:right;">
-0.6992066
-</td>
-<td style="text-align:right;">
-0.7289616
-</td>
-<td style="text-align:right;">
-0.6792344
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Bulgaria
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.2655
-</td>
-<td style="text-align:right;">
-88
-</td>
-<td style="text-align:right;">
-0.6825988
-</td>
-<td style="text-align:right;">
-0.7031719
-</td>
-<td style="text-align:right;">
-0.5351033
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Burkina Faso
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.8338
-</td>
-<td style="text-align:right;">
-113
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Burundi
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.7753
-</td>
-<td style="text-align:right;">
-140
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Cambodia
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-4.8304
-</td>
-<td style="text-align:right;">
-114
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Cameroon
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.1418
-</td>
-<td style="text-align:right;">
-91
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
 Canada
+</td>
+<td style="text-align:left;">
+ca
+</td>
+<td style="text-align:left;">
+2022-02-25
+</td>
+<td style="text-align:left;">
+2022-03-04
+</td>
+<td style="text-align:right;">
+1070514
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+<a href="https://open.spotify.com/track/02MWAaffLxlfxAUY7c5dvx" class="uri">https://open.spotify.com/track/02MWAaffLxlfxAUY7c5dvx</a>
+</td>
+<td style="text-align:left;">
+02MWAaffLxlfxAUY7c5dvx
+</td>
+<td style="text-align:right;">
+0.761
+</td>
+<td style="text-align:right;">
+0.525
+</td>
+<td style="text-align:right;">
+0.531
 </td>
 <td style="text-align:left;">
 North America and ANZ
@@ -3024,2976 +2673,348 @@ North America and ANZ
 <td style="text-align:right;">
 14
 </td>
-<td style="text-align:right;">
-0.6755400
-</td>
-<td style="text-align:right;">
-0.6443553
-</td>
-<td style="text-align:right;">
-0.4936077
-</td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Chad
+Canada
 </td>
 <td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.3554
-</td>
-<td style="text-align:right;">
-128
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Chile
+ca
 </td>
 <td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.1719
-</td>
-<td style="text-align:right;">
-43
-</td>
-<td style="text-align:right;">
-0.7654541
-</td>
-<td style="text-align:right;">
-0.6959202
-</td>
-<td style="text-align:right;">
-0.6362778
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-China
+2022-02-25
 </td>
 <td style="text-align:left;">
-East Asia
+2022-03-04
 </td>
 <td style="text-align:right;">
-5.3391
-</td>
-<td style="text-align:right;">
-84
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Colombia
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.0124
-</td>
-<td style="text-align:right;">
-52
-</td>
-<td style="text-align:right;">
-0.7378438
-</td>
-<td style="text-align:right;">
-0.6826002
-</td>
-<td style="text-align:right;">
-0.6361242
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Comoros
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.2886
-</td>
-<td style="text-align:right;">
-131
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Congo (Brazzaville)
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.3417
-</td>
-<td style="text-align:right;">
-83
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Costa Rica
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-7.0694
-</td>
-<td style="text-align:right;">
-16
-</td>
-<td style="text-align:right;">
-0.7215459
-</td>
-<td style="text-align:right;">
-0.6353198
-</td>
-<td style="text-align:right;">
-0.6101227
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Croatia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.8817
-</td>
-<td style="text-align:right;">
-60
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Cyprus
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-6.2235
-</td>
-<td style="text-align:right;">
-39
-</td>
-<td style="text-align:right;">
-0.6818034
-</td>
-<td style="text-align:right;">
-0.6526462
-</td>
-<td style="text-align:right;">
-0.4845356
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Czech Republic
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.9647
-</td>
-<td style="text-align:right;">
-18
-</td>
-<td style="text-align:right;">
-0.6835192
-</td>
-<td style="text-align:right;">
-0.6937636
-</td>
-<td style="text-align:right;">
-0.5062472
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Denmark
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.6195
+878506
 </td>
 <td style="text-align:right;">
 2
 </td>
-<td style="text-align:right;">
-0.6924174
-</td>
-<td style="text-align:right;">
-0.6505832
-</td>
-<td style="text-align:right;">
-0.5633864
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Dominican Republic
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.5451
-</td>
-<td style="text-align:right;">
-73
-</td>
-<td style="text-align:right;">
-0.7443766
-</td>
-<td style="text-align:right;">
-0.6919941
-</td>
-<td style="text-align:right;">
-0.5761462
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ecuador
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.7640
-</td>
-<td style="text-align:right;">
-66
-</td>
-<td style="text-align:right;">
-0.7426212
-</td>
-<td style="text-align:right;">
-0.6807029
-</td>
-<td style="text-align:right;">
-0.6090236
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Egypt
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.2827
-</td>
-<td style="text-align:right;">
-132
-</td>
-<td style="text-align:right;">
-0.7157028
-</td>
-<td style="text-align:right;">
-0.6112053
-</td>
-<td style="text-align:right;">
-0.5413517
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-El Salvador
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.0605
-</td>
-<td style="text-align:right;">
-49
-</td>
-<td style="text-align:right;">
-0.7262493
-</td>
-<td style="text-align:right;">
-0.6616731
-</td>
-<td style="text-align:right;">
-0.5832978
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Estonia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.1888
-</td>
-<td style="text-align:right;">
-40
-</td>
-<td style="text-align:right;">
-0.6429901
-</td>
-<td style="text-align:right;">
-0.7027900
-</td>
-<td style="text-align:right;">
-0.4674047
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ethiopia
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.2747
-</td>
-<td style="text-align:right;">
-133
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Finland
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.8421
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0.6529449
-</td>
-<td style="text-align:right;">
-0.7127840
-</td>
-<td style="text-align:right;">
-0.5339543
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-France
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-6.6899
-</td>
-<td style="text-align:right;">
-21
-</td>
-<td style="text-align:right;">
-0.7327342
-</td>
-<td style="text-align:right;">
-0.6613218
-</td>
-<td style="text-align:right;">
-0.5412699
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Gabon
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.8518
-</td>
-<td style="text-align:right;">
-112
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Gambia
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.0510
-</td>
-<td style="text-align:right;">
-98
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Georgia
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-4.8914
-</td>
-<td style="text-align:right;">
-108
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Germany
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.1545
-</td>
-<td style="text-align:right;">
-13
-</td>
-<td style="text-align:right;">
-0.6997897
-</td>
-<td style="text-align:right;">
-0.6624700
-</td>
-<td style="text-align:right;">
-0.5078050
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ghana
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.0884
-</td>
-<td style="text-align:right;">
-95
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Greece
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-5.7226
-</td>
-<td style="text-align:right;">
-68
-</td>
-<td style="text-align:right;">
-0.7226000
-</td>
-<td style="text-align:right;">
-0.6702429
-</td>
-<td style="text-align:right;">
-0.4996237
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Guatemala
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.4345
-</td>
-<td style="text-align:right;">
-30
-</td>
-<td style="text-align:right;">
-0.7124577
-</td>
-<td style="text-align:right;">
-0.6380458
-</td>
-<td style="text-align:right;">
-0.6063943
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Guinea
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.9843
-</td>
-<td style="text-align:right;">
-102
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Haiti
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-3.6149
-</td>
-<td style="text-align:right;">
-143
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Honduras
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.9192
-</td>
-<td style="text-align:right;">
-59
-</td>
-<td style="text-align:right;">
-0.7128377
-</td>
-<td style="text-align:right;">
-0.6529583
-</td>
-<td style="text-align:right;">
-0.5746582
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Hong Kong
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-0.5862543
-</td>
-<td style="text-align:right;">
-0.5675704
-</td>
-<td style="text-align:right;">
-0.4433128
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Hong Kong S.A.R. of China
-</td>
-<td style="text-align:left;">
-East Asia
-</td>
-<td style="text-align:right;">
-5.4767
-</td>
-<td style="text-align:right;">
-77
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Hungary
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.9916
-</td>
-<td style="text-align:right;">
-53
-</td>
-<td style="text-align:right;">
-0.7074072
-</td>
-<td style="text-align:right;">
-0.6645674
-</td>
-<td style="text-align:right;">
-0.5182870
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Iceland
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.5539
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-0.6552998
-</td>
-<td style="text-align:right;">
-0.5236390
-</td>
-<td style="text-align:right;">
-0.4694664
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-India
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-3.8189
-</td>
-<td style="text-align:right;">
-139
-</td>
-<td style="text-align:right;">
-0.6660185
-</td>
-<td style="text-align:right;">
-0.6257881
-</td>
-<td style="text-align:right;">
-0.4925757
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Indonesia
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-5.3445
-</td>
-<td style="text-align:right;">
-82
-</td>
-<td style="text-align:right;">
-0.5628583
-</td>
-<td style="text-align:right;">
-0.5083169
-</td>
-<td style="text-align:right;">
-0.4047264
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Iran
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.7212
-</td>
-<td style="text-align:right;">
-118
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Iraq
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.8541
-</td>
-<td style="text-align:right;">
-111
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ireland
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.0853
-</td>
-<td style="text-align:right;">
-15
-</td>
-<td style="text-align:right;">
-0.6528951
-</td>
-<td style="text-align:right;">
-0.6739207
-</td>
-<td style="text-align:right;">
-0.5144107
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Israel
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-7.1571
-</td>
-<td style="text-align:right;">
-12
-</td>
-<td style="text-align:right;">
-0.6482851
-</td>
-<td style="text-align:right;">
-0.5936377
-</td>
-<td style="text-align:right;">
-0.4882465
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Italy
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-6.4831
-</td>
-<td style="text-align:right;">
-28
-</td>
-<td style="text-align:right;">
-0.6514532
-</td>
-<td style="text-align:right;">
-0.6913623
-</td>
-<td style="text-align:right;">
-0.5091042
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ivory Coast
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.3060
-</td>
-<td style="text-align:right;">
-85
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Jamaica
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.3092
-</td>
-<td style="text-align:right;">
-37
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Japan
-</td>
-<td style="text-align:left;">
-East Asia
-</td>
-<td style="text-align:right;">
-5.9405
-</td>
-<td style="text-align:right;">
-56
-</td>
-<td style="text-align:right;">
-0.5984204
-</td>
-<td style="text-align:right;">
-0.7298657
-</td>
-<td style="text-align:right;">
-0.5833426
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Jordan
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.3946
-</td>
-<td style="text-align:right;">
-127
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kazakhstan
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-6.1518
-</td>
-<td style="text-align:right;">
-45
-</td>
-<td style="text-align:right;">
-0.6840741
-</td>
-<td style="text-align:right;">
-0.6657929
-</td>
-<td style="text-align:right;">
-0.4791853
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kenya
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.6066
-</td>
-<td style="text-align:right;">
-121
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kosovo
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.3720
-</td>
-<td style="text-align:right;">
-33
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kuwait
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-6.1061
-</td>
-<td style="text-align:right;">
-47
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Kyrgyzstan
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.7436
-</td>
-<td style="text-align:right;">
-67
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Laos
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-5.0300
-</td>
-<td style="text-align:right;">
-100
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Latvia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.0320
-</td>
-<td style="text-align:right;">
-51
-</td>
-<td style="text-align:right;">
-0.6646480
-</td>
-<td style="text-align:right;">
-0.6669997
-</td>
-<td style="text-align:right;">
-0.4586133
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Lebanon
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.5838
-</td>
-<td style="text-align:right;">
-123
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Lesotho
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.5118
-</td>
-<td style="text-align:right;">
-145
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Liberia
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.6252
-</td>
-<td style="text-align:right;">
-120
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Libya
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-5.4103
-</td>
-<td style="text-align:right;">
-80
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Lithuania
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.2554
-</td>
-<td style="text-align:right;">
-38
-</td>
-<td style="text-align:right;">
-0.6617763
-</td>
-<td style="text-align:right;">
-0.6571845
-</td>
-<td style="text-align:right;">
-0.4655801
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Luxembourg
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.3244
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-0.6886505
-</td>
-<td style="text-align:right;">
-0.6529272
-</td>
-<td style="text-align:right;">
-0.5207501
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Madagascar
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.2085
-</td>
-<td style="text-align:right;">
-135
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Malawi
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.6000
-</td>
-<td style="text-align:right;">
-144
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Malaysia
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-5.3843
-</td>
-<td style="text-align:right;">
-81
-</td>
-<td style="text-align:right;">
-0.5979358
-</td>
-<td style="text-align:right;">
-0.5848258
-</td>
-<td style="text-align:right;">
-0.4383599
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Maldives
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-5.1976
-</td>
-<td style="text-align:right;">
-89
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mali
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.7235
-</td>
-<td style="text-align:right;">
-117
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Malta
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-6.6020
-</td>
-<td style="text-align:right;">
-23
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mauritania
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.2274
-</td>
-<td style="text-align:right;">
-134
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mauritius
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-6.0490
-</td>
-<td style="text-align:right;">
-50
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mexico
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.3168
-</td>
-<td style="text-align:right;">
-36
-</td>
-<td style="text-align:right;">
-0.7068937
-</td>
-<td style="text-align:right;">
-0.6309640
-</td>
-<td style="text-align:right;">
-0.6312218
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Moldova
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.7664
-</td>
-<td style="text-align:right;">
-65
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mongolia
-</td>
-<td style="text-align:left;">
-East Asia
-</td>
-<td style="text-align:right;">
-5.6772
-</td>
-<td style="text-align:right;">
-70
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Montenegro
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.5805
-</td>
-<td style="text-align:right;">
-72
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Morocco
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.9180
-</td>
-<td style="text-align:right;">
-106
-</td>
-<td style="text-align:right;">
-0.6921049
-</td>
-<td style="text-align:right;">
-0.5874032
-</td>
-<td style="text-align:right;">
-0.5055644
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Mozambique
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.7945
-</td>
-<td style="text-align:right;">
-115
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Myanmar
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-4.4258
-</td>
-<td style="text-align:right;">
-126
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Namibia
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.5741
-</td>
-<td style="text-align:right;">
-124
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Nepal
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-5.2689
-</td>
-<td style="text-align:right;">
-87
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
 <td style="text-align:left;">
-Netherlands
+<a href="https://open.spotify.com/track/7rglLriMNBPAyuJOMGwi39" class="uri">https://open.spotify.com/track/7rglLriMNBPAyuJOMGwi39</a>
 </td>
 <td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.4640
-</td>
-<td style="text-align:right;">
-5
+7rglLriMNBPAyuJOMGwi39
 </td>
 <td style="text-align:right;">
-0.6962831
+0.795
 </td>
 <td style="text-align:right;">
-0.6548411
+0.800
 </td>
 <td style="text-align:right;">
-0.5813321
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-New Zealand
+0.934
 </td>
 <td style="text-align:left;">
 North America and ANZ
 </td>
 <td style="text-align:right;">
-7.2766
+7.1033
 </td>
 <td style="text-align:right;">
-9
-</td>
-<td style="text-align:right;">
-0.6734161
-</td>
-<td style="text-align:right;">
-0.6351290
-</td>
-<td style="text-align:right;">
-0.5375649
+14
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Nicaragua
+Canada
 </td>
 <td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.9721
-</td>
-<td style="text-align:right;">
-55
-</td>
-<td style="text-align:right;">
-0.7207281
-</td>
-<td style="text-align:right;">
-0.6612255
-</td>
-<td style="text-align:right;">
-0.5765019
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Niger
+ca
 </td>
 <td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.0741
-</td>
-<td style="text-align:right;">
-96
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Nigeria
+2022-02-25
 </td>
 <td style="text-align:left;">
-Sub-Saharan Africa
+2022-03-04
 </td>
 <td style="text-align:right;">
-4.7593
-</td>
-<td style="text-align:right;">
-116
-</td>
-<td style="text-align:right;">
-0.7603665
-</td>
-<td style="text-align:right;">
-0.6625778
-</td>
-<td style="text-align:right;">
-0.6325466
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-North Cyprus
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-5.5355
-</td>
-<td style="text-align:right;">
-74
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-North Macedonia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-5.1012
-</td>
-<td style="text-align:right;">
-94
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Norway
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.3925
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-0.6425236
-</td>
-<td style="text-align:right;">
-0.5951719
-</td>
-<td style="text-align:right;">
-0.4756742
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Pakistan
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-4.9340
-</td>
-<td style="text-align:right;">
-105
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Palestinian Territories
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.5167
-</td>
-<td style="text-align:right;">
-125
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Panama
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-6.1796
-</td>
-<td style="text-align:right;">
-41
-</td>
-<td style="text-align:right;">
-0.7167615
-</td>
-<td style="text-align:right;">
-0.6829061
-</td>
-<td style="text-align:right;">
-0.5842990
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Paraguay
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.6526
-</td>
-<td style="text-align:right;">
-71
-</td>
-<td style="text-align:right;">
-0.7177974
-</td>
-<td style="text-align:right;">
-0.6945139
-</td>
-<td style="text-align:right;">
-0.6487074
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Peru
-</td>
-<td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-5.8396
-</td>
-<td style="text-align:right;">
-63
-</td>
-<td style="text-align:right;">
-0.7365523
-</td>
-<td style="text-align:right;">
-0.7004824
-</td>
-<td style="text-align:right;">
-0.6187870
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Philippines
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-5.8802
-</td>
-<td style="text-align:right;">
-61
-</td>
-<td style="text-align:right;">
-0.6034857
-</td>
-<td style="text-align:right;">
-0.5219030
-</td>
-<td style="text-align:right;">
-0.4271533
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Poland
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.1661
-</td>
-<td style="text-align:right;">
-44
-</td>
-<td style="text-align:right;">
-0.7275911
-</td>
-<td style="text-align:right;">
-0.6419235
-</td>
-<td style="text-align:right;">
-0.5272818
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Portugal
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-5.9290
-</td>
-<td style="text-align:right;">
-58
-</td>
-<td style="text-align:right;">
-0.6900691
-</td>
-<td style="text-align:right;">
-0.6472425
-</td>
-<td style="text-align:right;">
-0.5663800
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Romania
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.1400
-</td>
-<td style="text-align:right;">
-46
-</td>
-<td style="text-align:right;">
-0.7213117
-</td>
-<td style="text-align:right;">
-0.6580086
-</td>
-<td style="text-align:right;">
-0.4970850
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Russia
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.4772
-</td>
-<td style="text-align:right;">
-76
-</td>
-<td style="text-align:right;">
-0.6860076
-</td>
-<td style="text-align:right;">
-0.6799659
-</td>
-<td style="text-align:right;">
-0.4736277
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Rwanda
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.4147
-</td>
-<td style="text-align:right;">
-147
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Saudi Arabia
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-6.4940
-</td>
-<td style="text-align:right;">
-26
-</td>
-<td style="text-align:right;">
-0.6383755
-</td>
-<td style="text-align:right;">
-0.6536338
-</td>
-<td style="text-align:right;">
-0.5292986
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Senegal
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-5.1318
-</td>
-<td style="text-align:right;">
-92
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Serbia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.0779
-</td>
-<td style="text-align:right;">
-48
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Sierra Leone
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.8494
-</td>
-<td style="text-align:right;">
-138
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Singapore
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-6.3765
-</td>
-<td style="text-align:right;">
-32
-</td>
-<td style="text-align:right;">
-0.6110974
-</td>
-<td style="text-align:right;">
-0.6023441
-</td>
-<td style="text-align:right;">
-0.4679703
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Slovakia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.3309
-</td>
-<td style="text-align:right;">
-34
-</td>
-<td style="text-align:right;">
-0.6905424
-</td>
-<td style="text-align:right;">
-0.6825385
-</td>
-<td style="text-align:right;">
-0.4875293
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Slovenia
-</td>
-<td style="text-align:left;">
-Central and Eastern Europe
-</td>
-<td style="text-align:right;">
-6.4607
-</td>
-<td style="text-align:right;">
-29
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-South Africa
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.9564
-</td>
-<td style="text-align:right;">
-103
-</td>
-<td style="text-align:right;">
-0.7002589
-</td>
-<td style="text-align:right;">
-0.5850207
-</td>
-<td style="text-align:right;">
-0.4592435
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-South Korea
-</td>
-<td style="text-align:left;">
-East Asia
-</td>
-<td style="text-align:right;">
-5.8455
-</td>
-<td style="text-align:right;">
-62
-</td>
-<td style="text-align:right;">
-0.6434635
-</td>
-<td style="text-align:right;">
-0.6672347
-</td>
-<td style="text-align:right;">
-0.5297744
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Spain
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-6.4907
-</td>
-<td style="text-align:right;">
-27
-</td>
-<td style="text-align:right;">
-0.7398602
-</td>
-<td style="text-align:right;">
-0.6991270
-</td>
-<td style="text-align:right;">
-0.6218947
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Sri Lanka
-</td>
-<td style="text-align:left;">
-South Asia
-</td>
-<td style="text-align:right;">
-4.3250
-</td>
-<td style="text-align:right;">
-129
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Swaziland
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.3081
-</td>
-<td style="text-align:right;">
-130
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Sweden
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.3627
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-0.6715828
-</td>
-<td style="text-align:right;">
-0.6443019
-</td>
-<td style="text-align:right;">
-0.5194846
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Switzerland
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.5715
+844855
 </td>
 <td style="text-align:right;">
 3
 </td>
-<td style="text-align:right;">
-0.6755041
-</td>
-<td style="text-align:right;">
-0.6614996
-</td>
-<td style="text-align:right;">
-0.5151935
-</td>
-</tr>
-<tr>
 <td style="text-align:left;">
-Taiwan
+<a href="https://open.spotify.com/track/52xJxFP6TqMuO4Yt0eOkMz" class="uri">https://open.spotify.com/track/52xJxFP6TqMuO4Yt0eOkMz</a>
 </td>
 <td style="text-align:left;">
-NA
+52xJxFP6TqMuO4Yt0eOkMz
 </td>
 <td style="text-align:right;">
-NA
+0.577
 </td>
 <td style="text-align:right;">
-NA
+0.450
 </td>
 <td style="text-align:right;">
-0.5743900
-</td>
-<td style="text-align:right;">
-0.5782357
-</td>
-<td style="text-align:right;">
-0.4008411
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Taiwan Province of China
-</td>
-<td style="text-align:left;">
-East Asia
-</td>
-<td style="text-align:right;">
-6.5844
-</td>
-<td style="text-align:right;">
-24
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Tajikistan
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.4662
-</td>
-<td style="text-align:right;">
-78
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Tanzania
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-3.6232
-</td>
-<td style="text-align:right;">
-142
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Thailand
-</td>
-<td style="text-align:left;">
-Southeast Asia
-</td>
-<td style="text-align:right;">
-5.9847
-</td>
-<td style="text-align:right;">
-54
-</td>
-<td style="text-align:right;">
-0.6547445
-</td>
-<td style="text-align:right;">
-0.5967818
-</td>
-<td style="text-align:right;">
-0.5424940
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Togo
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.1068
-</td>
-<td style="text-align:right;">
-136
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Tunisia
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.5965
-</td>
-<td style="text-align:right;">
-122
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Turkey
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-4.9476
-</td>
-<td style="text-align:right;">
-104
-</td>
-<td style="text-align:right;">
-0.6492160
-</td>
-<td style="text-align:right;">
-0.6128975
-</td>
-<td style="text-align:right;">
-0.4760636
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Turkmenistan
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-5.0664
-</td>
-<td style="text-align:right;">
-97
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Uganda
-</td>
-<td style="text-align:left;">
-Sub-Saharan Africa
-</td>
-<td style="text-align:right;">
-4.6365
-</td>
-<td style="text-align:right;">
-119
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Ukraine
-</td>
-<td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-4.8748
-</td>
-<td style="text-align:right;">
-110
-</td>
-<td style="text-align:right;">
-0.6820126
-</td>
-<td style="text-align:right;">
-0.6865280
-</td>
-<td style="text-align:right;">
-0.4774423
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-United Arab Emirates
-</td>
-<td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-6.5605
-</td>
-<td style="text-align:right;">
-25
-</td>
-<td style="text-align:right;">
-0.6547952
-</td>
-<td style="text-align:right;">
-0.6292655
-</td>
-<td style="text-align:right;">
-0.4827397
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-United Kingdom
-</td>
-<td style="text-align:left;">
-Western Europe
-</td>
-<td style="text-align:right;">
-7.0636
-</td>
-<td style="text-align:right;">
-17
-</td>
-<td style="text-align:right;">
-0.6684967
-</td>
-<td style="text-align:right;">
-0.6665605
-</td>
-<td style="text-align:right;">
-0.5372348
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-United States
+0.830
 </td>
 <td style="text-align:left;">
 North America and ANZ
 </td>
 <td style="text-align:right;">
-6.9515
+7.1033
 </td>
 <td style="text-align:right;">
-19
-</td>
-<td style="text-align:right;">
-0.6662003
-</td>
-<td style="text-align:right;">
-0.6244322
-</td>
-<td style="text-align:right;">
-0.4709214
+14
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Uruguay
+Canada
 </td>
 <td style="text-align:left;">
-Latin America and Caribbean
+ca
+</td>
+<td style="text-align:left;">
+2022-02-25
+</td>
+<td style="text-align:left;">
+2022-03-04
 </td>
 <td style="text-align:right;">
-6.4314
+832044
 </td>
 <td style="text-align:right;">
-31
+4
+</td>
+<td style="text-align:left;">
+<a href="https://open.spotify.com/track/5PjdY0CKGZdEuoNab3yDmX" class="uri">https://open.spotify.com/track/5PjdY0CKGZdEuoNab3yDmX</a>
+</td>
+<td style="text-align:left;">
+5PjdY0CKGZdEuoNab3yDmX
 </td>
 <td style="text-align:right;">
-0.7373960
+0.591
 </td>
 <td style="text-align:right;">
-0.6752378
+0.764
 </td>
 <td style="text-align:right;">
-0.6668523
+0.478
+</td>
+<td style="text-align:left;">
+North America and ANZ
+</td>
+<td style="text-align:right;">
+7.1033
+</td>
+<td style="text-align:right;">
+14
 </td>
 </tr>
 <tr>
 <td style="text-align:left;">
-Uzbekistan
+Canada
 </td>
 <td style="text-align:left;">
-Commonwealth of Independent States
-</td>
-<td style="text-align:right;">
-6.1788
-</td>
-<td style="text-align:right;">
-42
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Venezuela
+ca
 </td>
 <td style="text-align:left;">
-Latin America and Caribbean
-</td>
-<td style="text-align:right;">
-4.8922
-</td>
-<td style="text-align:right;">
-107
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Vietnam
+2022-02-25
 </td>
 <td style="text-align:left;">
-Southeast Asia
+2022-03-04
 </td>
 <td style="text-align:right;">
-5.4108
+738693
 </td>
 <td style="text-align:right;">
-79
-</td>
-<td style="text-align:right;">
-0.6650792
-</td>
-<td style="text-align:right;">
-0.5540638
-</td>
-<td style="text-align:right;">
-0.4642612
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Yemen
+5
 </td>
 <td style="text-align:left;">
-Middle East and North Africa
-</td>
-<td style="text-align:right;">
-3.6579
-</td>
-<td style="text-align:right;">
-141
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Zambia
+<a href="https://open.spotify.com/track/5Z9KJZvQzH6PFmb8SNkxuk" class="uri">https://open.spotify.com/track/5Z9KJZvQzH6PFmb8SNkxuk</a>
 </td>
 <td style="text-align:left;">
-Sub-Saharan Africa
+5Z9KJZvQzH6PFmb8SNkxuk
 </td>
 <td style="text-align:right;">
-4.0734
+0.741
 </td>
 <td style="text-align:right;">
-137
+0.691
 </td>
 <td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Zimbabwe
+0.892
 </td>
 <td style="text-align:left;">
-Sub-Saharan Africa
+North America and ANZ
 </td>
 <td style="text-align:right;">
-3.1448
+7.1033
 </td>
 <td style="text-align:right;">
-148
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
+14
 </td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>As we can see in</p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:view-merged-data-2">Table 8: </span>Example of per-country data
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+country
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_danceability
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_energy
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+mean_valence
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+region
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+happiness
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+happiness_rank
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Argentina
+</td>
+<td style="text-align:right;">
+0.7305649
+</td>
+<td style="text-align:right;">
+0.6688815
+</td>
+<td style="text-align:right;">
+0.6551697
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.9293
+</td>
+<td style="text-align:right;">
+57
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Australia
+</td>
+<td style="text-align:right;">
+0.6559271
+</td>
+<td style="text-align:right;">
+0.6612825
+</td>
+<td style="text-align:right;">
+0.5141292
+</td>
+<td style="text-align:left;">
+North America and ANZ
+</td>
+<td style="text-align:right;">
+7.1835
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Austria
+</td>
+<td style="text-align:right;">
+0.6806558
+</td>
+<td style="text-align:right;">
+0.6762681
+</td>
+<td style="text-align:right;">
+0.5194063
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.2678
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belarus
+</td>
+<td style="text-align:right;">
+0.6841963
+</td>
+<td style="text-align:right;">
+0.6668493
+</td>
+<td style="text-align:right;">
+0.4595995
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.5335
+</td>
+<td style="text-align:right;">
+75
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belgium
+</td>
+<td style="text-align:right;">
+0.6708035
+</td>
+<td style="text-align:right;">
+0.6573458
+</td>
+<td style="text-align:right;">
+0.5310949
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.8340
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="data-merging" class="section level2">
-<h2>Data Merging</h2>
-<p>Now that we have collected the song-related data from the Spotify API, we can merge our two separate datasets together</p>
-<p>Now that we have cleaned the data in each of our two separate datasets and prepared it for use, we can merge the tables together.</p>
 </div>
 <div id="data-exploration" class="section level2">
 <h2>Data Exploration</h2>
+<p>Now that our tables have been thoroughly cleaned and merged, we can begin to explore the data which we collected in greater detail.</p>
+<p><img src="data:image/png;base64,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8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAhLrwVCwSeBaICbG5s8PQAIS68FQsEngWiAmxubPD0ACEuvBULBJ4FogJsbmzw9AAh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hbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KBwLNAVIDNjQ2eHiDEhbdigcCzQFSAzY0Nnh4gxIW3YoHAs0BUgM2NDZ4eIMSFt2KB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" width="1056" /></p>
 </div>
 </div>
 <div id="methods-1" class="section level1">
 <h1>Methods</h1>
+<p>The key question which guided our research was “is there a correlation between countries’ happiness levels and the happiness of the music which they listen to on Spotify?”</p>
+<p>To answer this question, we will compare each country’s average Spotify valence to their happiness. We will compute the correlation between these variables using two different correlation metrics; the Pearson correlation coefficient, and Spearman’s rank correlation coefficient.</p>
+<p>The Pearson correlation coefficient is a measure of how linear a relationship is between two sets of values. The closer that the Pearson coefficient is to 1 (or -1), the more linear the relationship is. Although the Pearson correlation coefficient is the most commonly-used correlation coefficient, it may not always indicate the presence of a relationship between two variables, if the relationship is non-linear.</p>
+<p><a href="https://statisticsbyjim.com/basics/spearmans-correlation/">Spearman’s rank correlation coefficient</a> is a distinct measure of the correlation between two numerical variables. Instead of directly measuring how linear the relationship is between the two variables, this metric ranks each of the variables, and then determines whether the rankings of these variables are associated with one another.</p>
 </div>
 <div id="preliminary-results" class="section level1">
 <h1>Preliminary Results</h1>
@@ -6005,7 +3026,7 @@ NA
 <p>Overall, the most noticeable limitation of this research project is that the results of this study require an underlying assumption that Spotify users in a given country are representative of the population of that country as a whole.</p>
 <p>There are a variety of reasons why this assumption may not be well-founded, from a statistical perspective. Two particularly large issues with this assumption are:
 - Spotify demographics may not represent
-- The set of people who have access to Spotify</p>
+- The set of people who have access to Spotify in each country</p>
 <p>In addition, there are only 72 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries.</p>
 </div>
 <div id="future-steps" class="section level2">
