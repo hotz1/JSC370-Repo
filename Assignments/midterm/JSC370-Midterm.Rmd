@@ -22,6 +22,7 @@ library(data.table)
 library(knitr)
 library(kableExtra)
 library(spotifyr)
+library(stringr)
 
 # library(httr)
 # library(wesanderson)
@@ -31,15 +32,6 @@ library(spotifyr)
 # Introduction
 
 The [World Happiness Report](https://worldhappiness.report/ed/2021/) is an annually-published report which is written by members of the [United Nations Sustainable Development Solutions Network](https://www.unsdsn.org/)
-
-
-```{r spotify-setup, echo = FALSE}
-client_id <- read_file("spotify_client_id.txt")
-client_secret <- read_file("spotify_client_secret.txt")
-Sys.setenv(SPOTIFY_CLIENT_ID = client_id)
-Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
-access_token <- get_spotify_access_token()
-```
 
 # Methods
 
@@ -68,11 +60,23 @@ knitr::kable(head(happiness_index, 7),
   scroll_box(width = "100%")
 ```
 
-Unlike the data which we collected from the 2021 edition of the World Happiness Report, the information about the Top 200 songs on Spotify in each country was significantly more difficult to collect and load into R.
+Unlike the data which we collected from the 2021 edition of the World Happiness Report, the information relating to the most-played songs on Spotify in each country was significantly more difficult to collect and load into R.
+
+To collect information about the most-played songs on Spotify in each of the countries, we scraped data from the [Spotify Charts](https://spotifycharts.com/regional/global/daily/latest) website in Python, using the `requests` and `BeautifulSoup` modules to collect the raw HTML code for the website, and coercing this data into a data frame using `pandas`.
+
+The Spotify Charts website has information available for 71 countries, a majority of which are located in North America or Europe, and are primarily richer countries. Of the 71 countries with data available on the Spotify Charts website, only two of these countries (Nigeria and South Africa) are located in Sub-Saharan Africa, despite the fact that this is the geographic region with the largest number of countries, according to the World Happiness Report's list of regions.
+
+Within Spotify's API, as well as the Spotify Charts website, each of these 71 countries has a corresponding two-letter country code. For example, Canada's code is "ca", and New Zealand's code is "nz". For any given country, the Spotify Charts link for the Top 200 songs in that country in a given week (Friday to Friday) is `https://spotifycharts.com/regional/[COUNTRY CODE]/weekly/[START OF WEEK]--[END OF WEEK]`, where the country code is the unique two-letter identifier, and "week start" and "week end" are the first and last days of the week respectively, each written in `YYYY-MM-DD` format.
+
+To collect information from the Spotify Charts website, we defined a function to collect data from the Spotify Charts website given three inputs; a two-letter country code, and the starting and ending dates for the week. We then used a for-loop in Python to iterate through the 71 country codes which are usable on the Spotify Charts site, and we applied this function once for each of the country codes. 
+
+Our Python scraping function uses the Python `requests` module to scrape the HTML from the webpage corresponding to that country's Top 200 Weekly songs on Spotify, parses the HTML into text with the `BeautifulSoup` module, and stores the resulting text information in a `pandas` dataframe. In addition to the five columns of the table which we were able to scrape from the Spotify Charts website, we augment the
+
+Table \@ref(tab:view-data-2), shown below, displays the Top 5 most streamed songs on Spotify in Canada between February 25, 2022 and March 4, 2022. The output below shows the raw data which we collected directly from the Spotify Charts website using Python, as described above. We can clearly see that each observation in Table @\ref(tab:view-data-2) has elements which contain HTML code wrapped around the actual data point which we wanted to read from the Spotify Charts website.
 
 ```{r view-data-2, echo = FALSE}
-knitr::kable(head(spotify_data, 10),
-             caption = "Variables in the Southern California Children’s Health Study") %>%
+knitr::kable(head(filter(spotify_data, Country == "Canada"), 5),
+             caption = "Raw Data Collected from the Spotify Charts Website via Python") %>%
   kable_styling(bootstrap_options = c("striped", "bordered"),
                 fixed_thead = TRUE) %>%
   scroll_box(height = '800px', width = "100%")
@@ -80,10 +84,81 @@ knitr::kable(head(spotify_data, 10),
 
 ## Data Cleaning
 
+Tables \@ref(tab:view-data-1) and \@ref(tab:view-data-2), which were shown in the previous subsection, give us a quick glance at the data which we have collected from our sources and will be using in this report.
+
+The data which was collected from the World Happiness Report is well-formatted, and does not require any immediate cleaning in order for the information in the table to be readable and usable. However, we will be 'pruning' the columns of that dataset, as a majority of the variables available to us in the World Happiness Report dataset are not required for our research purposes.
+
+```{r clean-happiness-data, echo = FALSE}
+spotify_clean <- spotify_data %>%
+  mutate(plays = stringr::str_remove_all(Streams, ",")) %>%
+  mutate(plays = stringr::str_extract(plays, "[:digit:]+")) %>%
+  mutate(rank = stringr::str_extract(Position, "[:digit:]+")) %>%
+  mutate(track_link = stringr::str_extract(Source, "https://open.spotify.com/track/[:alnum:]*")) %>%
+  select(country = Country, country_code = Country_Code, begin = Week_Start, 
+         end = Week_Ending, plays, rank, track_link)
+
+# mutate(track = stringr::str_remove(track_link, "https://open.spotify.com/track/")) %>%
+
+knitr::kable(head(filter(spotify_clean, country == "Canada"), 5),
+             caption = "Spotify Charts Data, after Preliminary Cleaning") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(height = '800px', width = "100%")
+```
+
+On the other hand, the Spotify data which we collected via web scraping in Python requires serious changes in order for the data to be viable. The most important alteration which we need to make to this dataset is to edit the contents of each cell, to select the necessary contents of the cell which are wrapped in the HTML code, without keeping the rest of the unneeded HTML in the table.
+
+To remove this extraneous HTML code from our table, we will use the `stringr` library to remove particular regular expressions which match the unwanted HTML code in these cells.
+
+Although our table of Spotify Charts data contains nine variables, only the first five columns require regular expressions to be mutated into a more usable form, as the four rightmost columns were inputted manually in Python during the web scraping process, and have been properly formatted in advance.
+
+Of these five columns (Source, Position, Trend, Track, and Streams), only three of these columns must be fixed using regular expressions in order for us to use them in our research. These three columns are the Source, Position, and Streams columns. 
+
+The Trend column is not required to answer our research question, as we are only examining a 'snapshot' of time, and we do not need to concern ourselves with the overall week-to-week changes of these songs on the Top 200 songs chart.
+
+Although the information in the Track column is useful, we can simply recover this information using the `spotifyr` package, which invokes the API created by Spotify for accessing data from the Spotify servers.
+
+After our Spotify Charts data are cleaned, we will have a table which contains 7 variables per song. These variables are; the name of the country, the country's two-letter code, the beginning and ending of the chosen week, the number of times the song was streamed in the chosen country during the given week, the song's ranking on the Top 200 songs in the country for that week, and a link to the song on Spotify.
+
+The first four of these seven desired variables are already formatted well in our current Spotify dataset, as they are the four variables which we manually included in the data while scraping with Python. The other three variables will require us to remove the excess HTML code from our data, as displayed in Table \@ref(tab:view-data-2). We will remove this excess HTML using regular expressions.
+
+```{r clean-spotify-data, echo = FALSE}
+spotify_clean <- spotify_data %>%
+  mutate(plays = stringr::str_remove_all(Streams, ",")) %>%
+  mutate(plays = stringr::str_extract(plays, "[:digit:]+")) %>%
+  mutate(rank = stringr::str_extract(Position, "[:digit:]+")) %>%
+  mutate(track_link = stringr::str_extract(Source, "https://open.spotify.com/track/[:alnum:]*")) %>%
+  select(country = Country, country_code = Country_Code, begin = Week_Start, 
+         end = Week_Ending, plays, rank, track_link)
+
+# mutate(track = stringr::str_remove(track_link, "https://open.spotify.com/track/")) %>%
+
+knitr::kable(head(filter(spotify_clean, country == "Canada"), 5),
+             caption = "Spotify Charts Data, after Preliminary Cleaning") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(height = '800px', width = "100%")
+```
+
+Table \@ref(tab:clean-spotify-data), which is shown above, depicts the observations in our cleaned dataset corresponding to the Top 5 most streamed songs on Spotify in Canada between February 25 and March 4, 2022. 
+
+At this point, our cleaning process included fixing up the text from the original data, removing unwanted HTML code from cells in the table, and removing excess variables which are unnecessary for answering our research question. The five songs shown in Table \@ref(tab:clean-spotify-data) are the same songs as those displayed in Table \@ref(tab:view-data-2), and there is a clear night-and-day difference between these two tables, despite the fact that the information is the same.
+
+```{r spotify-setup, echo = FALSE}
+client_id <- read_file("spotify_client_id.txt")
+client_secret <- read_file("spotify_client_secret.txt")
+Sys.setenv(SPOTIFY_CLIENT_ID = client_id)
+Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
+access_token <- get_spotify_access_token()
+```
+
+
 ```{r}
-library(stringr)
 hurricane_url <- "https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd"
 hurricane_url2 <- "6Hfu9sc7jvv6coyy2LlzBF"
+
+new <- stringr::str_replace(hurricane_url, "^.*track/", "") %>%
+  stringr::str_replace("\\?.*$", "")
 
 strip_url <- function(url){
   # url <- stringr::remove_all(url, "https://open.spotify.com/track/")
@@ -93,13 +168,24 @@ strip_url <- function(url){
 
 get_track(hurricane_url2)
 get_track_audio_features(hurricane_url2)
+get_track(new)
 ```
 
-# Works Cited:
 
-- https://medium.com/\@aaron.turnbull76/exploring-spotifys-top-200-for-2018-b6fb1cb7b3de
-- https://charts.spotify.com/
-- https://worldhappiness.report/ed/2021/
-- https://hdr.undp.org/en
-- https://www.geeksforgeeks.org/scrape-tables-from-any-website-using-python/
-- https://github.com/kelvingakuo/fycharts
+# Methods
+
+# Preliminary Results
+
+# Conclusions
+
+## Limitations
+
+Overall, the most noticeable limitation of this research project is that the results of this study require an underlying assumption that Spotify users in a given country are representative of the population of that country as a whole.
+
+There are a variety of reasons why this assumption may not be well-founded, from a statistical perspective. Two particularly large issues with this assumption are:
+- Spotify demographics may not represent
+- The set of people who have access to Spotify 
+
+In addition, there are only 71 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries. 
+
+## Future Steps
