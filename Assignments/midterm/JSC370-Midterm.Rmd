@@ -43,7 +43,7 @@ The first steps of any statistical project are to collect the data which we want
 library(readxl)
 # human_development <- read_xlsx("2020_Statistical_Annex_Table_1.xlsx")
 happiness_index <- read_xls("DataForFigure2.1WHR2021C2.xls")
-spotify_data <- read.csv("spotify_data_weekly.csv")
+spotify_data <- read_csv("spotify_data_weekly.csv") 
 ```
 
 The SDSN publicly publishes a new World Happiness Report every year, and their organization ensures that their data is easily accessible. To collect the data from the most recent [World Happiness Report](https://worldhappiness.report/ed/2021/) (released in March 2021), we simply need to navigate the the 2021 report on the World Happiness Report website, and click the button labelled "Data for Figure 2.1". In the 2021 World Happiness Report, Figure 2.1 represents the main table containing the SDSN's findings, including the happiness index values which they computed for each country.
@@ -64,11 +64,11 @@ Unlike the data which we collected from the 2021 edition of the World Happiness 
 
 To collect information about the most-played songs on Spotify in each of the countries, we scraped data from the [Spotify Charts](https://spotifycharts.com/regional/global/daily/latest) website in Python, using the `requests` and `BeautifulSoup` modules to collect the raw HTML code for the website, and coercing this data into a data frame using `pandas`.
 
-The Spotify Charts website has information available for 71 countries, a majority of which are located in North America or Europe, and are primarily richer countries. Of the 71 countries with data available on the Spotify Charts website, only two of these countries (Nigeria and South Africa) are located in Sub-Saharan Africa, despite the fact that this is the geographic region with the largest number of countries, according to the World Happiness Report's list of regions.
+The Spotify Charts website has information available for 72 countries, a majority of which are located in North America or Europe, and are primarily richer countries. Of the 72 countries with data available on the Spotify Charts website, only two of these countries (Nigeria and South Africa) are located in Sub-Saharan Africa, despite the fact that this is the geographic region with the largest number of countries, according to the World Happiness Report's list of regions.
 
-Within Spotify's API, as well as the Spotify Charts website, each of these 71 countries has a corresponding two-letter country code. For example, Canada's code is "ca", and New Zealand's code is "nz". For any given country, the Spotify Charts link for the Top 200 songs in that country in a given week (Friday to Friday) is `https://spotifycharts.com/regional/[COUNTRY CODE]/weekly/[START OF WEEK]--[END OF WEEK]`, where the country code is the unique two-letter identifier, and "week start" and "week end" are the first and last days of the week respectively, each written in `YYYY-MM-DD` format.
+Within Spotify's API, as well as the Spotify Charts website, each of these 72 countries has a corresponding two-letter country code. For example, Canada's code is "ca", and New Zealand's code is "nz". For any given country, the Spotify Charts link for the Top 200 songs in that country in a given week (Friday to Friday) is `https://spotifycharts.com/regional/[COUNTRY CODE]/weekly/[START OF WEEK]--[END OF WEEK]`, where the country code is the unique two-letter identifier, and "week start" and "week end" are the first and last days of the week respectively, each written in `YYYY-MM-DD` format.
 
-To collect information from the Spotify Charts website, we defined a function to collect data from the Spotify Charts website given three inputs; a two-letter country code, and the starting and ending dates for the week. We then used a for-loop in Python to iterate through the 71 country codes which are usable on the Spotify Charts site, and we applied this function once for each of the country codes. 
+To collect information from the Spotify Charts website, we defined a function to collect data from the Spotify Charts website given three inputs; a two-letter country code, and the starting and ending dates for the week. We then used a for-loop in Python to iterate through the 72 country codes which are usable on the Spotify Charts site, and we applied this function once for each of the country codes. 
 
 Our Python scraping function uses the Python `requests` module to scrape the HTML from the webpage corresponding to that country's Top 200 Weekly songs on Spotify, parses the HTML into text with the `BeautifulSoup` module, and stores the resulting text information in a `pandas` dataframe. In addition to the five columns of the table which we were able to scrape from the Spotify Charts website, we augment the
 
@@ -86,24 +86,14 @@ knitr::kable(head(filter(spotify_data, Country == "Canada"), 5),
 
 Tables \@ref(tab:view-data-1) and \@ref(tab:view-data-2), which were shown in the previous subsection, give us a quick glance at the data which we have collected from our sources and will be using in this report.
 
-The data which was collected from the World Happiness Report is well-formatted, and does not require any immediate cleaning in order for the information in the table to be readable and usable. However, we will be 'pruning' the columns of that dataset, as a majority of the variables available to us in the World Happiness Report dataset are not required for our research purposes.
+The data which was collected from the World Happiness Report is well-formatted, and does not require any immediate cleaning in order for the information in the table to be readable and usable. However, we will be 'pruning' the columns of that dataset, as a majority of the variables available to us in the World Happiness Report dataset are not required for our research purposes. 
+
+In particular, the only variables which we need from the World Happiness Report dataset are the first three columns; the name of the country, the geographic region where the country is located, and the country's happiness score. In addition to these three variables, we will create a 'ranking' variable, where each country is ranked in descending order of happiness, according to the World Happiness Report data.
 
 ```{r clean-happiness-data, echo = FALSE}
-spotify_clean <- spotify_data %>%
-  mutate(plays = stringr::str_remove_all(Streams, ",")) %>%
-  mutate(plays = stringr::str_extract(plays, "[:digit:]+")) %>%
-  mutate(rank = stringr::str_extract(Position, "[:digit:]+")) %>%
-  mutate(track_link = stringr::str_extract(Source, "https://open.spotify.com/track/[:alnum:]*")) %>%
-  select(country = Country, country_code = Country_Code, begin = Week_Start, 
-         end = Week_Ending, plays, rank, track_link)
-
-# mutate(track = stringr::str_remove(track_link, "https://open.spotify.com/track/")) %>%
-
-knitr::kable(head(filter(spotify_clean, country == "Canada"), 5),
-             caption = "Spotify Charts Data, after Preliminary Cleaning") %>%
-  kable_styling(bootstrap_options = c("striped", "bordered"),
-                fixed_thead = TRUE) %>%
-  scroll_box(height = '800px', width = "100%")
+happiness_small <- happiness_index %>%
+  select(country = `Country name`, region = `Regional indicator`, happiness = `Ladder score`) %>%
+  mutate(rank = rank(-happiness))
 ```
 
 On the other hand, the Spotify data which we collected via web scraping in Python requires serious changes in order for the data to be viable. The most important alteration which we need to make to this dataset is to edit the contents of each cell, to select the necessary contents of the cell which are wrapped in the HTML code, without keeping the rest of the unneeded HTML in the table.
@@ -126,23 +116,33 @@ The first four of these seven desired variables are already formatted well in ou
 spotify_clean <- spotify_data %>%
   mutate(plays = stringr::str_remove_all(Streams, ",")) %>%
   mutate(plays = stringr::str_extract(plays, "[:digit:]+")) %>%
-  mutate(rank = stringr::str_extract(Position, "[:digit:]+")) %>%
+  mutate(plays = as.numeric(plays)) %>%
+  mutate(song_rank = stringr::str_extract(Position, "[:digit:]+")) %>%
+  mutate(song_rank = as.numeric(song_rank)) %>%
   mutate(track_link = stringr::str_extract(Source, "https://open.spotify.com/track/[:alnum:]*")) %>%
   select(country = Country, country_code = Country_Code, begin = Week_Start, 
-         end = Week_Ending, plays, rank, track_link)
-
-# mutate(track = stringr::str_remove(track_link, "https://open.spotify.com/track/")) %>%
+         end = Week_Ending, plays, song_rank, track_link)
 
 knitr::kable(head(filter(spotify_clean, country == "Canada"), 5),
              caption = "Spotify Charts Data, after Preliminary Cleaning") %>%
   kable_styling(bootstrap_options = c("striped", "bordered"),
                 fixed_thead = TRUE) %>%
-  scroll_box(height = '800px', width = "100%")
+  scroll_box(width = "100%")
 ```
 
 Table \@ref(tab:clean-spotify-data), which is shown above, depicts the observations in our cleaned dataset corresponding to the Top 5 most streamed songs on Spotify in Canada between February 25 and March 4, 2022. 
 
-At this point, our cleaning process included fixing up the text from the original data, removing unwanted HTML code from cells in the table, and removing excess variables which are unnecessary for answering our research question. The five songs shown in Table \@ref(tab:clean-spotify-data) are the same songs as those displayed in Table \@ref(tab:view-data-2), and there is a clear night-and-day difference between these two tables, despite the fact that the information is the same.
+At this point, our cleaning process included fixing up the text from the original data, removing unwanted HTML code from cells in the table, and removing excess variables which are unnecessary for answering our research question. The five songs shown in Table \@ref(tab:clean-spotify-data) are the same songs as those displayed in Table \@ref(tab:view-data-2). There is a night-and-day difference between the elements of these two tables, despite the fact that the information is the same.
+
+## API Data Collection
+
+Now that we have cleaned the data which we collected from the Spotify Charts website, we can utilize the `spotifyr` package to collect additional data for each track, using the Spotify API.
+
+In Spotify's implementation of their platform, every track (songs, podcasts, etc.) has a unique identifier, which is part of the URL to that specific track on the Spotify client. The `spotifyr` package uses these identifiers in order to retrieve information about a particular track from the Spotify API. 
+
+To collect information about each of the tracks in the Top 200 lists, we will first determine the unique IDs for each of these tracks by using a regular expression to remove the Spotify domain from the track's URL.
+
+Once we have collected the track IDs for each of the tracks, we will then collect information about these tracks using Spotify's API. For each track, we will collect three numeric values from the Spotify API corresponding to the given track; its 'danceability', 'energy', and 'valence'.
 
 ```{r spotify-setup, echo = FALSE}
 client_id <- read_file("spotify_client_id.txt")
@@ -152,25 +152,144 @@ Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
 access_token <- get_spotify_access_token()
 ```
 
-
-```{r}
-hurricane_url <- "https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd"
-hurricane_url2 <- "6Hfu9sc7jvv6coyy2LlzBF"
-
-new <- stringr::str_replace(hurricane_url, "^.*track/", "") %>%
-  stringr::str_replace("\\?.*$", "")
-
-strip_url <- function(url){
-  # url <- stringr::remove_all(url, "https://open.spotify.com/track/")
-  # url <- stringr::remove_all()
-  return(url)
-}
-
-get_track(hurricane_url2)
-get_track_audio_features(hurricane_url2)
-get_track(new)
+```{r get-track-ids, echo = FALSE}
+spotify_clean <- spotify_clean %>%
+  mutate(track_id = stringr::str_remove(track_link, "https://open.spotify.com/track/"))
 ```
 
+```{r get-song-values, echo = FALSE, warning = FALSE}
+danceability = c()
+energy = c()
+valence = c()
+for(i in 1:(dim(spotify_clean)[1]/100)){
+  values = get_track_audio_features(spotify_clean$track_id[(100*i-99):(100*i)])
+  danceability = append(danceability, values$danceability)
+  energy = append(energy, values$energy)
+  valence = append(valence, values$valence)
+}
+
+spotify_clean <- spotify_clean %>%
+  cbind(danceability, energy, valence)
+```
+
+```{r get-song-info, eval = FALSE, include = FALSE}
+get_song_info <- function(track_id){
+  basic_info <- get_track(track_id)
+  if(NA %in% basic_info){
+    info <- tibble(song_title = NA,
+                   artists = NA,
+                   album_title = NA,
+                   danceability = NA, 
+                   energy = NA,
+                   valence = NA)
+    return(info)
+  }
+  
+  features_info <- get_track_audio_features(track_id)
+  if(NA %in% features_info){
+    info <- tibble(song_title = basic_info$name, 
+                   artists = paste0(basic_info$artists$name, collapse = ", "),
+                   album_title = basic_info$album$name,
+                   danceability = NA, 
+                   energy = NA,
+                   valence = NA)
+    return(info)
+  }
+  
+  info <- tibble(song_title = basic_info$name, 
+                 artists = paste0(basic_info$artists$name, collapse = ", "),
+                 album_title = basic_info$album$name,
+                 danceability = features_info$danceability, 
+                 energy = features_info$energy,
+                 valence = features_info$valence)
+  return(info)
+}
+
+tracks_info <- t(sapply(spotify_clean$track_id, get_song_info)) %>%
+  as_tibble()
+```
+
+
+```{r test-api, eval = FALSE, include = FALSE}
+hurricane_url <- "6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd"
+hurricane_url2 <- "7dZAPeA3Of5j5Vaef0DQ6M"
+hurricane1 <- get_track(hurricane_url)
+hurricane2 <- get_track(hurricane_url2)
+get_track_audio_features(hurricane_url2)
+```
+
+## Data Grouping
+
+In order to determine the average danceability, energy, and valence of the Top 200 songs for a particular country, we will use a weighted mean of each of these metrics, where the songs are weighted based on the number of streams which each track had in the given country during the specific time period.
+
+Before we compute these weighted averages, we will check to see how many missing values there are among the 11 variables in our dataset, as missing values can cause our weighted mean computation to be error-prone if not accounted for.
+
+```{r check-nas-1, echo = FALSE}
+knitr::kable(cbind(lapply(spotify_clean, typeof), 
+                   colSums(!is.na(spotify_clean)),
+                   colSums(is.na(spotify_clean))),
+             col.names = c("Variable Type", "Present Values", "Missing Values"),
+             caption = "Counts of Variables in our Spotify Dataset")
+```
+
+As we see in Table \@ref(tab:check-nas-1) above, there are no missing values for a majority of the variables in our dataset. The only non-recorded values are three missing values in each of the danceability, energy, and valence columns in our Spotify dataset.
+
+We will first examine the three tracks which had missing valences, as the valence of a track is more important to our results than the danceability or energy of a track. As Table \@ref(tab:examine-missing-valences) shows, the three tracks which do not have recorded valence values are also the three tracks which do not have danceability or energy values recorded either.
+
+```{r examine-missing-valences, echo = FALSE}
+knitr::kable(spotify_clean %>% filter(is.na(valence)),
+             caption = "Tracks which do not have recorded valence values") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(width = "100%")
+```
+Due to the lack of clarity surrounding how Spotify computes the danceability, energy, and valence of a given track, it would be very difficult to reliably impute these missing values. Instead of imputation, to account for these missing values, we will simply remove these three tracks from our dataset before computing the weighted means of the danceability, energy, and valence levels of each country's Top 200 songs on Spotify.
+
+Although these three countries (Argentina, Italy, and Uruguay) will only have 199 tracks instead of 200 tracks, this is not a particularly large discrepancy, especially since these songs were not massively popular tracks in their respective countries.
+
+```{r remove-missing-valences, echo = FALSE}
+spotify_clean <- spotify_clean%>%
+  filter(!is.na(valence))
+```
+
+Now that all of the missing values have been removed from the dataset, we can safely compute the weighted means for our three metrics, grouped by country. These three values are shown in Table \@ref(tab:compute-weighted-means).
+
+```{r compute-weighted-means, echo = FALSE}
+weighted_means_by_country <- spotify_clean %>%
+  group_by(country) %>% 
+  summarise(mean_danceability = weighted.mean(danceability, plays),
+            mean_energy = weighted.mean(energy, plays),
+            mean_valence = weighted.mean(valence, plays))
+
+weighted_means_by_country %>%
+  kable(caption = "Weighted means of danceability, energy, and valence among the Top 200 Songs per country on Spotify") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(height = "800px")
+```
+
+Lastly, we can merge these weighted means which are grouped by country with the World Happiness Report's findings, to put all of our accumulated information into one dataset. 
+
+As the Spotify Charts website may use different names for countries than the World Happiness Report, we will first merge these datasets together using a 'full join' on the names of the countries, and we will manually examine any countries which appear twice under slightly different names.
+
+```{r merge-tables-fulljoin, echo = FALSE}
+fully_merged <- merge(happiness_small, weighted_means_by_country, by = "country", all = TRUE)
+kable(fully_merged, caption = "'Full joining' our tables based on the country names") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(height = "800px", width = "100%")
+```
+As we can see in 
+
+
+## Data Merging
+
+Now that we have collected the song-related data from the Spotify API, we can merge our two separate datasets together
+
+Now that we have cleaned the data in each of our two separate datasets and prepared it for use, we can merge the tables together.
+
+
+## Data Exploration
 
 # Methods
 
@@ -186,6 +305,7 @@ There are a variety of reasons why this assumption may not be well-founded, from
 - Spotify demographics may not represent
 - The set of people who have access to Spotify 
 
-In addition, there are only 71 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries. 
+In addition, there are only 72 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries. 
 
 ## Future Steps
+

@@ -45,100 +45,6 @@
     </style>
 
 
-<style type="text/css">
-  code {
-    white-space: pre;
-  }
-  .sourceCode {
-    overflow: visible;
-  }
-</style>
-<style type="text/css" data-origin="pandoc">
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-    color: #aaaaaa;
-  }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
-div.sourceCode
-  {  background-color: #f8f8f8; }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-code span.al { color: #ef2929; } /* Alert */
-code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #c4a000; } /* Attribute */
-code span.bn { color: #0000cf; } /* BaseN */
-code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4e9a06; } /* Char */
-code span.cn { color: #000000; } /* Constant */
-code span.co { color: #8f5902; font-style: italic; } /* Comment */
-code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
-code span.dt { color: #204a87; } /* DataType */
-code span.dv { color: #0000cf; } /* DecVal */
-code span.er { color: #a40000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #0000cf; } /* Float */
-code span.fu { color: #000000; } /* Function */
-code span.im { } /* Import */
-code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
-code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
-code span.ot { color: #8f5902; } /* Other */
-code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
-code span.sc { color: #000000; } /* SpecialChar */
-code span.ss { color: #4e9a06; } /* SpecialString */
-code span.st { color: #4e9a06; } /* String */
-code span.va { color: #000000; } /* Variable */
-code span.vs { color: #4e9a06; } /* VerbatimString */
-code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
-
-</style>
-<script>
-// apply pandoc div.sourceCode style to pre.sourceCode instead
-(function() {
-  var sheets = document.styleSheets;
-  for (var i = 0; i < sheets.length; i++) {
-    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
-    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
-    for (var j = 0; j < rules.length; j++) {
-      var rule = rules[j];
-      // check if there is a div.sourceCode rule
-      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
-      var style = rule.style.cssText;
-      // check if color or background-color is set
-      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
-      // replace div.sourceCode by a pre.sourceCode rule
-      sheets[i].deleteRule(j);
-      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
-    }
-  }
-})();
-</script>
 
 
 
@@ -778,9 +684,9 @@ Western Europe
 </div>
 <p>Unlike the data which we collected from the 2021 edition of the World Happiness Report, the information relating to the most-played songs on Spotify in each country was significantly more difficult to collect and load into R.</p>
 <p>To collect information about the most-played songs on Spotify in each of the countries, we scraped data from the <a href="https://spotifycharts.com/regional/global/daily/latest">Spotify Charts</a> website in Python, using the <code>requests</code> and <code>BeautifulSoup</code> modules to collect the raw HTML code for the website, and coercing this data into a data frame using <code>pandas</code>.</p>
-<p>The Spotify Charts website has information available for 71 countries, a majority of which are located in North America or Europe, and are primarily richer countries. Of the 71 countries with data available on the Spotify Charts website, only two of these countries (Nigeria and South Africa) are located in Sub-Saharan Africa, despite the fact that this is the geographic region with the largest number of countries, according to the World Happiness Report’s list of regions.</p>
-<p>Within Spotify’s API, as well as the Spotify Charts website, each of these 71 countries has a corresponding two-letter country code. For example, Canada’s code is “ca”, and New Zealand’s code is “nz”. For any given country, the Spotify Charts link for the Top 200 songs in that country in a given week (Friday to Friday) is <code>https://spotifycharts.com/regional/[COUNTRY CODE]/weekly/[START OF WEEK]--[END OF WEEK]</code>, where the country code is the unique two-letter identifier, and “week start” and “week end” are the first and last days of the week respectively, each written in <code>YYYY-MM-DD</code> format.</p>
-<p>To collect information from the Spotify Charts website, we defined a function to collect data from the Spotify Charts website given three inputs; a two-letter country code, and the starting and ending dates for the week. We then used a for-loop in Python to iterate through the 71 country codes which are usable on the Spotify Charts site, and we applied this function once for each of the country codes.</p>
+<p>The Spotify Charts website has information available for 72 countries, a majority of which are located in North America or Europe, and are primarily richer countries. Of the 72 countries with data available on the Spotify Charts website, only two of these countries (Nigeria and South Africa) are located in Sub-Saharan Africa, despite the fact that this is the geographic region with the largest number of countries, according to the World Happiness Report’s list of regions.</p>
+<p>Within Spotify’s API, as well as the Spotify Charts website, each of these 72 countries has a corresponding two-letter country code. For example, Canada’s code is “ca”, and New Zealand’s code is “nz”. For any given country, the Spotify Charts link for the Top 200 songs in that country in a given week (Friday to Friday) is <code>https://spotifycharts.com/regional/[COUNTRY CODE]/weekly/[START OF WEEK]--[END OF WEEK]</code>, where the country code is the unique two-letter identifier, and “week start” and “week end” are the first and last days of the week respectively, each written in <code>YYYY-MM-DD</code> format.</p>
+<p>To collect information from the Spotify Charts website, we defined a function to collect data from the Spotify Charts website given three inputs; a two-letter country code, and the starting and ending dates for the week. We then used a for-loop in Python to iterate through the 72 country codes which are usable on the Spotify Charts site, and we applied this function once for each of the country codes.</p>
 <p>Our Python scraping function uses the Python <code>requests</code> module to scrape the HTML from the webpage corresponding to that country’s Top 200 Weekly songs on Spotify, parses the HTML into text with the <code>BeautifulSoup</code> module, and stores the resulting text information in a <code>pandas</code> dataframe. In addition to the five columns of the table which we were able to scrape from the Spotify Charts website, we augment the</p>
 <p>Table <a href="#tab:view-data-2">2</a>, shown below, displays the Top 5 most streamed songs on Spotify in Canada between February 25, 2022 and March 4, 2022. The output below shows the raw data which we collected directly from the Spotify Charts website using Python, as described above. We can clearly see that each observation in Table @(tab:view-data-2) has elements which contain HTML code wrapped around the actual data point which we wanted to read from the Spotify Charts website.</p>
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
@@ -921,7 +827,7 @@ ca
 <td style="text-align:left;">
 &lt;td class=“chart-table-track”&gt;
 &lt;strong&gt;We Don’t Talk About Bruno&lt;/strong&gt;
-&lt;span&gt;by Carolina GaitÃ¡n - La Gaita, Mauro Castillo, Adassa, Rhenzy Feliz, Diane Guerrero, Stephanie Beatriz, Encanto - Cast&lt;/span&gt;
+&lt;span&gt;by Carolina Gaitán - La Gaita, Mauro Castillo, Adassa, Rhenzy Feliz, Diane Guerrero, Stephanie Beatriz, Encanto - Cast&lt;/span&gt;
 &lt;/td&gt;
 </td>
 <td style="text-align:left;">
@@ -1028,155 +934,7 @@ ca
 <h2>Data Cleaning</h2>
 <p>Tables <a href="#tab:view-data-1">1</a> and <a href="#tab:view-data-2">2</a>, which were shown in the previous subsection, give us a quick glance at the data which we have collected from our sources and will be using in this report.</p>
 <p>The data which was collected from the World Happiness Report is well-formatted, and does not require any immediate cleaning in order for the information in the table to be readable and usable. However, we will be ‘pruning’ the columns of that dataset, as a majority of the variables available to us in the World Happiness Report dataset are not required for our research purposes.</p>
-<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
-<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
-<caption>
-<span id="tab:clean-happiness-data">Table 3: </span>Spotify Charts Data, after Preliminary Cleaning
-</caption>
-<thead>
-<tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-country
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-country_code
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-begin
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-end
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-plays
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-rank
-</th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-track_link
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-Canada
-</td>
-<td style="text-align:left;">
-ca
-</td>
-<td style="text-align:left;">
-2022-02-25
-</td>
-<td style="text-align:left;">
-2022-03-04
-</td>
-<td style="text-align:left;">
-1070514
-</td>
-<td style="text-align:left;">
-1
-</td>
-<td style="text-align:left;">
-<a href="https://open.spotify.com/track/02MWAaffLxlfxAUY7c5dvx" class="uri">https://open.spotify.com/track/02MWAaffLxlfxAUY7c5dvx</a>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Canada
-</td>
-<td style="text-align:left;">
-ca
-</td>
-<td style="text-align:left;">
-2022-02-25
-</td>
-<td style="text-align:left;">
-2022-03-04
-</td>
-<td style="text-align:left;">
-878506
-</td>
-<td style="text-align:left;">
-2
-</td>
-<td style="text-align:left;">
-<a href="https://open.spotify.com/track/7rglLriMNBPAyuJOMGwi39" class="uri">https://open.spotify.com/track/7rglLriMNBPAyuJOMGwi39</a>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Canada
-</td>
-<td style="text-align:left;">
-ca
-</td>
-<td style="text-align:left;">
-2022-02-25
-</td>
-<td style="text-align:left;">
-2022-03-04
-</td>
-<td style="text-align:left;">
-844855
-</td>
-<td style="text-align:left;">
-3
-</td>
-<td style="text-align:left;">
-<a href="https://open.spotify.com/track/52xJxFP6TqMuO4Yt0eOkMz" class="uri">https://open.spotify.com/track/52xJxFP6TqMuO4Yt0eOkMz</a>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Canada
-</td>
-<td style="text-align:left;">
-ca
-</td>
-<td style="text-align:left;">
-2022-02-25
-</td>
-<td style="text-align:left;">
-2022-03-04
-</td>
-<td style="text-align:left;">
-832044
-</td>
-<td style="text-align:left;">
-4
-</td>
-<td style="text-align:left;">
-<a href="https://open.spotify.com/track/5PjdY0CKGZdEuoNab3yDmX" class="uri">https://open.spotify.com/track/5PjdY0CKGZdEuoNab3yDmX</a>
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Canada
-</td>
-<td style="text-align:left;">
-ca
-</td>
-<td style="text-align:left;">
-2022-02-25
-</td>
-<td style="text-align:left;">
-2022-03-04
-</td>
-<td style="text-align:left;">
-738693
-</td>
-<td style="text-align:left;">
-5
-</td>
-<td style="text-align:left;">
-<a href="https://open.spotify.com/track/5Z9KJZvQzH6PFmb8SNkxuk" class="uri">https://open.spotify.com/track/5Z9KJZvQzH6PFmb8SNkxuk</a>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>In particular, the only variables which we need from the World Happiness Report dataset are the first three columns; the name of the country, the geographic region where the country is located, and the country’s happiness score. In addition to these three variables, we will create a ‘ranking’ variable, where each country is ranked in descending order of happiness, according to the World Happiness Report data.</p>
 <p>On the other hand, the Spotify data which we collected via web scraping in Python requires serious changes in order for the data to be viable. The most important alteration which we need to make to this dataset is to edit the contents of each cell, to select the necessary contents of the cell which are wrapped in the HTML code, without keeping the rest of the unneeded HTML in the table.</p>
 <p>To remove this extraneous HTML code from our table, we will use the <code>stringr</code> library to remove particular regular expressions which match the unwanted HTML code in these cells.</p>
 <p>Although our table of Spotify Charts data contains nine variables, only the first five columns require regular expressions to be mutated into a more usable form, as the four rightmost columns were inputted manually in Python during the web scraping process, and have been properly formatted in advance.</p>
@@ -1185,32 +943,32 @@ ca
 <p>Although the information in the Track column is useful, we can simply recover this information using the <code>spotifyr</code> package, which invokes the API created by Spotify for accessing data from the Spotify servers.</p>
 <p>After our Spotify Charts data are cleaned, we will have a table which contains 7 variables per song. These variables are; the name of the country, the country’s two-letter code, the beginning and ending of the chosen week, the number of times the song was streamed in the chosen country during the given week, the song’s ranking on the Top 200 songs in the country for that week, and a link to the song on Spotify.</p>
 <p>The first four of these seven desired variables are already formatted well in our current Spotify dataset, as they are the four variables which we manually included in the data while scraping with Python. The other three variables will require us to remove the excess HTML code from our data, as displayed in Table <a href="#tab:view-data-2">2</a>. We will remove this excess HTML using regular expressions.</p>
-<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
 <table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
 <caption>
-<span id="tab:clean-spotify-data">Table 4: </span>Spotify Charts Data, after Preliminary Cleaning
+<span id="tab:clean-spotify-data">Table 3: </span>Spotify Charts Data, after Preliminary Cleaning
 </caption>
 <thead>
 <tr>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 country
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 country_code
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 begin
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 end
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
 plays
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
-rank
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+song_rank
 </th>
-<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
 track_link
 </th>
 </tr>
@@ -1229,10 +987,10 @@ ca
 <td style="text-align:left;">
 2022-03-04
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 1070514
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 1
 </td>
 <td style="text-align:left;">
@@ -1252,10 +1010,10 @@ ca
 <td style="text-align:left;">
 2022-03-04
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 878506
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 2
 </td>
 <td style="text-align:left;">
@@ -1275,10 +1033,10 @@ ca
 <td style="text-align:left;">
 2022-03-04
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 844855
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 3
 </td>
 <td style="text-align:left;">
@@ -1298,10 +1056,10 @@ ca
 <td style="text-align:left;">
 2022-03-04
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 832044
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 4
 </td>
 <td style="text-align:left;">
@@ -1321,10 +1079,10 @@ ca
 <td style="text-align:left;">
 2022-03-04
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 738693
 </td>
-<td style="text-align:left;">
+<td style="text-align:right;">
 5
 </td>
 <td style="text-align:left;">
@@ -1334,301 +1092,4904 @@ ca
 </tbody>
 </table>
 </div>
-<p>Table <a href="#tab:clean-spotify-data">4</a>, which is shown above, depicts the observations in our cleaned dataset corresponding to the Top 5 most streamed songs on Spotify in Canada between February 25 and March 4, 2022.</p>
-<p>At this point, our cleaning process included fixing up the text from the original data, removing unwanted HTML code from cells in the table, and removing excess variables which are unnecessary for answering our research question. The five songs shown in Table <a href="#tab:clean-spotify-data">4</a> are the same songs as those displayed in Table <a href="#tab:view-data-2">2</a>, and there is a clear night-and-day difference between these two tables, despite the fact that the information is the same.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>hurricane_url <span class="ot">&lt;-</span> <span class="st">&quot;https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd&quot;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>hurricane_url2 <span class="ot">&lt;-</span> <span class="st">&quot;6Hfu9sc7jvv6coyy2LlzBF&quot;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>new <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(hurricane_url, <span class="st">&quot;^.*track/&quot;</span>, <span class="st">&quot;&quot;</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">?.*$&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>strip_url <span class="ot">&lt;-</span> <span class="cf">function</span>(url){</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># url &lt;- stringr::remove_all(url, &quot;https://open.spotify.com/track/&quot;)</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># url &lt;- stringr::remove_all()</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(url)</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">get_track</span>(hurricane_url2)</span></code></pre></div>
-<pre><code>## $album
-## $album$album_type
-## [1] &quot;album&quot;
-## 
-## $album$artists
-##                                                        href
-## 1 https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x
-##                       id       name   type
-## 1 5K4W6rqBFWDnAN6FQUkS6x Kanye West artist
-##                                     uri
-## 1 spotify:artist:5K4W6rqBFWDnAN6FQUkS6x
-##                                    external_urls.spotify
-## 1 https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x
-## 
-## $album$available_markets
-##   [1] &quot;AD&quot; &quot;AE&quot; &quot;AG&quot; &quot;AL&quot; &quot;AM&quot; &quot;AO&quot; &quot;AR&quot; &quot;AT&quot; &quot;AU&quot; &quot;AZ&quot; &quot;BA&quot; &quot;BB&quot; &quot;BD&quot; &quot;BE&quot; &quot;BF&quot;
-##  [16] &quot;BG&quot; &quot;BH&quot; &quot;BI&quot; &quot;BJ&quot; &quot;BN&quot; &quot;BO&quot; &quot;BR&quot; &quot;BS&quot; &quot;BT&quot; &quot;BW&quot; &quot;BY&quot; &quot;BZ&quot; &quot;CA&quot; &quot;CD&quot; &quot;CG&quot;
-##  [31] &quot;CH&quot; &quot;CI&quot; &quot;CL&quot; &quot;CM&quot; &quot;CO&quot; &quot;CR&quot; &quot;CV&quot; &quot;CW&quot; &quot;CY&quot; &quot;CZ&quot; &quot;DE&quot; &quot;DJ&quot; &quot;DK&quot; &quot;DM&quot; &quot;DO&quot;
-##  [46] &quot;DZ&quot; &quot;EC&quot; &quot;EE&quot; &quot;EG&quot; &quot;ES&quot; &quot;FI&quot; &quot;FJ&quot; &quot;FM&quot; &quot;FR&quot; &quot;GA&quot; &quot;GB&quot; &quot;GD&quot; &quot;GE&quot; &quot;GH&quot; &quot;GM&quot;
-##  [61] &quot;GN&quot; &quot;GQ&quot; &quot;GR&quot; &quot;GT&quot; &quot;GW&quot; &quot;GY&quot; &quot;HK&quot; &quot;HN&quot; &quot;HR&quot; &quot;HT&quot; &quot;HU&quot; &quot;ID&quot; &quot;IE&quot; &quot;IL&quot; &quot;IN&quot;
-##  [76] &quot;IQ&quot; &quot;IS&quot; &quot;IT&quot; &quot;JM&quot; &quot;JO&quot; &quot;JP&quot; &quot;KE&quot; &quot;KG&quot; &quot;KH&quot; &quot;KI&quot; &quot;KM&quot; &quot;KN&quot; &quot;KR&quot; &quot;KW&quot; &quot;KZ&quot;
-##  [91] &quot;LA&quot; &quot;LB&quot; &quot;LC&quot; &quot;LI&quot; &quot;LK&quot; &quot;LR&quot; &quot;LS&quot; &quot;LT&quot; &quot;LU&quot; &quot;LV&quot; &quot;LY&quot; &quot;MA&quot; &quot;MC&quot; &quot;MD&quot; &quot;ME&quot;
-## [106] &quot;MG&quot; &quot;MH&quot; &quot;MK&quot; &quot;ML&quot; &quot;MN&quot; &quot;MO&quot; &quot;MR&quot; &quot;MT&quot; &quot;MU&quot; &quot;MV&quot; &quot;MW&quot; &quot;MX&quot; &quot;MY&quot; &quot;MZ&quot; &quot;NA&quot;
-## [121] &quot;NE&quot; &quot;NG&quot; &quot;NI&quot; &quot;NL&quot; &quot;NO&quot; &quot;NP&quot; &quot;NR&quot; &quot;NZ&quot; &quot;OM&quot; &quot;PA&quot; &quot;PE&quot; &quot;PG&quot; &quot;PH&quot; &quot;PK&quot; &quot;PL&quot;
-## [136] &quot;PS&quot; &quot;PT&quot; &quot;PW&quot; &quot;PY&quot; &quot;QA&quot; &quot;RO&quot; &quot;RS&quot; &quot;RU&quot; &quot;RW&quot; &quot;SA&quot; &quot;SB&quot; &quot;SC&quot; &quot;SE&quot; &quot;SG&quot; &quot;SI&quot;
-## [151] &quot;SK&quot; &quot;SL&quot; &quot;SM&quot; &quot;SN&quot; &quot;SR&quot; &quot;ST&quot; &quot;SV&quot; &quot;SZ&quot; &quot;TD&quot; &quot;TG&quot; &quot;TH&quot; &quot;TJ&quot; &quot;TL&quot; &quot;TN&quot; &quot;TO&quot;
-## [166] &quot;TR&quot; &quot;TT&quot; &quot;TV&quot; &quot;TW&quot; &quot;TZ&quot; &quot;UA&quot; &quot;UG&quot; &quot;US&quot; &quot;UY&quot; &quot;UZ&quot; &quot;VC&quot; &quot;VE&quot; &quot;VN&quot; &quot;VU&quot; &quot;WS&quot;
-## [181] &quot;XK&quot; &quot;ZA&quot; &quot;ZM&quot; &quot;ZW&quot;
-## 
-## $album$external_urls
-## $album$external_urls$spotify
-## [1] &quot;https://open.spotify.com/album/5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## 
-## $album$href
-## [1] &quot;https://api.spotify.com/v1/albums/5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## $album$id
-## [1] &quot;5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## $album$images
-##   height                                                              url width
-## 1    640 https://i.scdn.co/image/ab67616d0000b273cad190f1a73c024e5a40dddd   640
-## 2    300 https://i.scdn.co/image/ab67616d00001e02cad190f1a73c024e5a40dddd   300
-## 3     64 https://i.scdn.co/image/ab67616d00004851cad190f1a73c024e5a40dddd    64
-## 
-## $album$name
-## [1] &quot;Donda&quot;
-## 
-## $album$release_date
-## [1] &quot;2021-08-29&quot;
-## 
-## $album$release_date_precision
-## [1] &quot;day&quot;
-## 
-## $album$total_tracks
-## [1] 27
-## 
-## $album$type
-## [1] &quot;album&quot;
-## 
-## $album$uri
-## [1] &quot;spotify:album:5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## 
-## $artists
-##                                                        href
-## 1 https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x
-##                       id       name   type
-## 1 5K4W6rqBFWDnAN6FQUkS6x Kanye West artist
-##                                     uri
-## 1 spotify:artist:5K4W6rqBFWDnAN6FQUkS6x
-##                                    external_urls.spotify
-## 1 https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x
-## 
-## $available_markets
-##   [1] &quot;AD&quot; &quot;AE&quot; &quot;AG&quot; &quot;AL&quot; &quot;AM&quot; &quot;AO&quot; &quot;AR&quot; &quot;AT&quot; &quot;AU&quot; &quot;AZ&quot; &quot;BA&quot; &quot;BB&quot; &quot;BD&quot; &quot;BE&quot; &quot;BF&quot;
-##  [16] &quot;BG&quot; &quot;BH&quot; &quot;BI&quot; &quot;BJ&quot; &quot;BN&quot; &quot;BO&quot; &quot;BR&quot; &quot;BS&quot; &quot;BT&quot; &quot;BW&quot; &quot;BY&quot; &quot;BZ&quot; &quot;CA&quot; &quot;CD&quot; &quot;CG&quot;
-##  [31] &quot;CH&quot; &quot;CI&quot; &quot;CL&quot; &quot;CM&quot; &quot;CO&quot; &quot;CR&quot; &quot;CV&quot; &quot;CW&quot; &quot;CY&quot; &quot;CZ&quot; &quot;DE&quot; &quot;DJ&quot; &quot;DK&quot; &quot;DM&quot; &quot;DO&quot;
-##  [46] &quot;DZ&quot; &quot;EC&quot; &quot;EE&quot; &quot;EG&quot; &quot;ES&quot; &quot;FI&quot; &quot;FJ&quot; &quot;FM&quot; &quot;FR&quot; &quot;GA&quot; &quot;GB&quot; &quot;GD&quot; &quot;GE&quot; &quot;GH&quot; &quot;GM&quot;
-##  [61] &quot;GN&quot; &quot;GQ&quot; &quot;GR&quot; &quot;GT&quot; &quot;GW&quot; &quot;GY&quot; &quot;HK&quot; &quot;HN&quot; &quot;HR&quot; &quot;HT&quot; &quot;HU&quot; &quot;ID&quot; &quot;IE&quot; &quot;IL&quot; &quot;IN&quot;
-##  [76] &quot;IQ&quot; &quot;IS&quot; &quot;IT&quot; &quot;JM&quot; &quot;JO&quot; &quot;JP&quot; &quot;KE&quot; &quot;KG&quot; &quot;KH&quot; &quot;KI&quot; &quot;KM&quot; &quot;KN&quot; &quot;KR&quot; &quot;KW&quot; &quot;KZ&quot;
-##  [91] &quot;LA&quot; &quot;LB&quot; &quot;LC&quot; &quot;LI&quot; &quot;LK&quot; &quot;LR&quot; &quot;LS&quot; &quot;LT&quot; &quot;LU&quot; &quot;LV&quot; &quot;LY&quot; &quot;MA&quot; &quot;MC&quot; &quot;MD&quot; &quot;ME&quot;
-## [106] &quot;MG&quot; &quot;MH&quot; &quot;MK&quot; &quot;ML&quot; &quot;MN&quot; &quot;MO&quot; &quot;MR&quot; &quot;MT&quot; &quot;MU&quot; &quot;MV&quot; &quot;MW&quot; &quot;MX&quot; &quot;MY&quot; &quot;MZ&quot; &quot;NA&quot;
-## [121] &quot;NE&quot; &quot;NG&quot; &quot;NI&quot; &quot;NL&quot; &quot;NO&quot; &quot;NP&quot; &quot;NR&quot; &quot;NZ&quot; &quot;OM&quot; &quot;PA&quot; &quot;PE&quot; &quot;PG&quot; &quot;PH&quot; &quot;PK&quot; &quot;PL&quot;
-## [136] &quot;PS&quot; &quot;PT&quot; &quot;PW&quot; &quot;PY&quot; &quot;QA&quot; &quot;RO&quot; &quot;RS&quot; &quot;RU&quot; &quot;RW&quot; &quot;SA&quot; &quot;SB&quot; &quot;SC&quot; &quot;SE&quot; &quot;SG&quot; &quot;SI&quot;
-## [151] &quot;SK&quot; &quot;SL&quot; &quot;SM&quot; &quot;SN&quot; &quot;SR&quot; &quot;ST&quot; &quot;SV&quot; &quot;SZ&quot; &quot;TD&quot; &quot;TG&quot; &quot;TH&quot; &quot;TJ&quot; &quot;TL&quot; &quot;TN&quot; &quot;TO&quot;
-## [166] &quot;TR&quot; &quot;TT&quot; &quot;TV&quot; &quot;TW&quot; &quot;TZ&quot; &quot;UA&quot; &quot;UG&quot; &quot;US&quot; &quot;UY&quot; &quot;UZ&quot; &quot;VC&quot; &quot;VE&quot; &quot;VN&quot; &quot;VU&quot; &quot;WS&quot;
-## [181] &quot;XK&quot; &quot;ZA&quot; &quot;ZM&quot; &quot;ZW&quot;
-## 
-## $disc_number
-## [1] 1
-## 
-## $duration_ms
-## [1] 243187
-## 
-## $explicit
-## [1] FALSE
-## 
-## $external_ids
-## $external_ids$isrc
-## [1] &quot;USUM72116311&quot;
-## 
-## 
-## $external_urls
-## $external_urls$spotify
-## [1] &quot;https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF&quot;
-## 
-## 
-## $href
-## [1] &quot;https://api.spotify.com/v1/tracks/6Hfu9sc7jvv6coyy2LlzBF&quot;
-## 
-## $id
-## [1] &quot;6Hfu9sc7jvv6coyy2LlzBF&quot;
-## 
-## $is_local
-## [1] FALSE
-## 
-## $name
-## [1] &quot;Hurricane&quot;
-## 
-## $popularity
-## [1] 83
-## 
-## $preview_url
-## NULL
-## 
-## $track_number
-## [1] 5
-## 
-## $type
-## [1] &quot;track&quot;
-## 
-## $uri
-## [1] &quot;spotify:track:6Hfu9sc7jvv6coyy2LlzBF&quot;</code></pre>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_track_audio_features</span>(hurricane_url2)</span></code></pre></div>
-<pre><code>## # A tibble: 1 x 18
-##   danceability energy   key loudness  mode speechiness acousticness
-##          &lt;dbl&gt;  &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;int&gt;       &lt;dbl&gt;        &lt;dbl&gt;
-## 1        0.587  0.561     0    -6.57     1       0.146       0.0466
-## # ... with 11 more variables: instrumentalness &lt;int&gt;, liveness &lt;dbl&gt;,
-## #   valence &lt;dbl&gt;, tempo &lt;dbl&gt;, type &lt;chr&gt;, id &lt;chr&gt;, uri &lt;chr&gt;,
-## #   track_href &lt;chr&gt;, analysis_url &lt;chr&gt;, duration_ms &lt;int&gt;,
-## #   time_signature &lt;int&gt;</code></pre>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">get_track</span>(new)</span></code></pre></div>
-<pre><code>## $album
-## $album$album_type
-## [1] &quot;album&quot;
-## 
-## $album$artists
-##                                                        href
-## 1 https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x
-##                       id       name   type
-## 1 5K4W6rqBFWDnAN6FQUkS6x Kanye West artist
-##                                     uri
-## 1 spotify:artist:5K4W6rqBFWDnAN6FQUkS6x
-##                                    external_urls.spotify
-## 1 https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x
-## 
-## $album$available_markets
-##   [1] &quot;AD&quot; &quot;AE&quot; &quot;AG&quot; &quot;AL&quot; &quot;AM&quot; &quot;AO&quot; &quot;AR&quot; &quot;AT&quot; &quot;AU&quot; &quot;AZ&quot; &quot;BA&quot; &quot;BB&quot; &quot;BD&quot; &quot;BE&quot; &quot;BF&quot;
-##  [16] &quot;BG&quot; &quot;BH&quot; &quot;BI&quot; &quot;BJ&quot; &quot;BN&quot; &quot;BO&quot; &quot;BR&quot; &quot;BS&quot; &quot;BT&quot; &quot;BW&quot; &quot;BY&quot; &quot;BZ&quot; &quot;CA&quot; &quot;CD&quot; &quot;CG&quot;
-##  [31] &quot;CH&quot; &quot;CI&quot; &quot;CL&quot; &quot;CM&quot; &quot;CO&quot; &quot;CR&quot; &quot;CV&quot; &quot;CW&quot; &quot;CY&quot; &quot;CZ&quot; &quot;DE&quot; &quot;DJ&quot; &quot;DK&quot; &quot;DM&quot; &quot;DO&quot;
-##  [46] &quot;DZ&quot; &quot;EC&quot; &quot;EE&quot; &quot;EG&quot; &quot;ES&quot; &quot;FI&quot; &quot;FJ&quot; &quot;FM&quot; &quot;FR&quot; &quot;GA&quot; &quot;GB&quot; &quot;GD&quot; &quot;GE&quot; &quot;GH&quot; &quot;GM&quot;
-##  [61] &quot;GN&quot; &quot;GQ&quot; &quot;GR&quot; &quot;GT&quot; &quot;GW&quot; &quot;GY&quot; &quot;HK&quot; &quot;HN&quot; &quot;HR&quot; &quot;HT&quot; &quot;HU&quot; &quot;ID&quot; &quot;IE&quot; &quot;IL&quot; &quot;IN&quot;
-##  [76] &quot;IQ&quot; &quot;IS&quot; &quot;IT&quot; &quot;JM&quot; &quot;JO&quot; &quot;JP&quot; &quot;KE&quot; &quot;KG&quot; &quot;KH&quot; &quot;KI&quot; &quot;KM&quot; &quot;KN&quot; &quot;KR&quot; &quot;KW&quot; &quot;KZ&quot;
-##  [91] &quot;LA&quot; &quot;LB&quot; &quot;LC&quot; &quot;LI&quot; &quot;LK&quot; &quot;LR&quot; &quot;LS&quot; &quot;LT&quot; &quot;LU&quot; &quot;LV&quot; &quot;LY&quot; &quot;MA&quot; &quot;MC&quot; &quot;MD&quot; &quot;ME&quot;
-## [106] &quot;MG&quot; &quot;MH&quot; &quot;MK&quot; &quot;ML&quot; &quot;MN&quot; &quot;MO&quot; &quot;MR&quot; &quot;MT&quot; &quot;MU&quot; &quot;MV&quot; &quot;MW&quot; &quot;MX&quot; &quot;MY&quot; &quot;MZ&quot; &quot;NA&quot;
-## [121] &quot;NE&quot; &quot;NG&quot; &quot;NI&quot; &quot;NL&quot; &quot;NO&quot; &quot;NP&quot; &quot;NR&quot; &quot;NZ&quot; &quot;OM&quot; &quot;PA&quot; &quot;PE&quot; &quot;PG&quot; &quot;PH&quot; &quot;PK&quot; &quot;PL&quot;
-## [136] &quot;PS&quot; &quot;PT&quot; &quot;PW&quot; &quot;PY&quot; &quot;QA&quot; &quot;RO&quot; &quot;RS&quot; &quot;RU&quot; &quot;RW&quot; &quot;SA&quot; &quot;SB&quot; &quot;SC&quot; &quot;SE&quot; &quot;SG&quot; &quot;SI&quot;
-## [151] &quot;SK&quot; &quot;SL&quot; &quot;SM&quot; &quot;SN&quot; &quot;SR&quot; &quot;ST&quot; &quot;SV&quot; &quot;SZ&quot; &quot;TD&quot; &quot;TG&quot; &quot;TH&quot; &quot;TJ&quot; &quot;TL&quot; &quot;TN&quot; &quot;TO&quot;
-## [166] &quot;TR&quot; &quot;TT&quot; &quot;TV&quot; &quot;TW&quot; &quot;TZ&quot; &quot;UA&quot; &quot;UG&quot; &quot;US&quot; &quot;UY&quot; &quot;UZ&quot; &quot;VC&quot; &quot;VE&quot; &quot;VN&quot; &quot;VU&quot; &quot;WS&quot;
-## [181] &quot;XK&quot; &quot;ZA&quot; &quot;ZM&quot; &quot;ZW&quot;
-## 
-## $album$external_urls
-## $album$external_urls$spotify
-## [1] &quot;https://open.spotify.com/album/5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## 
-## $album$href
-## [1] &quot;https://api.spotify.com/v1/albums/5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## $album$id
-## [1] &quot;5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## $album$images
-##   height                                                              url width
-## 1    640 https://i.scdn.co/image/ab67616d0000b273cad190f1a73c024e5a40dddd   640
-## 2    300 https://i.scdn.co/image/ab67616d00001e02cad190f1a73c024e5a40dddd   300
-## 3     64 https://i.scdn.co/image/ab67616d00004851cad190f1a73c024e5a40dddd    64
-## 
-## $album$name
-## [1] &quot;Donda&quot;
-## 
-## $album$release_date
-## [1] &quot;2021-08-29&quot;
-## 
-## $album$release_date_precision
-## [1] &quot;day&quot;
-## 
-## $album$total_tracks
-## [1] 27
-## 
-## $album$type
-## [1] &quot;album&quot;
-## 
-## $album$uri
-## [1] &quot;spotify:album:5CnpZV3q5BcESefcB3WJmz&quot;
-## 
-## 
-## $artists
-##                                                        href
-## 1 https://api.spotify.com/v1/artists/5K4W6rqBFWDnAN6FQUkS6x
-##                       id       name   type
-## 1 5K4W6rqBFWDnAN6FQUkS6x Kanye West artist
-##                                     uri
-## 1 spotify:artist:5K4W6rqBFWDnAN6FQUkS6x
-##                                    external_urls.spotify
-## 1 https://open.spotify.com/artist/5K4W6rqBFWDnAN6FQUkS6x
-## 
-## $available_markets
-##   [1] &quot;AD&quot; &quot;AE&quot; &quot;AG&quot; &quot;AL&quot; &quot;AM&quot; &quot;AO&quot; &quot;AR&quot; &quot;AT&quot; &quot;AU&quot; &quot;AZ&quot; &quot;BA&quot; &quot;BB&quot; &quot;BD&quot; &quot;BE&quot; &quot;BF&quot;
-##  [16] &quot;BG&quot; &quot;BH&quot; &quot;BI&quot; &quot;BJ&quot; &quot;BN&quot; &quot;BO&quot; &quot;BR&quot; &quot;BS&quot; &quot;BT&quot; &quot;BW&quot; &quot;BY&quot; &quot;BZ&quot; &quot;CA&quot; &quot;CD&quot; &quot;CG&quot;
-##  [31] &quot;CH&quot; &quot;CI&quot; &quot;CL&quot; &quot;CM&quot; &quot;CO&quot; &quot;CR&quot; &quot;CV&quot; &quot;CW&quot; &quot;CY&quot; &quot;CZ&quot; &quot;DE&quot; &quot;DJ&quot; &quot;DK&quot; &quot;DM&quot; &quot;DO&quot;
-##  [46] &quot;DZ&quot; &quot;EC&quot; &quot;EE&quot; &quot;EG&quot; &quot;ES&quot; &quot;FI&quot; &quot;FJ&quot; &quot;FM&quot; &quot;FR&quot; &quot;GA&quot; &quot;GB&quot; &quot;GD&quot; &quot;GE&quot; &quot;GH&quot; &quot;GM&quot;
-##  [61] &quot;GN&quot; &quot;GQ&quot; &quot;GR&quot; &quot;GT&quot; &quot;GW&quot; &quot;GY&quot; &quot;HK&quot; &quot;HN&quot; &quot;HR&quot; &quot;HT&quot; &quot;HU&quot; &quot;ID&quot; &quot;IE&quot; &quot;IL&quot; &quot;IN&quot;
-##  [76] &quot;IQ&quot; &quot;IS&quot; &quot;IT&quot; &quot;JM&quot; &quot;JO&quot; &quot;JP&quot; &quot;KE&quot; &quot;KG&quot; &quot;KH&quot; &quot;KI&quot; &quot;KM&quot; &quot;KN&quot; &quot;KR&quot; &quot;KW&quot; &quot;KZ&quot;
-##  [91] &quot;LA&quot; &quot;LB&quot; &quot;LC&quot; &quot;LI&quot; &quot;LK&quot; &quot;LR&quot; &quot;LS&quot; &quot;LT&quot; &quot;LU&quot; &quot;LV&quot; &quot;LY&quot; &quot;MA&quot; &quot;MC&quot; &quot;MD&quot; &quot;ME&quot;
-## [106] &quot;MG&quot; &quot;MH&quot; &quot;MK&quot; &quot;ML&quot; &quot;MN&quot; &quot;MO&quot; &quot;MR&quot; &quot;MT&quot; &quot;MU&quot; &quot;MV&quot; &quot;MW&quot; &quot;MX&quot; &quot;MY&quot; &quot;MZ&quot; &quot;NA&quot;
-## [121] &quot;NE&quot; &quot;NG&quot; &quot;NI&quot; &quot;NL&quot; &quot;NO&quot; &quot;NP&quot; &quot;NR&quot; &quot;NZ&quot; &quot;OM&quot; &quot;PA&quot; &quot;PE&quot; &quot;PG&quot; &quot;PH&quot; &quot;PK&quot; &quot;PL&quot;
-## [136] &quot;PS&quot; &quot;PT&quot; &quot;PW&quot; &quot;PY&quot; &quot;QA&quot; &quot;RO&quot; &quot;RS&quot; &quot;RU&quot; &quot;RW&quot; &quot;SA&quot; &quot;SB&quot; &quot;SC&quot; &quot;SE&quot; &quot;SG&quot; &quot;SI&quot;
-## [151] &quot;SK&quot; &quot;SL&quot; &quot;SM&quot; &quot;SN&quot; &quot;SR&quot; &quot;ST&quot; &quot;SV&quot; &quot;SZ&quot; &quot;TD&quot; &quot;TG&quot; &quot;TH&quot; &quot;TJ&quot; &quot;TL&quot; &quot;TN&quot; &quot;TO&quot;
-## [166] &quot;TR&quot; &quot;TT&quot; &quot;TV&quot; &quot;TW&quot; &quot;TZ&quot; &quot;UA&quot; &quot;UG&quot; &quot;US&quot; &quot;UY&quot; &quot;UZ&quot; &quot;VC&quot; &quot;VE&quot; &quot;VN&quot; &quot;VU&quot; &quot;WS&quot;
-## [181] &quot;XK&quot; &quot;ZA&quot; &quot;ZM&quot; &quot;ZW&quot;
-## 
-## $disc_number
-## [1] 1
-## 
-## $duration_ms
-## [1] 243187
-## 
-## $explicit
-## [1] FALSE
-## 
-## $external_ids
-## $external_ids$isrc
-## [1] &quot;USUM72116311&quot;
-## 
-## 
-## $external_urls
-## $external_urls$spotify
-## [1] &quot;https://open.spotify.com/track/6Hfu9sc7jvv6coyy2LlzBF&quot;
-## 
-## 
-## $href
-## [1] &quot;https://api.spotify.com/v1/tracks/6Hfu9sc7jvv6coyy2LlzBF&quot;
-## 
-## $id
-## [1] &quot;6Hfu9sc7jvv6coyy2LlzBF&quot;
-## 
-## $is_local
-## [1] FALSE
-## 
-## $name
-## [1] &quot;Hurricane&quot;
-## 
-## $popularity
-## [1] 83
-## 
-## $preview_url
-## NULL
-## 
-## $track_number
-## [1] 5
-## 
-## $type
-## [1] &quot;track&quot;
-## 
-## $uri
-## [1] &quot;spotify:track:6Hfu9sc7jvv6coyy2LlzBF&quot;</code></pre>
+<p>Table <a href="#tab:clean-spotify-data">3</a>, which is shown above, depicts the observations in our cleaned dataset corresponding to the Top 5 most streamed songs on Spotify in Canada between February 25 and March 4, 2022.</p>
+<p>At this point, our cleaning process included fixing up the text from the original data, removing unwanted HTML code from cells in the table, and removing excess variables which are unnecessary for answering our research question. The five songs shown in Table <a href="#tab:clean-spotify-data">3</a> are the same songs as those displayed in Table <a href="#tab:view-data-2">2</a>. There is a night-and-day difference between the elements of these two tables, despite the fact that the information is the same.</p>
+</div>
+<div id="api-data-collection" class="section level2">
+<h2>API Data Collection</h2>
+<p>Now that we have cleaned the data which we collected from the Spotify Charts website, we can utilize the <code>spotifyr</code> package to collect additional data for each track, using the Spotify API.</p>
+<p>In Spotify’s implementation of their platform, every track (songs, podcasts, etc.) has a unique identifier, which is part of the URL to that specific track on the Spotify client. The <code>spotifyr</code> package uses these identifiers in order to retrieve information about a particular track from the Spotify API.</p>
+<p>To collect information about each of the tracks in the Top 200 lists, we will first determine the unique IDs for each of these tracks by using a regular expression to remove the Spotify domain from the track’s URL.</p>
+<p>Once we have collected the track IDs for each of the tracks, we will then collect information about these tracks using Spotify’s API. For each track, we will collect three numeric values from the Spotify API corresponding to the given track; its ‘danceability’, ‘energy’, and ‘valence’.</p>
+<pre><code>## Request failed [503]. Retrying in 1.6 seconds...</code></pre>
+</div>
+<div id="data-grouping" class="section level2">
+<h2>Data Grouping</h2>
+<p>In order to determine the average danceability, energy, and valence of the Top 200 songs for a particular country, we will use a weighted mean of each of these metrics, where the songs are weighted based on the number of streams which each track had in the given country during the specific time period.</p>
+<p>Before we compute these weighted averages, we will check to see how many missing values there are among the 11 variables in our dataset, as missing values can cause our weighted mean computation to be error-prone if not accounted for.</p>
+<table>
+<caption>
+<span id="tab:check-nas-1">Table 4: </span>Counts of Variables in our Spotify Dataset
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+Variable Type
+</th>
+<th style="text-align:left;">
+Present Values
+</th>
+<th style="text-align:left;">
+Missing Values
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+country
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+country_code
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+begin
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+end
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plays
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+song_rank
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+track_link
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+track_id
+</td>
+<td style="text-align:left;">
+character
+</td>
+<td style="text-align:left;">
+14400
+</td>
+<td style="text-align:left;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+danceability
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14397
+</td>
+<td style="text-align:left;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+energy
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14397
+</td>
+<td style="text-align:left;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+valence
+</td>
+<td style="text-align:left;">
+double
+</td>
+<td style="text-align:left;">
+14397
+</td>
+<td style="text-align:left;">
+3
+</td>
+</tr>
+</tbody>
+</table>
+<p>As we see in Table <a href="#tab:check-nas-1">4</a> above, there are no missing values for a majority of the variables in our dataset. The only non-recorded values are three missing values in each of the danceability, energy, and valence columns in our Spotify dataset.</p>
+<p>We will first examine the three tracks which had missing valences, as the valence of a track is more important to our results than the danceability or energy of a track. As Table <a href="#tab:examine-missing-valences">5</a> shows, the three tracks which do not have recorded valence values are also the three tracks which do not have danceability or energy values recorded either.</p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:examine-missing-valences">Table 5: </span>Tracks which do not have recorded valence values
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+country
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+country_code
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+begin
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+end
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+plays
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+song_rank
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+track_link
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;">
+track_id
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+danceability
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+energy
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;">
+valence
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Argentina
+</td>
+<td style="text-align:left;">
+ar
+</td>
+<td style="text-align:left;">
+2022-02-25
+</td>
+<td style="text-align:left;">
+2022-03-04
+</td>
+<td style="text-align:right;">
+766614
+</td>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:left;">
+<a href="https://open.spotify.com/track/5saUoeceT2zau6ScmU77e6" class="uri">https://open.spotify.com/track/5saUoeceT2zau6ScmU77e6</a>
+</td>
+<td style="text-align:left;">
+5saUoeceT2zau6ScmU77e6
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Italy
+</td>
+<td style="text-align:left;">
+it
+</td>
+<td style="text-align:left;">
+2022-02-25
+</td>
+<td style="text-align:left;">
+2022-03-04
+</td>
+<td style="text-align:right;">
+684410
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:left;">
+<a href="https://open.spotify.com/track/02QztbIMzjvPNQnoECkydU" class="uri">https://open.spotify.com/track/02QztbIMzjvPNQnoECkydU</a>
+</td>
+<td style="text-align:left;">
+02QztbIMzjvPNQnoECkydU
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Uruguay
+</td>
+<td style="text-align:left;">
+uy
+</td>
+<td style="text-align:left;">
+2022-02-25
+</td>
+<td style="text-align:left;">
+2022-03-04
+</td>
+<td style="text-align:right;">
+28257
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:left;">
+<a href="https://open.spotify.com/track/5saUoeceT2zau6ScmU77e6" class="uri">https://open.spotify.com/track/5saUoeceT2zau6ScmU77e6</a>
+</td>
+<td style="text-align:left;">
+5saUoeceT2zau6ScmU77e6
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Due to the lack of clarity surrounding how Spotify computes the danceability, energy, and valence of a given track, it would be very difficult to reliably impute these missing values. Instead of imputation, to account for these missing values, we will simply remove these three tracks from our dataset before computing the weighted means of the danceability, energy, and valence levels of each country’s Top 200 songs on Spotify.</p>
+<p>Although these three countries (Argentina, Italy, and Uruguay) will only have 199 tracks instead of 200 tracks, this is not a particularly large discrepancy, especially since these songs were not massively popular tracks in their respective countries.</p>
+<p>Now that all of the missing values have been removed from the dataset, we can safely compute the weighted means for our three metrics, grouped by country. These three values are shown in Table <a href="#tab:compute-weighted-means">6</a>.</p>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; ">
+<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:compute-weighted-means">Table 6: </span>Weighted means of danceability, energy, and valence among the Top 200 Songs per country on Spotify
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+country
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+mean_danceability
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+mean_energy
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+mean_valence
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Argentina
+</td>
+<td style="text-align:right;">
+0.7305649
+</td>
+<td style="text-align:right;">
+0.6688815
+</td>
+<td style="text-align:right;">
+0.6551697
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Australia
+</td>
+<td style="text-align:right;">
+0.6559271
+</td>
+<td style="text-align:right;">
+0.6612825
+</td>
+<td style="text-align:right;">
+0.5141292
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Austria
+</td>
+<td style="text-align:right;">
+0.6806558
+</td>
+<td style="text-align:right;">
+0.6762681
+</td>
+<td style="text-align:right;">
+0.5194063
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belarus
+</td>
+<td style="text-align:right;">
+0.6841963
+</td>
+<td style="text-align:right;">
+0.6668493
+</td>
+<td style="text-align:right;">
+0.4595995
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belgium
+</td>
+<td style="text-align:right;">
+0.6708035
+</td>
+<td style="text-align:right;">
+0.6573458
+</td>
+<td style="text-align:right;">
+0.5310949
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bolivia
+</td>
+<td style="text-align:right;">
+0.7239904
+</td>
+<td style="text-align:right;">
+0.6766358
+</td>
+<td style="text-align:right;">
+0.6260286
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brazil
+</td>
+<td style="text-align:right;">
+0.6992066
+</td>
+<td style="text-align:right;">
+0.7289616
+</td>
+<td style="text-align:right;">
+0.6792344
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bulgaria
+</td>
+<td style="text-align:right;">
+0.6825988
+</td>
+<td style="text-align:right;">
+0.7031719
+</td>
+<td style="text-align:right;">
+0.5351033
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Canada
+</td>
+<td style="text-align:right;">
+0.6755400
+</td>
+<td style="text-align:right;">
+0.6443553
+</td>
+<td style="text-align:right;">
+0.4936077
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chile
+</td>
+<td style="text-align:right;">
+0.7654541
+</td>
+<td style="text-align:right;">
+0.6959202
+</td>
+<td style="text-align:right;">
+0.6362778
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colombia
+</td>
+<td style="text-align:right;">
+0.7378438
+</td>
+<td style="text-align:right;">
+0.6826002
+</td>
+<td style="text-align:right;">
+0.6361242
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Costa Rica
+</td>
+<td style="text-align:right;">
+0.7215459
+</td>
+<td style="text-align:right;">
+0.6353198
+</td>
+<td style="text-align:right;">
+0.6101227
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cyprus
+</td>
+<td style="text-align:right;">
+0.6818034
+</td>
+<td style="text-align:right;">
+0.6526462
+</td>
+<td style="text-align:right;">
+0.4845356
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Czech Republic
+</td>
+<td style="text-align:right;">
+0.6835192
+</td>
+<td style="text-align:right;">
+0.6937636
+</td>
+<td style="text-align:right;">
+0.5062472
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Denmark
+</td>
+<td style="text-align:right;">
+0.6924174
+</td>
+<td style="text-align:right;">
+0.6505832
+</td>
+<td style="text-align:right;">
+0.5633864
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dominican Republic
+</td>
+<td style="text-align:right;">
+0.7443766
+</td>
+<td style="text-align:right;">
+0.6919941
+</td>
+<td style="text-align:right;">
+0.5761462
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecuador
+</td>
+<td style="text-align:right;">
+0.7426212
+</td>
+<td style="text-align:right;">
+0.6807029
+</td>
+<td style="text-align:right;">
+0.6090236
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Egypt
+</td>
+<td style="text-align:right;">
+0.7157028
+</td>
+<td style="text-align:right;">
+0.6112053
+</td>
+<td style="text-align:right;">
+0.5413517
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+El Salvador
+</td>
+<td style="text-align:right;">
+0.7262493
+</td>
+<td style="text-align:right;">
+0.6616731
+</td>
+<td style="text-align:right;">
+0.5832978
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Estonia
+</td>
+<td style="text-align:right;">
+0.6429901
+</td>
+<td style="text-align:right;">
+0.7027900
+</td>
+<td style="text-align:right;">
+0.4674047
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Finland
+</td>
+<td style="text-align:right;">
+0.6529449
+</td>
+<td style="text-align:right;">
+0.7127840
+</td>
+<td style="text-align:right;">
+0.5339543
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+France
+</td>
+<td style="text-align:right;">
+0.7327342
+</td>
+<td style="text-align:right;">
+0.6613218
+</td>
+<td style="text-align:right;">
+0.5412699
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Germany
+</td>
+<td style="text-align:right;">
+0.6997897
+</td>
+<td style="text-align:right;">
+0.6624700
+</td>
+<td style="text-align:right;">
+0.5078050
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greece
+</td>
+<td style="text-align:right;">
+0.7226000
+</td>
+<td style="text-align:right;">
+0.6702429
+</td>
+<td style="text-align:right;">
+0.4996237
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Guatemala
+</td>
+<td style="text-align:right;">
+0.7124577
+</td>
+<td style="text-align:right;">
+0.6380458
+</td>
+<td style="text-align:right;">
+0.6063943
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Honduras
+</td>
+<td style="text-align:right;">
+0.7128377
+</td>
+<td style="text-align:right;">
+0.6529583
+</td>
+<td style="text-align:right;">
+0.5746582
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hong Kong
+</td>
+<td style="text-align:right;">
+0.5862543
+</td>
+<td style="text-align:right;">
+0.5675704
+</td>
+<td style="text-align:right;">
+0.4433128
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hungary
+</td>
+<td style="text-align:right;">
+0.7074072
+</td>
+<td style="text-align:right;">
+0.6645674
+</td>
+<td style="text-align:right;">
+0.5182870
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iceland
+</td>
+<td style="text-align:right;">
+0.6552998
+</td>
+<td style="text-align:right;">
+0.5236390
+</td>
+<td style="text-align:right;">
+0.4694664
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+India
+</td>
+<td style="text-align:right;">
+0.6660185
+</td>
+<td style="text-align:right;">
+0.6257881
+</td>
+<td style="text-align:right;">
+0.4925757
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Indonesia
+</td>
+<td style="text-align:right;">
+0.5628583
+</td>
+<td style="text-align:right;">
+0.5083169
+</td>
+<td style="text-align:right;">
+0.4047264
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ireland
+</td>
+<td style="text-align:right;">
+0.6528951
+</td>
+<td style="text-align:right;">
+0.6739207
+</td>
+<td style="text-align:right;">
+0.5144107
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Israel
+</td>
+<td style="text-align:right;">
+0.6482851
+</td>
+<td style="text-align:right;">
+0.5936377
+</td>
+<td style="text-align:right;">
+0.4882465
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Italy
+</td>
+<td style="text-align:right;">
+0.6514532
+</td>
+<td style="text-align:right;">
+0.6913623
+</td>
+<td style="text-align:right;">
+0.5091042
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Japan
+</td>
+<td style="text-align:right;">
+0.5984204
+</td>
+<td style="text-align:right;">
+0.7298657
+</td>
+<td style="text-align:right;">
+0.5833426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kazakhstan
+</td>
+<td style="text-align:right;">
+0.6840741
+</td>
+<td style="text-align:right;">
+0.6657929
+</td>
+<td style="text-align:right;">
+0.4791853
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Latvia
+</td>
+<td style="text-align:right;">
+0.6646480
+</td>
+<td style="text-align:right;">
+0.6669997
+</td>
+<td style="text-align:right;">
+0.4586133
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lithuania
+</td>
+<td style="text-align:right;">
+0.6617763
+</td>
+<td style="text-align:right;">
+0.6571845
+</td>
+<td style="text-align:right;">
+0.4655801
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Luxembourg
+</td>
+<td style="text-align:right;">
+0.6886505
+</td>
+<td style="text-align:right;">
+0.6529272
+</td>
+<td style="text-align:right;">
+0.5207501
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Malaysia
+</td>
+<td style="text-align:right;">
+0.5979358
+</td>
+<td style="text-align:right;">
+0.5848258
+</td>
+<td style="text-align:right;">
+0.4383599
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mexico
+</td>
+<td style="text-align:right;">
+0.7068937
+</td>
+<td style="text-align:right;">
+0.6309640
+</td>
+<td style="text-align:right;">
+0.6312218
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Morocco
+</td>
+<td style="text-align:right;">
+0.6921049
+</td>
+<td style="text-align:right;">
+0.5874032
+</td>
+<td style="text-align:right;">
+0.5055644
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Netherlands
+</td>
+<td style="text-align:right;">
+0.6962831
+</td>
+<td style="text-align:right;">
+0.6548411
+</td>
+<td style="text-align:right;">
+0.5813321
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Zealand
+</td>
+<td style="text-align:right;">
+0.6734161
+</td>
+<td style="text-align:right;">
+0.6351290
+</td>
+<td style="text-align:right;">
+0.5375649
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nicaragua
+</td>
+<td style="text-align:right;">
+0.7207281
+</td>
+<td style="text-align:right;">
+0.6612255
+</td>
+<td style="text-align:right;">
+0.5765019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nigeria
+</td>
+<td style="text-align:right;">
+0.7603665
+</td>
+<td style="text-align:right;">
+0.6625778
+</td>
+<td style="text-align:right;">
+0.6325466
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Norway
+</td>
+<td style="text-align:right;">
+0.6425236
+</td>
+<td style="text-align:right;">
+0.5951719
+</td>
+<td style="text-align:right;">
+0.4756742
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Panama
+</td>
+<td style="text-align:right;">
+0.7167615
+</td>
+<td style="text-align:right;">
+0.6829061
+</td>
+<td style="text-align:right;">
+0.5842990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paraguay
+</td>
+<td style="text-align:right;">
+0.7177974
+</td>
+<td style="text-align:right;">
+0.6945139
+</td>
+<td style="text-align:right;">
+0.6487074
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Peru
+</td>
+<td style="text-align:right;">
+0.7365523
+</td>
+<td style="text-align:right;">
+0.7004824
+</td>
+<td style="text-align:right;">
+0.6187870
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Philippines
+</td>
+<td style="text-align:right;">
+0.6034857
+</td>
+<td style="text-align:right;">
+0.5219030
+</td>
+<td style="text-align:right;">
+0.4271533
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Poland
+</td>
+<td style="text-align:right;">
+0.7275911
+</td>
+<td style="text-align:right;">
+0.6419235
+</td>
+<td style="text-align:right;">
+0.5272818
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Portugal
+</td>
+<td style="text-align:right;">
+0.6900691
+</td>
+<td style="text-align:right;">
+0.6472425
+</td>
+<td style="text-align:right;">
+0.5663800
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Romania
+</td>
+<td style="text-align:right;">
+0.7213117
+</td>
+<td style="text-align:right;">
+0.6580086
+</td>
+<td style="text-align:right;">
+0.4970850
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Russia
+</td>
+<td style="text-align:right;">
+0.6860076
+</td>
+<td style="text-align:right;">
+0.6799659
+</td>
+<td style="text-align:right;">
+0.4736277
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saudi Arabia
+</td>
+<td style="text-align:right;">
+0.6383755
+</td>
+<td style="text-align:right;">
+0.6536338
+</td>
+<td style="text-align:right;">
+0.5292986
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Singapore
+</td>
+<td style="text-align:right;">
+0.6110974
+</td>
+<td style="text-align:right;">
+0.6023441
+</td>
+<td style="text-align:right;">
+0.4679703
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Slovakia
+</td>
+<td style="text-align:right;">
+0.6905424
+</td>
+<td style="text-align:right;">
+0.6825385
+</td>
+<td style="text-align:right;">
+0.4875293
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Africa
+</td>
+<td style="text-align:right;">
+0.7002589
+</td>
+<td style="text-align:right;">
+0.5850207
+</td>
+<td style="text-align:right;">
+0.4592435
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Korea
+</td>
+<td style="text-align:right;">
+0.6434635
+</td>
+<td style="text-align:right;">
+0.6672347
+</td>
+<td style="text-align:right;">
+0.5297744
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spain
+</td>
+<td style="text-align:right;">
+0.7398602
+</td>
+<td style="text-align:right;">
+0.6991270
+</td>
+<td style="text-align:right;">
+0.6218947
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sweden
+</td>
+<td style="text-align:right;">
+0.6715828
+</td>
+<td style="text-align:right;">
+0.6443019
+</td>
+<td style="text-align:right;">
+0.5194846
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Switzerland
+</td>
+<td style="text-align:right;">
+0.6755041
+</td>
+<td style="text-align:right;">
+0.6614996
+</td>
+<td style="text-align:right;">
+0.5151935
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Taiwan
+</td>
+<td style="text-align:right;">
+0.5743900
+</td>
+<td style="text-align:right;">
+0.5782357
+</td>
+<td style="text-align:right;">
+0.4008411
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thailand
+</td>
+<td style="text-align:right;">
+0.6547445
+</td>
+<td style="text-align:right;">
+0.5967818
+</td>
+<td style="text-align:right;">
+0.5424940
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Turkey
+</td>
+<td style="text-align:right;">
+0.6492160
+</td>
+<td style="text-align:right;">
+0.6128975
+</td>
+<td style="text-align:right;">
+0.4760636
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ukraine
+</td>
+<td style="text-align:right;">
+0.6820126
+</td>
+<td style="text-align:right;">
+0.6865280
+</td>
+<td style="text-align:right;">
+0.4774423
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+United Arab Emirates
+</td>
+<td style="text-align:right;">
+0.6547952
+</td>
+<td style="text-align:right;">
+0.6292655
+</td>
+<td style="text-align:right;">
+0.4827397
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+United Kingdom
+</td>
+<td style="text-align:right;">
+0.6684967
+</td>
+<td style="text-align:right;">
+0.6665605
+</td>
+<td style="text-align:right;">
+0.5372348
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+United States
+</td>
+<td style="text-align:right;">
+0.6662003
+</td>
+<td style="text-align:right;">
+0.6244322
+</td>
+<td style="text-align:right;">
+0.4709214
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Uruguay
+</td>
+<td style="text-align:right;">
+0.7373960
+</td>
+<td style="text-align:right;">
+0.6752378
+</td>
+<td style="text-align:right;">
+0.6668523
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vietnam
+</td>
+<td style="text-align:right;">
+0.6650792
+</td>
+<td style="text-align:right;">
+0.5540638
+</td>
+<td style="text-align:right;">
+0.4642612
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Lastly, we can merge these weighted means which are grouped by country with the World Happiness Report’s findings, to put all of our accumulated information into one dataset.</p>
+<p>As the Spotify Charts website may use different names for countries than the World Happiness Report, we will first merge these datasets together using a ‘full join’ on the names of the countries, and we will manually examine any countries which appear twice under slightly different names.</p>
+<div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:800px; overflow-x: scroll; width:100%; ">
+<table class="table table-striped table-bordered" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:merge-tables-fulljoin">Table 7: </span>Joining our tables based on the country names
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+country
+</th>
+<th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+region
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+happiness
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+rank
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+mean_danceability
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+mean_energy
+</th>
+<th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;position: sticky; top:0; background-color: #FFFFFF;">
+mean_valence
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Afghanistan
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+2.5229
+</td>
+<td style="text-align:right;">
+149
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Albania
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.1174
+</td>
+<td style="text-align:right;">
+93
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Algeria
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.8871
+</td>
+<td style="text-align:right;">
+109
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Argentina
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.9293
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+0.7305649
+</td>
+<td style="text-align:right;">
+0.6688815
+</td>
+<td style="text-align:right;">
+0.6551697
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Armenia
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.2826
+</td>
+<td style="text-align:right;">
+86
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Australia
+</td>
+<td style="text-align:left;">
+North America and ANZ
+</td>
+<td style="text-align:right;">
+7.1835
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+0.6559271
+</td>
+<td style="text-align:right;">
+0.6612825
+</td>
+<td style="text-align:right;">
+0.5141292
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Austria
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.2678
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+0.6806558
+</td>
+<td style="text-align:right;">
+0.6762681
+</td>
+<td style="text-align:right;">
+0.5194063
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Azerbaijan
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.1708
+</td>
+<td style="text-align:right;">
+90
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bahrain
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+6.6469
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bangladesh
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+5.0246
+</td>
+<td style="text-align:right;">
+101
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belarus
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.5335
+</td>
+<td style="text-align:right;">
+75
+</td>
+<td style="text-align:right;">
+0.6841963
+</td>
+<td style="text-align:right;">
+0.6668493
+</td>
+<td style="text-align:right;">
+0.4595995
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belgium
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.8340
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+0.6708035
+</td>
+<td style="text-align:right;">
+0.6573458
+</td>
+<td style="text-align:right;">
+0.5310949
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Benin
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.0452
+</td>
+<td style="text-align:right;">
+99
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bolivia
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.7159
+</td>
+<td style="text-align:right;">
+69
+</td>
+<td style="text-align:right;">
+0.7239904
+</td>
+<td style="text-align:right;">
+0.6766358
+</td>
+<td style="text-align:right;">
+0.6260286
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bosnia and Herzegovina
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.8131
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Botswana
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.4665
+</td>
+<td style="text-align:right;">
+146
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brazil
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.3301
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:right;">
+0.6992066
+</td>
+<td style="text-align:right;">
+0.7289616
+</td>
+<td style="text-align:right;">
+0.6792344
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bulgaria
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.2655
+</td>
+<td style="text-align:right;">
+88
+</td>
+<td style="text-align:right;">
+0.6825988
+</td>
+<td style="text-align:right;">
+0.7031719
+</td>
+<td style="text-align:right;">
+0.5351033
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Burkina Faso
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.8338
+</td>
+<td style="text-align:right;">
+113
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Burundi
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.7753
+</td>
+<td style="text-align:right;">
+140
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cambodia
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+4.8304
+</td>
+<td style="text-align:right;">
+114
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cameroon
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.1418
+</td>
+<td style="text-align:right;">
+91
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Canada
+</td>
+<td style="text-align:left;">
+North America and ANZ
+</td>
+<td style="text-align:right;">
+7.1033
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+0.6755400
+</td>
+<td style="text-align:right;">
+0.6443553
+</td>
+<td style="text-align:right;">
+0.4936077
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chad
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.3554
+</td>
+<td style="text-align:right;">
+128
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chile
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.1719
+</td>
+<td style="text-align:right;">
+43
+</td>
+<td style="text-align:right;">
+0.7654541
+</td>
+<td style="text-align:right;">
+0.6959202
+</td>
+<td style="text-align:right;">
+0.6362778
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+China
+</td>
+<td style="text-align:left;">
+East Asia
+</td>
+<td style="text-align:right;">
+5.3391
+</td>
+<td style="text-align:right;">
+84
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colombia
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.0124
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+0.7378438
+</td>
+<td style="text-align:right;">
+0.6826002
+</td>
+<td style="text-align:right;">
+0.6361242
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Comoros
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.2886
+</td>
+<td style="text-align:right;">
+131
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Congo (Brazzaville)
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.3417
+</td>
+<td style="text-align:right;">
+83
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Costa Rica
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+7.0694
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+0.7215459
+</td>
+<td style="text-align:right;">
+0.6353198
+</td>
+<td style="text-align:right;">
+0.6101227
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Croatia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.8817
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cyprus
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.2235
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+0.6818034
+</td>
+<td style="text-align:right;">
+0.6526462
+</td>
+<td style="text-align:right;">
+0.4845356
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Czech Republic
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.9647
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:right;">
+0.6835192
+</td>
+<td style="text-align:right;">
+0.6937636
+</td>
+<td style="text-align:right;">
+0.5062472
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Denmark
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.6195
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.6924174
+</td>
+<td style="text-align:right;">
+0.6505832
+</td>
+<td style="text-align:right;">
+0.5633864
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dominican Republic
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.5451
+</td>
+<td style="text-align:right;">
+73
+</td>
+<td style="text-align:right;">
+0.7443766
+</td>
+<td style="text-align:right;">
+0.6919941
+</td>
+<td style="text-align:right;">
+0.5761462
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecuador
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.7640
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:right;">
+0.7426212
+</td>
+<td style="text-align:right;">
+0.6807029
+</td>
+<td style="text-align:right;">
+0.6090236
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Egypt
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.2827
+</td>
+<td style="text-align:right;">
+132
+</td>
+<td style="text-align:right;">
+0.7157028
+</td>
+<td style="text-align:right;">
+0.6112053
+</td>
+<td style="text-align:right;">
+0.5413517
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+El Salvador
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.0605
+</td>
+<td style="text-align:right;">
+49
+</td>
+<td style="text-align:right;">
+0.7262493
+</td>
+<td style="text-align:right;">
+0.6616731
+</td>
+<td style="text-align:right;">
+0.5832978
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Estonia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.1888
+</td>
+<td style="text-align:right;">
+40
+</td>
+<td style="text-align:right;">
+0.6429901
+</td>
+<td style="text-align:right;">
+0.7027900
+</td>
+<td style="text-align:right;">
+0.4674047
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ethiopia
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.2747
+</td>
+<td style="text-align:right;">
+133
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Finland
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.8421
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0.6529449
+</td>
+<td style="text-align:right;">
+0.7127840
+</td>
+<td style="text-align:right;">
+0.5339543
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+France
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.6899
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0.7327342
+</td>
+<td style="text-align:right;">
+0.6613218
+</td>
+<td style="text-align:right;">
+0.5412699
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gabon
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.8518
+</td>
+<td style="text-align:right;">
+112
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gambia
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.0510
+</td>
+<td style="text-align:right;">
+98
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgia
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+4.8914
+</td>
+<td style="text-align:right;">
+108
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Germany
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.1545
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.6997897
+</td>
+<td style="text-align:right;">
+0.6624700
+</td>
+<td style="text-align:right;">
+0.5078050
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ghana
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.0884
+</td>
+<td style="text-align:right;">
+95
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greece
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+5.7226
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:right;">
+0.7226000
+</td>
+<td style="text-align:right;">
+0.6702429
+</td>
+<td style="text-align:right;">
+0.4996237
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Guatemala
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.4345
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+0.7124577
+</td>
+<td style="text-align:right;">
+0.6380458
+</td>
+<td style="text-align:right;">
+0.6063943
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Guinea
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.9843
+</td>
+<td style="text-align:right;">
+102
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Haiti
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+3.6149
+</td>
+<td style="text-align:right;">
+143
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Honduras
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.9192
+</td>
+<td style="text-align:right;">
+59
+</td>
+<td style="text-align:right;">
+0.7128377
+</td>
+<td style="text-align:right;">
+0.6529583
+</td>
+<td style="text-align:right;">
+0.5746582
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hong Kong
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0.5862543
+</td>
+<td style="text-align:right;">
+0.5675704
+</td>
+<td style="text-align:right;">
+0.4433128
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hong Kong S.A.R. of China
+</td>
+<td style="text-align:left;">
+East Asia
+</td>
+<td style="text-align:right;">
+5.4767
+</td>
+<td style="text-align:right;">
+77
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hungary
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.9916
+</td>
+<td style="text-align:right;">
+53
+</td>
+<td style="text-align:right;">
+0.7074072
+</td>
+<td style="text-align:right;">
+0.6645674
+</td>
+<td style="text-align:right;">
+0.5182870
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iceland
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.5539
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.6552998
+</td>
+<td style="text-align:right;">
+0.5236390
+</td>
+<td style="text-align:right;">
+0.4694664
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+India
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+3.8189
+</td>
+<td style="text-align:right;">
+139
+</td>
+<td style="text-align:right;">
+0.6660185
+</td>
+<td style="text-align:right;">
+0.6257881
+</td>
+<td style="text-align:right;">
+0.4925757
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Indonesia
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+5.3445
+</td>
+<td style="text-align:right;">
+82
+</td>
+<td style="text-align:right;">
+0.5628583
+</td>
+<td style="text-align:right;">
+0.5083169
+</td>
+<td style="text-align:right;">
+0.4047264
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iran
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.7212
+</td>
+<td style="text-align:right;">
+118
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iraq
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.8541
+</td>
+<td style="text-align:right;">
+111
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ireland
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.0853
+</td>
+<td style="text-align:right;">
+15
+</td>
+<td style="text-align:right;">
+0.6528951
+</td>
+<td style="text-align:right;">
+0.6739207
+</td>
+<td style="text-align:right;">
+0.5144107
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Israel
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+7.1571
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+0.6482851
+</td>
+<td style="text-align:right;">
+0.5936377
+</td>
+<td style="text-align:right;">
+0.4882465
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Italy
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.4831
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:right;">
+0.6514532
+</td>
+<td style="text-align:right;">
+0.6913623
+</td>
+<td style="text-align:right;">
+0.5091042
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ivory Coast
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.3060
+</td>
+<td style="text-align:right;">
+85
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jamaica
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.3092
+</td>
+<td style="text-align:right;">
+37
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Japan
+</td>
+<td style="text-align:left;">
+East Asia
+</td>
+<td style="text-align:right;">
+5.9405
+</td>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:right;">
+0.5984204
+</td>
+<td style="text-align:right;">
+0.7298657
+</td>
+<td style="text-align:right;">
+0.5833426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jordan
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.3946
+</td>
+<td style="text-align:right;">
+127
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kazakhstan
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+6.1518
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:right;">
+0.6840741
+</td>
+<td style="text-align:right;">
+0.6657929
+</td>
+<td style="text-align:right;">
+0.4791853
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kenya
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.6066
+</td>
+<td style="text-align:right;">
+121
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kosovo
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.3720
+</td>
+<td style="text-align:right;">
+33
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kuwait
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+6.1061
+</td>
+<td style="text-align:right;">
+47
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kyrgyzstan
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.7436
+</td>
+<td style="text-align:right;">
+67
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Laos
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+5.0300
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Latvia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.0320
+</td>
+<td style="text-align:right;">
+51
+</td>
+<td style="text-align:right;">
+0.6646480
+</td>
+<td style="text-align:right;">
+0.6669997
+</td>
+<td style="text-align:right;">
+0.4586133
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lebanon
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.5838
+</td>
+<td style="text-align:right;">
+123
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lesotho
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.5118
+</td>
+<td style="text-align:right;">
+145
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Liberia
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.6252
+</td>
+<td style="text-align:right;">
+120
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Libya
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+5.4103
+</td>
+<td style="text-align:right;">
+80
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lithuania
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.2554
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:right;">
+0.6617763
+</td>
+<td style="text-align:right;">
+0.6571845
+</td>
+<td style="text-align:right;">
+0.4655801
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Luxembourg
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.3244
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.6886505
+</td>
+<td style="text-align:right;">
+0.6529272
+</td>
+<td style="text-align:right;">
+0.5207501
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Madagascar
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.2085
+</td>
+<td style="text-align:right;">
+135
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Malawi
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.6000
+</td>
+<td style="text-align:right;">
+144
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Malaysia
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+5.3843
+</td>
+<td style="text-align:right;">
+81
+</td>
+<td style="text-align:right;">
+0.5979358
+</td>
+<td style="text-align:right;">
+0.5848258
+</td>
+<td style="text-align:right;">
+0.4383599
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maldives
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+5.1976
+</td>
+<td style="text-align:right;">
+89
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mali
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.7235
+</td>
+<td style="text-align:right;">
+117
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Malta
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.6020
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mauritania
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.2274
+</td>
+<td style="text-align:right;">
+134
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mauritius
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+6.0490
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mexico
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.3168
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+0.7068937
+</td>
+<td style="text-align:right;">
+0.6309640
+</td>
+<td style="text-align:right;">
+0.6312218
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Moldova
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.7664
+</td>
+<td style="text-align:right;">
+65
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mongolia
+</td>
+<td style="text-align:left;">
+East Asia
+</td>
+<td style="text-align:right;">
+5.6772
+</td>
+<td style="text-align:right;">
+70
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Montenegro
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.5805
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Morocco
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.9180
+</td>
+<td style="text-align:right;">
+106
+</td>
+<td style="text-align:right;">
+0.6921049
+</td>
+<td style="text-align:right;">
+0.5874032
+</td>
+<td style="text-align:right;">
+0.5055644
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mozambique
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.7945
+</td>
+<td style="text-align:right;">
+115
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Myanmar
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+4.4258
+</td>
+<td style="text-align:right;">
+126
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Namibia
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.5741
+</td>
+<td style="text-align:right;">
+124
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nepal
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+5.2689
+</td>
+<td style="text-align:right;">
+87
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Netherlands
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.4640
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0.6962831
+</td>
+<td style="text-align:right;">
+0.6548411
+</td>
+<td style="text-align:right;">
+0.5813321
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Zealand
+</td>
+<td style="text-align:left;">
+North America and ANZ
+</td>
+<td style="text-align:right;">
+7.2766
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0.6734161
+</td>
+<td style="text-align:right;">
+0.6351290
+</td>
+<td style="text-align:right;">
+0.5375649
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nicaragua
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.9721
+</td>
+<td style="text-align:right;">
+55
+</td>
+<td style="text-align:right;">
+0.7207281
+</td>
+<td style="text-align:right;">
+0.6612255
+</td>
+<td style="text-align:right;">
+0.5765019
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Niger
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.0741
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nigeria
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.7593
+</td>
+<td style="text-align:right;">
+116
+</td>
+<td style="text-align:right;">
+0.7603665
+</td>
+<td style="text-align:right;">
+0.6625778
+</td>
+<td style="text-align:right;">
+0.6325466
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Cyprus
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+5.5355
+</td>
+<td style="text-align:right;">
+74
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Macedonia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+5.1012
+</td>
+<td style="text-align:right;">
+94
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Norway
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.3925
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.6425236
+</td>
+<td style="text-align:right;">
+0.5951719
+</td>
+<td style="text-align:right;">
+0.4756742
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pakistan
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+4.9340
+</td>
+<td style="text-align:right;">
+105
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Palestinian Territories
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.5167
+</td>
+<td style="text-align:right;">
+125
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Panama
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.1796
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:right;">
+0.7167615
+</td>
+<td style="text-align:right;">
+0.6829061
+</td>
+<td style="text-align:right;">
+0.5842990
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paraguay
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.6526
+</td>
+<td style="text-align:right;">
+71
+</td>
+<td style="text-align:right;">
+0.7177974
+</td>
+<td style="text-align:right;">
+0.6945139
+</td>
+<td style="text-align:right;">
+0.6487074
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Peru
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+5.8396
+</td>
+<td style="text-align:right;">
+63
+</td>
+<td style="text-align:right;">
+0.7365523
+</td>
+<td style="text-align:right;">
+0.7004824
+</td>
+<td style="text-align:right;">
+0.6187870
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Philippines
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+5.8802
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:right;">
+0.6034857
+</td>
+<td style="text-align:right;">
+0.5219030
+</td>
+<td style="text-align:right;">
+0.4271533
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Poland
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.1661
+</td>
+<td style="text-align:right;">
+44
+</td>
+<td style="text-align:right;">
+0.7275911
+</td>
+<td style="text-align:right;">
+0.6419235
+</td>
+<td style="text-align:right;">
+0.5272818
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Portugal
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+5.9290
+</td>
+<td style="text-align:right;">
+58
+</td>
+<td style="text-align:right;">
+0.6900691
+</td>
+<td style="text-align:right;">
+0.6472425
+</td>
+<td style="text-align:right;">
+0.5663800
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Romania
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.1400
+</td>
+<td style="text-align:right;">
+46
+</td>
+<td style="text-align:right;">
+0.7213117
+</td>
+<td style="text-align:right;">
+0.6580086
+</td>
+<td style="text-align:right;">
+0.4970850
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Russia
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.4772
+</td>
+<td style="text-align:right;">
+76
+</td>
+<td style="text-align:right;">
+0.6860076
+</td>
+<td style="text-align:right;">
+0.6799659
+</td>
+<td style="text-align:right;">
+0.4736277
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rwanda
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.4147
+</td>
+<td style="text-align:right;">
+147
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saudi Arabia
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+6.4940
+</td>
+<td style="text-align:right;">
+26
+</td>
+<td style="text-align:right;">
+0.6383755
+</td>
+<td style="text-align:right;">
+0.6536338
+</td>
+<td style="text-align:right;">
+0.5292986
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Senegal
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+5.1318
+</td>
+<td style="text-align:right;">
+92
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Serbia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.0779
+</td>
+<td style="text-align:right;">
+48
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sierra Leone
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.8494
+</td>
+<td style="text-align:right;">
+138
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Singapore
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+6.3765
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:right;">
+0.6110974
+</td>
+<td style="text-align:right;">
+0.6023441
+</td>
+<td style="text-align:right;">
+0.4679703
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Slovakia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.3309
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+0.6905424
+</td>
+<td style="text-align:right;">
+0.6825385
+</td>
+<td style="text-align:right;">
+0.4875293
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Slovenia
+</td>
+<td style="text-align:left;">
+Central and Eastern Europe
+</td>
+<td style="text-align:right;">
+6.4607
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Africa
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.9564
+</td>
+<td style="text-align:right;">
+103
+</td>
+<td style="text-align:right;">
+0.7002589
+</td>
+<td style="text-align:right;">
+0.5850207
+</td>
+<td style="text-align:right;">
+0.4592435
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Korea
+</td>
+<td style="text-align:left;">
+East Asia
+</td>
+<td style="text-align:right;">
+5.8455
+</td>
+<td style="text-align:right;">
+62
+</td>
+<td style="text-align:right;">
+0.6434635
+</td>
+<td style="text-align:right;">
+0.6672347
+</td>
+<td style="text-align:right;">
+0.5297744
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spain
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+6.4907
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:right;">
+0.7398602
+</td>
+<td style="text-align:right;">
+0.6991270
+</td>
+<td style="text-align:right;">
+0.6218947
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sri Lanka
+</td>
+<td style="text-align:left;">
+South Asia
+</td>
+<td style="text-align:right;">
+4.3250
+</td>
+<td style="text-align:right;">
+129
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Swaziland
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.3081
+</td>
+<td style="text-align:right;">
+130
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sweden
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.3627
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+0.6715828
+</td>
+<td style="text-align:right;">
+0.6443019
+</td>
+<td style="text-align:right;">
+0.5194846
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Switzerland
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.5715
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.6755041
+</td>
+<td style="text-align:right;">
+0.6614996
+</td>
+<td style="text-align:right;">
+0.5151935
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Taiwan
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0.5743900
+</td>
+<td style="text-align:right;">
+0.5782357
+</td>
+<td style="text-align:right;">
+0.4008411
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Taiwan Province of China
+</td>
+<td style="text-align:left;">
+East Asia
+</td>
+<td style="text-align:right;">
+6.5844
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tajikistan
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.4662
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tanzania
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.6232
+</td>
+<td style="text-align:right;">
+142
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thailand
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+5.9847
+</td>
+<td style="text-align:right;">
+54
+</td>
+<td style="text-align:right;">
+0.6547445
+</td>
+<td style="text-align:right;">
+0.5967818
+</td>
+<td style="text-align:right;">
+0.5424940
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Togo
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.1068
+</td>
+<td style="text-align:right;">
+136
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tunisia
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.5965
+</td>
+<td style="text-align:right;">
+122
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Turkey
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+4.9476
+</td>
+<td style="text-align:right;">
+104
+</td>
+<td style="text-align:right;">
+0.6492160
+</td>
+<td style="text-align:right;">
+0.6128975
+</td>
+<td style="text-align:right;">
+0.4760636
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Turkmenistan
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+5.0664
+</td>
+<td style="text-align:right;">
+97
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Uganda
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.6365
+</td>
+<td style="text-align:right;">
+119
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ukraine
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+4.8748
+</td>
+<td style="text-align:right;">
+110
+</td>
+<td style="text-align:right;">
+0.6820126
+</td>
+<td style="text-align:right;">
+0.6865280
+</td>
+<td style="text-align:right;">
+0.4774423
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+United Arab Emirates
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+6.5605
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+0.6547952
+</td>
+<td style="text-align:right;">
+0.6292655
+</td>
+<td style="text-align:right;">
+0.4827397
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+United Kingdom
+</td>
+<td style="text-align:left;">
+Western Europe
+</td>
+<td style="text-align:right;">
+7.0636
+</td>
+<td style="text-align:right;">
+17
+</td>
+<td style="text-align:right;">
+0.6684967
+</td>
+<td style="text-align:right;">
+0.6665605
+</td>
+<td style="text-align:right;">
+0.5372348
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+United States
+</td>
+<td style="text-align:left;">
+North America and ANZ
+</td>
+<td style="text-align:right;">
+6.9515
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:right;">
+0.6662003
+</td>
+<td style="text-align:right;">
+0.6244322
+</td>
+<td style="text-align:right;">
+0.4709214
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Uruguay
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+6.4314
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:right;">
+0.7373960
+</td>
+<td style="text-align:right;">
+0.6752378
+</td>
+<td style="text-align:right;">
+0.6668523
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Uzbekistan
+</td>
+<td style="text-align:left;">
+Commonwealth of Independent States
+</td>
+<td style="text-align:right;">
+6.1788
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Venezuela
+</td>
+<td style="text-align:left;">
+Latin America and Caribbean
+</td>
+<td style="text-align:right;">
+4.8922
+</td>
+<td style="text-align:right;">
+107
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vietnam
+</td>
+<td style="text-align:left;">
+Southeast Asia
+</td>
+<td style="text-align:right;">
+5.4108
+</td>
+<td style="text-align:right;">
+79
+</td>
+<td style="text-align:right;">
+0.6650792
+</td>
+<td style="text-align:right;">
+0.5540638
+</td>
+<td style="text-align:right;">
+0.4642612
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yemen
+</td>
+<td style="text-align:left;">
+Middle East and North Africa
+</td>
+<td style="text-align:right;">
+3.6579
+</td>
+<td style="text-align:right;">
+141
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Zambia
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+4.0734
+</td>
+<td style="text-align:right;">
+137
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Zimbabwe
+</td>
+<td style="text-align:left;">
+Sub-Saharan Africa
+</td>
+<td style="text-align:right;">
+3.1448
+</td>
+<td style="text-align:right;">
+148
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>As we can see in</p>
+</div>
+<div id="data-merging" class="section level2">
+<h2>Data Merging</h2>
+<p>Now that we have collected the song-related data from the Spotify API, we can merge our two separate datasets together</p>
+<p>Now that we have cleaned the data in each of our two separate datasets and prepared it for use, we can merge the tables together.</p>
+</div>
+<div id="data-exploration" class="section level2">
+<h2>Data Exploration</h2>
 </div>
 </div>
 <div id="methods-1" class="section level1">
@@ -1645,7 +6006,7 @@ ca
 <p>There are a variety of reasons why this assumption may not be well-founded, from a statistical perspective. Two particularly large issues with this assumption are:
 - Spotify demographics may not represent
 - The set of people who have access to Spotify</p>
-<p>In addition, there are only 71 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries.</p>
+<p>In addition, there are only 72 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries.</p>
 </div>
 <div id="future-steps" class="section level2">
 <h2>Future Steps</h2>
