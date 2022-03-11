@@ -1,6 +1,6 @@
 ---
-title: "[Placeholder]"
-subtitle: "Examining the correlation between songs on Spotify and Happiness" 
+title: "Country Music"
+subtitle: "Examining the relationship between highly-played Spotify songs and overall happiness in different countries" 
 author: "Joey Hotz"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output: 
@@ -23,19 +23,24 @@ library(knitr)
 library(kableExtra)
 library(spotifyr)
 library(stringr)
-
-# library(httr)
-library(wesanderson)
-# library(leaflet)
 ```
 
 # Introduction
 
-The [World Happiness Report](https://worldhappiness.report/ed/2021/) is an annually-published report which is written by members of the [United Nations Sustainable Development Solutions Network](https://www.unsdsn.org/)
+Music is often thought of as one of the greatest cultural achievements which the human race has accomplished. From Stradivarius and Bach to Kanye West and Taylor Swift, music has continued to change and develop over time. With the advent of technology in the 21st Century, and the popularity of music streaming platforms, it is not a surprise that music is so prevalent in our daily lives. 
+Beyond the fact that music is so easily accessible, it is also incredibly popular. Many people listen to music throughout the day, as they may find that it helps them to focus, or even improves their mood. Many people find that their mood changes alongside the mood of the music which they are listening to, which is why people may create playlists for specific emotions, such as a workout playlist or a "sad boi hours" playlist. Music, and in particular, the ability to play music easily at the touch of a button, presents an incredibly accessible way for people to change and regulate their emotions, as it can help you to be calm, or angry, or happy.
 
+[Spotify](https://open.spotify.com/) is one of the largest and most popular music streaming apps in the world. The platform allows subscribers to easily play songs from a seemingly endless collection of music. On top of their vast collection of music, Spotify has hidden features within their API, such as their 'advanced features' of songs which are available on their platform. These advanced features which are available for songs on Spotify include measurements of whether or not a song is more instrumental or more vocal, how energetic the track is, and how happy a song is.
+
+The metric which measures the 'happiness' level of a song is referred to as "valence" in the Spotify API. According to the [Spotify API's documentation](https://developer.spotify.com/documentation/web-api/reference/#/operations/get-audio-features), a song's valence is "A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."
+
+The [World Happiness Report](https://worldhappiness.report/ed/2021/) is an annually-published report which is written by members of the [United Nations Sustainable Development Solutions Network](https://www.unsdsn.org/). The report aims to classify the countries of the world based on how happy the citizens of the country are with their lives in the country. The SDSN collects their data by polling the citizens of the respective countries, and bases their happiness rankings on six primary explanatory factors; GDP per capita, social support, life expectancy, freedom to make life choices, generosity, and corruption.
+
+The World Happiness Report is a well-regarded statistical survey which can be used as a numerical quantifiable metric for how happy citizens of a specific country are, with regard to the lives which they are able to lead in that country. 
 
 In this report, we seek to answer the following question: "*Is there a correlation between countries' happiness levels and the happiness of the music which they listen to on Spotify?*" 
 
+To do this, we will collect the audio features of the most played tracks on Spotify in different countries around the world, and we will compare this information to the happiness index values in the World Happiness Report, to determine if there is a statistically significant relationship.
 
 # Methods
 
@@ -177,6 +182,7 @@ spotify_clean <- spotify_clean %>%
 ```
 
 ```{r get-song-info, eval = FALSE, include = FALSE}
+# This code doesn't work, but I am keeping it for a potential future version of the project.
 get_song_info <- function(track_id){
   basic_info <- get_track(track_id)
   if(NA %in% basic_info){
@@ -211,15 +217,6 @@ get_song_info <- function(track_id){
 
 tracks_info <- t(sapply(spotify_clean$track_id, get_song_info)) %>%
   as_tibble()
-```
-
-
-```{r test-api, eval = FALSE, include = FALSE}
-hurricane_url <- "6Hfu9sc7jvv6coyy2LlzBF?si=5dafd99440be45fd"
-hurricane_url2 <- "7dZAPeA3Of5j5Vaef0DQ6M"
-hurricane1 <- get_track(hurricane_url)
-hurricane2 <- get_track(hurricane_url2)
-get_track_audio_features(hurricane_url2)
 ```
 
 ## Data Grouping
@@ -309,51 +306,174 @@ knitr::kable(head(filter(tracks_data, country == "Canada"), 5),
   scroll_box(width = "100%")
 ```
 
-```{r view-merged-data-2, echo = FALSE}
-knitr::kable(head(countries_data, 5),
-             caption = "Example of per-country data") %>%
-  kable_styling(bootstrap_options = c("striped", "bordered"),
-                fixed_thead = TRUE) %>%
-  scroll_box(width = "100%")
-```
-
 ## Data Exploration
 
 Now that our tables have been thoroughly cleaned and merged, we can begin to explore the data which we collected in greater detail.
 
-```{r basic-plot-1, echo = FALSE, fig.dim = c(11, 8.5)}
+First, we will create a histogram for the song valence values and happiness index values in our dataset, as these are the two main variables which we are concerned with examining in this report.
+
+```{r valence-histogram, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(tracks_data, aes(x = valence)) + 
+  geom_histogram(bins = 50, color = "#191414", fill = "#1DB954") + 
+  labs(x = "Valence", y = "Count",
+       title = "Valence values of highly-played tracks on Spotify") +
+  theme_bw()
+```
+In the histogram of valence values displayed above, the data appears to be centered at a valence of approximately 0.6, but other values are relatively common. The most commonly-occurring valence values are in the range from approximately 0.45 to 0.75, but without knowing the underlying distribution of Spotify valences, it is hard to determine how significant this result is.
+
+```{r happiness-histogram, echo = FALSE, fig.dim = c(11, 8.5), message = FALSE}
+ggplot(countries_data, aes(x = happiness)) + 
+  geom_histogram(bins = 30, color = "#191414", fill = "#1DB954") + 
+  labs(x = "Happiness", y = "Count",
+       title = "Happiness Index of countries with data available on Spotify Charts") +
+  theme_bw()
+```
+
+In the chart above, the values of the happiness index (per the World Happiness Report) appear to be roughly Normally distributed when we exclusively look at the happiness index values for the 72 countries who have data available on Spotify Charts. However, these countries may not be representative of all of the countries in the world.
+
+One of the variables available for each country in the World Happiness Report data is the region where that country is located. We can use the data to count the number of countries in each of these region, as well as the number of countries per region which are present and not recorded in the Spotify data.
+
+These regions are determined based on cultural and geographical similarities between groups of countries, instead of geography alone, which is why there are some strange regions, such as Mexico not being listed with North America, and the existence of the 'Commonwealth of Independent States' region, which does not have a particular geographic location.
+
+```{r countries-table, echo = FALSE, fig.dim = c(11, 8.5)}
+country_regions_table <- table(happiness_small$region)
+
+spotify_countries <- happiness_small %>%
+  filter(country %in% countries_data$country)
+
+country_regions_table <- rbind(country_regions_table, table(spotify_countries$region))
+country_regions_table <- rbind(country_regions_table, country_regions_table[1,] - country_regions_table[2,])
+country_regions_table <- t(country_regions_table)
+colnames(country_regions_table) <- c("Total Countries", "Countries with Spotify Data", "Countries without Spotify Data")
+
+knitr::kable(country_regions_table,
+             caption = "Number of countries with and without Top 200 Spotify Data per region") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE)
+```
+The table above shows clear discrepancies in the availability of Spotify data with regard to the different regions of the world. Some areas, such as Western Europe and North America have Spotify data available for almost every single country, whereas only 2 of the 36 countries in Sub-Saharan Africa have data available on the Spotify Charts website.
+
+```{r happiness-by-data-availability, echo = FALSE, fig.dim = c(11, 8.5)}
+happiness_small <- happiness_small %>%
+  mutate(spotify_charts = case_when(country %in% countries_data$country ~ "Spotify Charts Available",
+                                    !(country %in% countries_data$country) ~ "Spotify Charts Unavailable"))
+
+ggplot(happiness_small, aes(x = happiness, fill = spotify_charts)) + 
+  geom_histogram(bins = 30, color = "#191414") + 
+  labs(x = "Happiness", y = "Count",
+       title = "Happiness Index of countries, grouped by availability of Spotify Charts data") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  scale_fill_manual(values = c("#1DB954", "#E246AB")) +
+  facet_wrap(~spotify_charts)
+```
+
+As we can see in the histogram above, there is a clear discrepancy between the happiness index of countries which have data available on the Spotify Charts website and the countries which do not have this data readily available. 
+
+
+# Preliminary Results
+
+The key question which guided our research was "is there a correlation between countries' happiness levels and the happiness of the music which they listen to on Spotify?" 
+
+To answer this question, we will compare each country's average Spotify valence to their happiness index value. 
+
+First, we will create numerical summaries for the two major variables which we are examining in this report; the mean valence of highly-played songs in each country and the overall happiness of citizens in those countries.
+
+```{r valence-summary-statistics, echo = FALSE}
+valence_summary <- tracks_data %>% 
+  summarise("Average Track Valence" = mean(valence),
+            "Standard Deviation of Track Valence" = sqrt(var(valence)),
+            "Minimum Valence" = quantile(valence, 0),
+            "1st Quartile" = quantile(valence, 0.25),
+            "Median Valence" = quantile(valence, 0.50),
+            "3rd Quartile" = quantile(valence, 0.75),
+            "Maximum Valence" = quantile(valence, 1))
+  
+knitr::kable(valence_summary, digits = 3,
+             caption = "Numerical Summary of Track Valences") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+```{r happiness-summary-statistics, echo = FALSE}
+happiness_summary <- tracks_data %>% 
+  summarise("Average Happiness Index" = mean(happiness),
+            "Standard Deviation of Happiness Index" = sqrt(var(happiness)),
+            "Minimum Happiness Index" = quantile(happiness, 0),
+            "1st Quartile" = quantile(happiness, 0.25),
+            "Median Happiness Index" = quantile(happiness, 0.50),
+            "3rd Quartile" = quantile(happiness, 0.75),
+            "Maximum Happiness Index" = quantile(happiness, 1))
+  
+knitr::kable(happiness_summary, digits = 3,
+             caption = "Numerical Summary of Happiness Index Values") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"),
+                  full_width = TRUE)
+```
+
+Next, we will create a table with an overview of the mean valence, energy, and danceability of the highest-played tracks in each country, alongside information about the country which was gathered in the World Happiness Report.
+
+```{r view-merged-data-2, echo = FALSE}
+knitr::kable(countries_data,
+             caption = "Spotify Top songs and World Happiness Data, aggregated by country") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(width = "100%", height = '800px')
+```
+
+Now that we have had a chance to examine these variables in more depth, we will create a scatter plot of our two key variables, to get a graphical understanding of the relationship between track valences and the happiness index for a given country.
+
+```{r basic-scatterplot-1, echo = FALSE, fig.dim = c(11, 8.5)}
 ggplot(countries_data, aes(x = mean_valence, y = happiness, color = region)) + 
   geom_point() + 
   labs(x = "Mean Valence", y = "Happiness",
-       title = "Mean valence of Top 200 Spotify tracks and overall happiness per country",
+       title = "Mean Track valence of Top 200 Spotify tracks and overall happiness per country",
        color = "Region") +
   theme_bw()
 ```
 
+The scatter plot shown above does not have any particularly noticeable trends. There appears to be almost no noticeable relationship between the valence and happiness values in the plot above, as the data points are spread throughout the plot. Interestingly, some regions, such as the 'Latin America and Caribbean' region have many data points clustered quite close to one another, which could indicate that there is a regional factor affecting the overall distribution of our variables. To examine this in further detail, we will create separate scatter plots for each region.
 
-# Methods
+```{r basic-scatterplot-2, echo = FALSE, fig.dim = c(11, 8.5)}
+ggplot(countries_data, aes(x = mean_valence, y = happiness, color = region)) + 
+  geom_point() + 
+  labs(x = "Mean Track Valence", y = "Happiness",
+       title = "Mean valence of Top 200 Spotify tracks and overall happiness per country",
+       color = "Region") +
+  theme_bw() +
+  theme(legend.position = "none") +
+  facet_wrap(~region, nrow = 2)
+```
 
-The key question which guided our research was "is there a correlation between countries' happiness levels and the happiness of the music which they listen to on Spotify?" 
+Once we have accounted for the various regions which the countries are located in, and separated the countries based on their region, some patterns seem to emerge in a ew of the regions. However, as we saw in Table \@ref(tab:country-regions-table), many of these regions have only a handful of countries with available Spotify data, so these patterns could easily occur due to chance.
 
-To answer this question, we will compare each country's average Spotify valence to their happiness. We will compute the correlation between these variables using two different correlation metrics; the Pearson correlation coefficient, and Spearman's rank correlation coefficient.
+Although the scatter plots which were created above were not promising, it is still possible for there to be a correlation between the average track valence and happiness in these countries. To further investigate this question, we will compute the correlation between these variables using two different correlation metrics; the Pearson correlation coefficient, and Spearman's rank correlation coefficient.
 
 The Pearson correlation coefficient is a measure of how linear a relationship is between two sets of values. The closer that the Pearson coefficient is to 1 (or -1), the more linear the relationship is. Although the Pearson correlation coefficient is the most commonly-used correlation coefficient, it may not always indicate the presence of a relationship between two variables, if the relationship is non-linear.
 
 [Spearman's rank correlation coefficient](https://statisticsbyjim.com/basics/spearmans-correlation/) is a distinct measure of the correlation between two numerical variables. Instead of directly measuring how linear the relationship is between the two variables, this metric ranks each of the variables, and then determines whether the rankings of these variables are associated with one another.
 
-# Preliminary Results
+The Pearson correlation coefficient between these two variables is `r cor(countries_data$happiness, countries_data$mean_valence, method = "pearson")`, and the Spearman correlation between these variables is `r cor(countries_data$happiness, countries_data$mean_valence, method = "spearman")`. These correlation values are both very close to zero, which signifies that there is not any significant correlation between these variables.
 
 # Conclusions
+
+In this report, our primary guiding question was to determine if there was a correlation between how happy the citizens of a country are and how happy the music which they listen to is. 
+
+Based on the scatter plot and the correlation values which we computed in the previous section, it is safe to say that there is a negligible correlation between these values, if there even is any correlation at all.
 
 ## Limitations
 
 Overall, the most noticeable limitation of this research project is that the results of this study require an underlying assumption that Spotify users in a given country are representative of the population of that country as a whole.
 
 There are a variety of reasons why this assumption may not be well-founded, from a statistical perspective. Two particularly large issues with this assumption are:
-- Spotify demographics may not represent
-- The set of people who have access to Spotify in each country
+- Spotify demographics in a given country may not be representative of the whole population
+- People in a given country who can afford Spotify Premium may not be representative of the whole population
 
-In addition, there are only 72 countries which are represented in the Spotify Charts database, whereas the World Happiness Report contains information regarding a total of 149 countries. 
+Additionally, our data collection process suffered from multiple technological limitations, due to the lack of a usable Spotify Charts API, and the rate limits for Spotify's API. This report would be improved if it were feasible to collect more Spotify Chart data for each country, but this is a difficult process to scale easily, due to the rate limits within the Spotify API. 
 
 ## Future Steps
 
+Although the data which we collected from the Spotify Charts website and the World Happiness Report did not provide us with a satisfactory answer to our guiding question, it does not mean that these variables are entirely unrelated, and that the data which we have collected is worthless.
+
+There was an unmistakable difference between the happiness index values of the countries which had data available on the Spotify Charts website and the countries which did not have Spotify data. A possible explanation for this difference is that the countries with higher Spotify usage tend to be countries where a large proportion of their citizens have easy access to the Internet, and are able to afford Spotify (if they are Spotify Premium users). The countries which fit this profile may also tend to be the countries which are rated more favourably on the World Happiness Report, likely in part due to their citizens' access to technology and financial freedom.
+
+A future step for this research could be to incorporate data from the Human Development Index to determine if there are other external factors which can affect Spotify usage in a country as well as the country's happiness index.
