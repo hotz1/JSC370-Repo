@@ -30,9 +30,11 @@ library(wesanderson)
 library(leaflet)
 ```
 
-# API Usage
+# Using the NCBI API
 
 In this project, we will scrape data from the NCBI (National Center for Biotechnology Information) website using the [NCBI API](https://www.ncbi.nlm.nih.gov/home/develop/api/). In particular, the data which we will scrape corresponds to papers relating to COVID vaccines and vaccinations.
+
+## Scraping the NCBI Website
 
 The papers which we are collecting using the API are available on the [PubMed website](https://pubmed.ncbi.nlm.nih.gov/), and the search term we are using to search for papers is `"sars-cov-2 vaccine"`.
 
@@ -75,6 +77,8 @@ ids <- unlist(stringr::str_extract_all(ids, "<Id>[0-9]+</Id>"))
 ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
 ```
 
+## Extracting Data
+
 Now, we will use the 250 PubMed IDs which we have collected to create a dataset containing the following information for each paper:
 
 * PubMed ID number
@@ -83,26 +87,98 @@ Now, we will use the 250 PubMed IDs which we have collected to create a dataset 
 * Publication date
 * Abstract of the paper
 
-```{r get-paper-abstracts, echo = FALSE}
+We have already collected the PubMed IDs above, as these IDs are necessary in order to requests and extract the remaining information using the NCBI API. 
+
+To determine the remaining four values for each of the 250 papers, we will use RegEx patterns to extract these particular bits of information from the HTML code which we have scraped from the NCBI website.
+
+
+```{r get-papers, echo = FALSE}
 publications <- GET(url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
                     query = list(db = "pubmed",
                                  id = paste(ids, collapse = ","),
-                                 retmax = 1000,
+                                 retmax = 250,
                                  rettype = "abstract"))
 
 # Turning the output into character vector
 publications <- httr::content(publications)
-publications_txt <- as.character(publications)
 ```
 
-The text which we have downloaded by scraping from the NCBI website contains a total of `r nchar(publications_txt)` characters. However, this text includes many characters which are unrelated to the information we need, as it was read straight from the XML code for the webpage.
+The text which we have downloaded by scraping from the NCBI website contains a total of `r nchar(as.character(publications))` characters. However, this text includes many characters which are unrelated to the information we need, as it was read straight from the code for the webpage.
 
-To extract the information we need for creating the database mentioned above, we will first convert our long text into 250 shorter text documents; one per paper.
+To extract the information we need for creating this database, we will first convert need to break the large chunk of data for all 250 papers into 250 smaller chunks; one representing each individual paper.
 
-```{r, echo = FALSE}
+After this, we will convert the XML and HTML code for these 250 papers into text, which we will be able to parse and extract information from in a more structured manner.
+
+```{r get-publications-list, echo = FALSE}
 publications_list <- xml2::xml_children(publications)
 publications_list <- sapply(publications_list, as.character)
 ```
+
+Next, for each of the 250 papers which we have selected using the NCBI API, we will find the paper's title, the name of the journal it was published in, its publication date, and the abstract of the paper.
+
+```{r get-paper-titles, echo = FALSE}
+# Collects titles of the papers 
+paper_titles <- stringr::str_extract(publications_list, "<ArticleTitle>(\\n|.)+</ArticleTitle>")
+
+# Removes any XML/HTML tags from the text
+paper_titles <- stringr::str_remove_all(paper_titles, "<(.+?)>")
+
+# Removes newline characters
+paper_titles <- stringr::str_remove_all(paper_titles, "\\n")
+
+# Turns instances of multiple spaces into only one space character
+paper_titles <- stringr::str_replace_all(paper_titles, "\\s+", " ")
+
+# Remove leading and trailing whitespace
+paper_titles <- stringr::str_remove(paper_titles, "^\\s+")
+paper_titles <- stringr::str_remove(paper_titles, "\\s+$")
+```
+
+```{r get-journal-names, echo = FALSE}
+# Collects all text in the journal section of the HTML code (journal name, publication date, etc)
+journal_names <- stringr::str_extract(publications_list, "<Journal>(\\n|.)+</Journal>")
+
+# Selects the title of the journal
+journal_names <- stringr::str_extract(journal_names, "<Title>(\\n|.)+</Title>")
+
+# Removes any XML/HTML tags from the text
+journal_names <- stringr::str_remove_all(journal_names, "<(.+?)>")
+
+# Removes newline characters
+journal_names <- stringr::str_remove_all(journal_names, "\\n")
+
+# Turns instances of multiple spaces into only one space character
+journal_names <- stringr::str_replace_all(journal_names, "\\s+", " ")
+
+# Remove leading and trailing whitespace
+journal_names <- stringr::str_remove(journal_names, "^\\s+")
+journal_names <- stringr::str_remove(journal_names, "\\s+$")
+```
+
+
+```{r get-abstracts, echo = FALSE}
+# Collects all text in the abstracts (extracts text, labels, backgrounds, etc)
+abstracts <- stringr::str_extract(publications_list, "<Abstract>(\\n|.)+</Abstract>")
+
+# Removes any XML/HTML tags from the text
+abstracts <- stringr::str_remove_all(abstracts, "<(.+?)>")
+
+# Removes newline characters
+abstracts <- stringr::str_remove_all(abstracts, "\\n")
+
+# Turns instances of multiple spaces into only one space character
+abstracts <- stringr::str_replace_all(abstracts, "\\s+", " ")
+
+# Remove leading and trailing whitespace
+abstracts <- stringr::str_remove(abstracts, "^\\s+")
+abstracts <- stringr::str_remove(abstracts, "\\s+$")
+```
+
+Of these 250 papers, `r sum(is.na(stringr::str_extract(publications_list, "<Abstract>(\\n|.)+</Abstract>")))` do not appear to have an abstract.
+
+## Creating the Dataset
+
+Lastly, we will combine the information about our 250 papers which we have collected into a dataset, containing the collected information for each of these 250 papers.
 
 # Text Mining
 

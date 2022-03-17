@@ -161,12 +161,17 @@ pre code {
 </div>
 
 
-<div id="api-usage" class="section level1">
-<h1>API Usage</h1>
+<div id="using-the-ncbi-api" class="section level1">
+<h1>Using the NCBI API</h1>
 <p>In this project, we will scrape data from the NCBI (National Center for Biotechnology Information) website using the <a href="https://www.ncbi.nlm.nih.gov/home/develop/api/">NCBI API</a>. In particular, the data which we will scrape corresponds to papers relating to COVID vaccines and vaccinations.</p>
+<div id="scraping-the-ncbi-website" class="section level2">
+<h2>Scraping the NCBI Website</h2>
 <p>The papers which we are collecting using the API are available on the <a href="https://pubmed.ncbi.nlm.nih.gov/">PubMed website</a>, and the search term we are using to search for papers is <code>&quot;sars-cov-2 vaccine&quot;</code>.</p>
 <p>Using the <code>xml2</code> package in R, we were able to scrape the PubMed website to find papers containing the phrase <code>&quot;sars-cov-2 vaccine&quot;</code>. In total, the PubMed website had 18894 papers matching this query.</p>
 <p>Next, we will retrieve information corresponding to these 18894 papers. To do this, we will retrieve the IDs corresponding to these papers on the PubMed website, and we will then use these IDs (alongside the NCBI API) to collect information about the papers themselves. We will only retrieve the first 250 papers’ IDs from the PubMed website, to ensure that we are not overloading their website with requests.</p>
+</div>
+<div id="extracting-data" class="section level2">
+<h2>Extracting Data</h2>
 <p>Now, we will use the 250 PubMed IDs which we have collected to create a dataset containing the following information for each paper:</p>
 <ul>
 <li>PubMed ID number</li>
@@ -175,8 +180,18 @@ pre code {
 <li>Publication date</li>
 <li>Abstract of the paper</li>
 </ul>
-<p>The text which we have downloaded by scraping from the NCBI website contains a total of 3491083 characters. However, this text includes many characters which are unrelated to the information we need, as it was read straight from the XML code for the webpage.</p>
-<p>To extract the information we need for creating the database mentioned above, we will first convert our long text into 250 shorter text documents; one per paper.</p>
+<p>We have already collected the PubMed IDs above, as these IDs are necessary in order to requests and extract the remaining information using the NCBI API.</p>
+<p>To determine the remaining four values for each of the 250 papers, we will use RegEx patterns to extract these particular bits of information from the HTML code which we have scraped from the NCBI website.</p>
+<p>The text which we have downloaded by scraping from the NCBI website contains a total of 3476544 characters. However, this text includes many characters which are unrelated to the information we need, as it was read straight from the code for the webpage.</p>
+<p>To extract the information we need for creating this database, we will first convert need to break the large chunk of data for all 250 papers into 250 smaller chunks; one representing each individual paper.</p>
+<p>After this, we will convert the XML and HTML code for these 250 papers into text, which we will be able to parse and extract information from in a more structured manner.</p>
+<p>Next, for each of the 250 papers which we have selected using the NCBI API, we will find the paper’s title, the name of the journal it was published in, its publication date, and the abstract of the paper.</p>
+<p>Of these 250 papers, 33 do not appear to have an abstract.</p>
+</div>
+<div id="creating-the-dataset" class="section level2">
+<h2>Creating the Dataset</h2>
+<p>Lastly, we will combine the information about our 250 papers which we have collected into a dataset, containing the collected information for each of these 250 papers.</p>
+</div>
 </div>
 <div id="text-mining" class="section level1">
 <h1>Text Mining</h1>
