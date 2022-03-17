@@ -4,7 +4,7 @@ output: html_document
 ---
 
 ```{r setup}
-knitr::opts_chunk$set(eval = F, include  = T)
+#knitr::opts_chunk$set(eval = F, include  = T)
 ```
 
 # Learning goals
@@ -23,12 +23,12 @@ For this lab we will be working with simulated data and the `heart` dataset that
 You should install and load `rpart` (trees), `randomForest` (random forest), `gbm` (gradient boosting) and `xgboost` (extreme gradient boosting).
 
 
-```{r, eval=FALSE, warning=FALSE}
-install.packages(c("rpart","randomForest","gbm","xgboost"))
+```{r, echo = FALSE, eval=TRUE, warning=FALSE}
+# install.packages(c("rpart","randomForest","gbm","xgboost"))
 ```
 
 ### Load packages and data
-```{r, warning=FALSE, message=FALSE, echo=FALSE, warning=FALSE}
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
 library(tidyverse)
 library(rpart)
 library(rpart.plot)
@@ -38,7 +38,7 @@ library(xgboost)
 
 heart <- read.csv("https://raw.githubusercontent.com/JSC370/jsc370-2022/main/data/heart/heart.csv")
 
-knitr::kable(head(heart))
+#knitr::kable(head(heart))
 ```
 
 
@@ -50,7 +50,7 @@ knitr::kable(head(heart))
 - Create a non-linear relationship y=sin(x)+error
 - Split the data into test and training sets (500 points each), plot the data
 
-```{r, eval=FALSE, echo=FALSE, warning=FALSE}
+```{r, eval=TRUE, echo=FALSE, warning=FALSE}
 set.seed(2001)
 n <- 1000
 
@@ -69,7 +69,7 @@ ggplot(data, aes(x = x, y = y)) +
 
 - Fit a regression tree using the training set, plot it
 
-```{r, eval=FALSE, echo=FALSE, warning=FALSE}
+```{r, eval=TRUE, echo=FALSE, warning=FALSE}
 treefit <- rpart(y ~ x, method = "anova", control = list(cp = 0), data = train_data)
 
 rpart.plot(treefit)
@@ -77,71 +77,119 @@ rpart.plot(treefit)
 
 - Determine the optimal complexity parameter (cp) to prune the tree
 
-```{r, eval=FALSE, echo=FALSE, warning=FALSE}
+```{r, eval=TRUE, echo=FALSE, warning=FALSE}
 plotcp(treefit)
 ```
 
+Based off of this plot, it looks like the complexity parameter which minimizes the overall error occurs with approximately 21 splits. Based on the results of the `printcp` function, we find that the overall error is minimized with 20 splits (instead of 21), with a complexity parameter of 0.00138359.
+
 - Prune and plot the tree and summarize
 
-```{r, eval=FALSE, echo=FALSE, warning=FALSE}
-
+```{r, eval=TRUE, echo=FALSE, warning=FALSE}
+optimal_cp <- 0.00138359
+pruned_tree <- rpart(y ~ x, method = "anova", control = list(cp = optimal_cp), data = train_data)
+rpart.plot(pruned_tree)
 ```
 
 - Based on the plot and/or summary of the pruned tree create a vector of the (ordered) split points for variable x, and a vector of fitted values for the intervals determined by the split points of x.
 
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+x_splits <- sort(pruned_tree$splits[, 'index'])
+x_splits
 
+y_splits <- pruned_tree$frame[which(pruned_tree$frame[, 'var'] == "<leaf>"), 'yval']
+y_splits
 ```
 - plot the step function corresponding to the fitted (pruned) tree
-```{r, eval=FALSE, echo=FALSE, warning=FALSE}
-
+```{r, eval=TRUE, echo=FALSE, warning=FALSE}
+plot(y ~ x, data = train_data)
+plot(stepfun(x_splits, y_splits), add = TRUE, col = 'red')
 ```
 
 - Fit a linear model to the training data and plot the regression line. 
 - Contrast the quality of the fit of the tree model vs. linear regression by inspection of the plot
 - Compute the test MSE of the pruned tree and the linear regression model
 
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+lin_model <- lm(y ~ x, data = train_data)
+summary(lin_model)
+plot(y ~ x)
+abline(lin_model, col = "blue")
+plot(stepfun(x_splits, y_splits), add = TRUE, col = 'red')
 
+tree_pred <- predict(pruned_tree, test_data)
+test_data_tree <- cbind(test_data, tree_pred)
+tree_mse <- sum((test_data_tree$tree_pred - test_data_tree$y)^2) / dim(test_data_tree)[1]
+
+lin_pred <- predict(lin_model, test_data)
+test_data_linear <- cbind(test_data, lin_pred)
+lin_mse <- sum((test_data_linear$lin_pred - test_data_linear$y)^2) / dim(test_data_linear)[1]
 ```
+
+
 - Is the lm or regression tree better at fitting a non-linear function?
+
+The regression tree's corresponding step function appears to be a little better at fitting the non-linear function, but neither of these functions are particularly good at fitting the true underlying distribution.
+
+The mean squared error for the regression tree is `r tree_mse`, whereas the mean squared error for the linear regression model is `r lin_mse`, which is significantly larger. Since the linear model has a significantly higher MSE, it is a worse fit for the overall data.
 
 ---
 
 ## Question 2: Analysis of Real Data
 
 - Split the `heart` data into training and testing (70-30%)
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+set.seed(1234)
+training_ids <- sample(1:nrow(heart), round(0.7*nrow(heart)))
+heart_train <- heart[training_ids,]
+heart_test <- heart[-training_ids,]
 ```
 
 - Fit a classification tree using rpart, plot the full tree
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+heart_tree <- rpart(AHD ~ ., data = heart_train, method = "class", 
+                    control = list(minsplit = 10, minbucket = 3,
+                                   cp = 0, xval = 10))
+rpart.plot(heart_tree)
 ```
 
 - Plot the complexity parameter table for an rpart fit and prune the tree
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+plotcp(heart_tree)
+#printcp(heart_tree)
+optimal_cp <- heart_tree$cptable[which.min(heart_tree$cptable[, "xerror"]), "CP"]
 ```
 
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+heart_tree_pruned <- prune(heart_tree, cp = optimal_cp)
+rpart.plot(heart_tree_pruned)
 ```
+```{r, echo = FALSE, warning = FALSE}
+heart_pred <- predict(heart_tree_pruned, heart_test)
+heart_pred <- as.data.frame(heart_pred)
+heart_pred$AHD <- ifelse(heart_pred$Yes > 0.5, "yes", "no")
+confusion_matrix <- table(true = heart_test$AHD, predicted = heart_pred$AHD)
+confusion_matrix
+```
+
 
 - Compute the test misclassification error
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+misclass_error <- (confusion_matrix[1,2] + confusion_matrix[2,1])/nrow(heart_test)
+misclass_error
 ```
 
 - Fit the tree with the optimal complexity parameter to the full data (training + testing)
-```{r,echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r,echo=FALSE, eval=TRUE, warning=FALSE}
+heart_tree <- rpart(AHD ~ ., data = heart, method = "class",
+                    control = list(cp = optimal_cp))
+plotcp(heart_tree)
 ```
  - Out of Bag (OOB) error for tree
  
-```{r,echo=FALSE, eval=FALSE, warning=FALSE}
-
+```{r,echo=FALSE, eval=TRUE, warning=FALSE}
+heart_tree$cptable
+min(heart_tree$cptable[, 'xerror']) * nrow(heart)
 ```
 
 ---
@@ -151,19 +199,33 @@ plotcp(treefit)
 - Use the training and testing sets from above. Train each of the models on the training data and extract the cross-validation (or out-of-bag error for bagging and Random forest). 
 - For bagging use ``randomForest`` with ``mtry`` equal to the number of features (all other parameters at their default values). Generate the variable importance plot using ``varImpPlot`` and extract variable importance from the ``randomForest`` fitted object using the ``importance`` function.
 
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+heart_bag <- randomForest(as.factor(AHD) ~ ., data = heart_train, mtry = 13,
+                          na.action = na.omit)
+
+sum(heart_bag$err.rate[,1])
 
 ```
 
 - For random forests use ``randomForest`` with the default parameters. Generate the variable importance plot using ``varImpPlot`` and extract variable importance from the ``randomForest`` fitted object using the ``importance`` function.
 
-```{r, echo=FALSE, eval=FALSE, warning=FALSE}
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+varImpPlot(heart_bag, n.var = 13, col = "red")
+importance(heart_bag)
+```
 
+```{r, echo=FALSE, eval=TRUE, warning=FALSE}
+heart_rf <- randomForest(as.factor(AHD) ~ ., data = heart_train,
+                         na.action = na.omit)
+sum(heart_rf$err.rate[,1])
+
+varImpPlot(heart_rf, n.var = 13, col = "blue")
+importance(heart_rf)
 ```
 
 ---
 
-# Question 4: Boosting
+# Question 4: Boosting (Will be done in Lab 11 instead)
 
 - For boosting use `gbm` with ``cv.folds=5`` to perform 5-fold cross-validation, and set ``class.stratify.cv`` to ``AHD`` (heart disease outcome) so that cross-validation is performed stratifying by ``AHD``.  Plot the cross-validation error as a function of the boosting iteration/trees (the `$cv.error` component of the object returned by ``gbm``) and determine whether additional boosting iterations are warranted. If so, run additional iterations with  ``gbm.more`` (use the R help to check its syntax). Choose the optimal number of iterations. Use the ``summary.gbm`` function to generate the variable importance plot and extract variable importance/influence (``summary.gbm`` does both). Generate 1D and 2D marginal plots with ``gbm.plot`` to assess the effect of the top three variables and their 2-way interactions. 
 
@@ -176,4 +238,4 @@ plotcp(treefit)
 
 # Deliverables
 
-1. Questions 1-4 answered, pdf or html output uploaded to quercus
+1. Questions 1-3 (we removed Q4) answered, pdf or html output uploaded to Quercus
