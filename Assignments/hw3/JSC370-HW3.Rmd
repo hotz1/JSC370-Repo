@@ -1,0 +1,113 @@
+---
+title: "[TITLE]"
+subtitle: "[SUBTITLE]" 
+author: "Joey Hotz"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  bookdown::html_document2:
+    theme: readable
+    highlight: tango
+    number_sections: false
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import-packages, echo = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(dtplyr)
+library(dplyr)
+library(data.table)
+library(knitr)
+library(kableExtra)
+library(httr)
+library(xml2)
+library(readr)
+library(stringr)
+library(wordcloud)
+library(wesanderson)
+library(leaflet)
+```
+
+# API Usage
+
+In this project, we will scrape data from the NCBI (National Center for Biotechnology Information) website using the [NCBI API](https://www.ncbi.nlm.nih.gov/home/develop/api/). In particular, the data which we will scrape corresponds to papers relating to COVID vaccines and vaccinations.
+
+The papers which we are collecting using the API are available on the [PubMed website](https://pubmed.ncbi.nlm.nih.gov/), and the search term we are using to search for papers is `"sars-cov-2 vaccine"`.
+
+```{r scrape-site-1, echo = FALSE}
+# Downloading the website
+website <- xml2::read_html("https://pubmed.ncbi.nlm.nih.gov/?term=sars-cov-2+vaccine")
+
+# Finding the counts
+counts <- xml2::xml_find_first(website, "/html/body/main/div[9]/div[2]/div[2]/div[1]/div[1]/span")
+
+# Turning it into text
+counts <- as.character(counts)
+
+# Extracting the data using regex and converting it to a numeric 
+counts_num <- stringr::str_extract(counts, "[0-9,]+") %>%
+  stringr::str_remove_all(",") %>%
+  strtoi()
+```
+
+Using the `xml2` package in R, we were able to scrape the PubMed website to find papers containing the phrase `"sars-cov-2 vaccine"`. In total, the PubMed website had `r counts_num` papers matching this query.
+
+Next, we will retrieve information corresponding to these `r counts_num` papers. To do this, we will retrieve the IDs corresponding to these papers on the PubMed website, and we will then use these IDs (alongside the NCBI API) to collect information about the papers themselves. We will only retrieve the first 250 papers' IDs from the PubMed website, to ensure that we are not overloading their website with requests.
+
+```{r get-paper-ids, echo = FALSE}
+query_ids <- GET(url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+                 query = list(db = "pubmed",
+                              term = "sars-cov-2 vaccine",
+                              retmax = 250))
+
+# Extracting the content of the response of GET
+ids <- httr::content(query_ids)
+
+# Turn the result into a character vector
+ids <- as.character(ids)
+
+# Find all the ids 
+ids <- unlist(stringr::str_extract_all(ids, "<Id>[0-9]+</Id>")) 
+
+# Remove all the leading and trailing <Id> </Id>. Make use of "|"
+ids <- stringr::str_remove_all(ids, "<Id>|</Id>")
+```
+
+Now, we will use the 250 PubMed IDs which we have collected to create a dataset containing the following information for each paper:
+
+* PubMed ID number
+* Title of the paper
+* Name of the journal where it was published
+* Publication date
+* Abstract of the paper
+
+```{r get-paper-abstracts, echo = FALSE}
+publications <- GET(url   = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+                    query = list(db = "pubmed",
+                                 id = paste(ids, collapse = ","),
+                                 retmax = 1000,
+                                 rettype = "abstract"))
+
+# Turning the output into character vector
+publications <- httr::content(publications)
+publications_txt <- as.character(publications)
+```
+
+The text which we have downloaded by scraping from the NCBI website contains a total of `r nchar(publications_txt)` characters. However, this text includes many characters which are unrelated to the information we need, as it was read straight from the XML code for the webpage.
+
+To extract the information we need for creating the database mentioned above, we will first convert our long text into 250 shorter text documents; one per paper.
+
+```{r, echo = FALSE}
+publications_list <- xml2::xml_children(publications)
+publications_list <- sapply(publications_list, as.character)
+```
+
+# Text Mining
+
+The [PubMed dataset](https://github.com/JSC370/jsc370-2022/blob/main/data/text/pubmed.csv) which was published on the course GitHub.
+
+```{r import-pubmed-data, echo = FALSE, message = FALSE, warning = FALSE}
+pubmed <- read_csv("pubmed.csv")
+```
