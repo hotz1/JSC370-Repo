@@ -155,6 +155,27 @@ journal_names <- stringr::str_remove(journal_names, "^\\s+")
 journal_names <- stringr::str_remove(journal_names, "\\s+$")
 ```
 
+```{r get-publication-date, echo = FALSE}
+# Collects all text in the journal section of the HTML code (journal name, publication date, etc)
+journal_names <- stringr::str_extract(publications_list, "<Journal>(\\n|.)+</Journal>")
+
+# Selects the title of the journal
+journal_names <- stringr::str_extract(journal_names, "<Title>(\\n|.)+</Title>")
+
+# Removes any XML/HTML tags from the text
+journal_names <- stringr::str_remove_all(journal_names, "<(.+?)>")
+
+# Removes newline characters
+journal_names <- stringr::str_remove_all(journal_names, "\\n")
+
+# Turns instances of multiple spaces into only one space character
+journal_names <- stringr::str_replace_all(journal_names, "\\s+", " ")
+
+# Remove leading and trailing whitespace
+journal_names <- stringr::str_remove(journal_names, "^\\s+")
+journal_names <- stringr::str_remove(journal_names, "\\s+$")
+```
+
 
 ```{r get-abstracts, echo = FALSE}
 # Collects all text in the abstracts (extracts text, labels, backgrounds, etc)
