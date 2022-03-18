@@ -1,6 +1,5 @@
 ---
-title: "[TITLE]"
-subtitle: "[SUBTITLE]" 
+title: "JSC370 Homework Assignment 3"
 author: "Joey Hotz"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output: 
@@ -23,11 +22,10 @@ library(knitr)
 library(kableExtra)
 library(httr)
 library(xml2)
-library(readr)
 library(stringr)
+library(readr)
+library(tidytext)
 library(wordcloud)
-library(wesanderson)
-library(leaflet)
 ```
 
 # Using the NCBI API
@@ -156,24 +154,33 @@ journal_names <- stringr::str_remove(journal_names, "\\s+$")
 ```
 
 ```{r get-publication-date, echo = FALSE}
-# Collects all text in the journal section of the HTML code (journal name, publication date, etc)
-journal_names <- stringr::str_extract(publications_list, "<Journal>(\\n|.)+</Journal>")
+# Collects the publication dates for each paper, containing the year, month, and date
+publication_dates <- stringr::str_extract(publications_list, "<PubDate>(\\n|.)+</PubDate>")
 
-# Selects the title of the journal
-journal_names <- stringr::str_extract(journal_names, "<Title>(\\n|.)+</Title>")
+# Collect the years, months, and days separately for each paper
+publication_years <- stringr::str_extract(publication_dates, "<Year>(\\n|.)+</Year>")
+publication_months <- stringr::str_extract(publication_dates, "<Month>(\\n|.)+</Month>")
+publication_days <- stringr::str_extract(publication_dates, "<Day>(\\n|.)+</Day>")
 
 # Removes any XML/HTML tags from the text
-journal_names <- stringr::str_remove_all(journal_names, "<(.+?)>")
+publication_years <- stringr::str_remove_all(publication_years, "<(.+?)>")
+publication_months <- stringr::str_remove_all(publication_months, "<(.+?)>")
+publication_days <- stringr::str_remove_all(publication_days, "<(.+?)>")
 
-# Removes newline characters
-journal_names <- stringr::str_remove_all(journal_names, "\\n")
+# Replace missing values with empty strings
+publication_years <- replace_na(publication_years, "")
+publication_months <- replace_na(publication_months, "")
+publication_days <- replace_na(publication_days, "")
+
+# Concatenate months, days, and years into one string
+pub_dates <- paste(publication_months, publication_days, publication_years, sep = " ")
 
 # Turns instances of multiple spaces into only one space character
-journal_names <- stringr::str_replace_all(journal_names, "\\s+", " ")
+pub_dates <- stringr::str_replace_all(pub_dates, "\\s+", " ")
 
 # Remove leading and trailing whitespace
-journal_names <- stringr::str_remove(journal_names, "^\\s+")
-journal_names <- stringr::str_remove(journal_names, "\\s+$")
+pub_dates <- stringr::str_remove(pub_dates, "^\\s+")
+pub_dates <- stringr::str_remove(pub_dates, "\\s+$")
 ```
 
 
@@ -201,10 +208,152 @@ Of these 250 papers, `r sum(is.na(stringr::str_extract(publications_list, "<Abst
 
 Lastly, we will combine the information about our 250 papers which we have collected into a dataset, containing the collected information for each of these 250 papers.
 
+First, we will count how many missing values we have for each column in this new dataset. To do this, we will simply count the number of `NA` values in each column.
+
+```{r create-dataset, echo = FALSE}
+# Create the dataset
+NCBI_papers <- tibble(`PubMed ID` = ids,
+                      `Paper Title` = paper_titles,
+                      `Journal Name` = journal_names,
+                      `Publication Date` = pub_dates,
+                      `Abstract` = abstracts)
+
+# Replace empty date strings with NA values 
+NCBI_papers$`Publication Date`[nchar(NCBI_papers$`Publication Date`) == 0] <- NA
+
+knitr::kable(cbind(colSums(!is.na(NCBI_papers)), 
+                   colSums(is.na(NCBI_papers))), 
+             col.names = c("Present Values", "Missing Values"),
+             caption = "Counts of present and missing values in our dataset") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"))
+```
+```{r view-dataset, echo = FALSE}
+knitr::kable(NCBI_papers,
+             caption = "Our dataset of \"sars-cov-2\" papers scraped from the PubMed website") %>%
+  kable_styling(bootstrap_options = c("striped", "bordered"),
+                fixed_thead = TRUE) %>%
+  scroll_box(width = "100%", height = "1200px")
+```
+
 # Text Mining
 
-The [PubMed dataset](https://github.com/JSC370/jsc370-2022/blob/main/data/text/pubmed.csv) which was published on the course GitHub.
+Next, we will be performing exploratory text mining on the [PubMed dataset](https://github.com/JSC370/jsc370-2022/blob/main/data/text/pubmed.csv) which was published on the course GitHub.
+
+The PubMed dataset contains a series of search terms and abstracts for papers on the PubMed website which correspond to these search terms, as shown in the output below.
 
 ```{r import-pubmed-data, echo = FALSE, message = FALSE, warning = FALSE}
 pubmed <- read_csv("pubmed.csv")
+knitr::kable(head(pubmed, 7),
+             caption = "A sample of the PubMed dataset") %>%
+    kable_styling(bootstrap_options = c("striped", "bordered")) %>%
+  scroll_box(width = "100%", height = "600px")
 ```
+
+First, we will tokenize the words in each of these articles' abstracts. 
+
+```{r tokenize-abstracts, echo = FALSE}
+tokens <- pubmed %>%
+  select(abstract) %>%
+  unnest_tokens(word, abstract) %>%
+  group_by(word) %>%
+  summarise(word_frequency = n()) %>%
+  arrange(across(word_frequency, desc))
+
+knitr::kable(head(tokens, 7),
+             caption = "The seven most popular words among all abstracts in our PubMed dataset",
+             col.names = c("Word", "Word Frequency")) %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"))
+```
+The seven words shown above don't give us any real information about our dataset, as these are just incredibly common words in the English language in general. To determine the words which are popular in the PubMed data in particular, we will remove stopwords and then determine the most popular words among the non-stopword tokens in the dataset.
+
+```{r tokenize-abstracts-no-stopwords, echo = FALSE}
+tokens_no_stopwords <- pubmed %>%
+  select(abstract) %>%
+  unnest_tokens(word, abstract) %>%
+  anti_join(stop_words, by = "word") %>%
+  subset(!grepl("^\\d+$", word)) %>%
+  group_by(word) %>%
+  summarise(word_frequency = n()) %>%
+  arrange(across(word_frequency, desc))
+
+knitr::kable(head(tokens_no_stopwords, 7),
+             caption = "The seven most popular words among all abstracts in our PubMed dataset, excluding stopwords",
+             col.names = c("Word", "Word Frequency")) %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"))
+```
+Now that we have removed the stopwords from our dataset, we can see that the seven most popularly used words in the abstracts which were not stopwords are entirely medical terms, except for the prefix "pre", which may be a medical term but is also commonly-used in the English language in general. Of the seven most popular tokens overall in the data, we can clearly see that none of them are present after the stopwords were removed, signifying that all of our original highly-used tokens were merely stopwords, and they likely were not significant in our dataset.
+
+Lastly, we will determine the five most popular non-stopword terms for each of the individual search terms in the PubMed data.
+```{r top-5-per-searchterm, echo = FALSE}
+top_tokens_by_searchterm <- pubmed %>%
+  unnest_tokens(word, abstract) %>%
+  anti_join(stop_words, by = "word") %>%
+  group_by(term) %>%
+  count(word, sort = TRUE) %>%
+  top_n(5, n)
+
+top_tokens_by_searchterm <- top_tokens_by_searchterm[order(top_tokens_by_searchterm$term),]
+
+knitr::kable(top_tokens_by_searchterm,
+             caption = "Top 5 non-stopword tokens per search term in the PubMed dataset",
+             col.names = c("Search Term", "Word", "Word Frequency")) %>%
+    kable_styling(bootstrap_options = c("striped", "bordered")) %>%
+  scroll_box(height = "600px")
+```
+
+As we can see in the table shown above, there are actually 6 words corresponding to the search term "covid", as the tokens "health" and "coronavirus" are tied for 6th with 647 occurrences apiece.
+
+Next, we will tokenize the abstracts into bigrams (sets of two consecutive words) in order to find the 10 most commonly-occurring bigrams among all of the abstracts.  
+
+```{r popular-bigrams, echo = FALSE}
+bigrams <- pubmed %>%
+  select(abstract) %>%
+  unnest_tokens(bigram, abstract, token = "ngrams", n = 2) %>%
+  group_by(bigram) %>%
+  summarise(bigram_frequency = n()) %>%
+  separate(bigram, c("word1", "word2"), extra = "drop", remove = FALSE,
+           sep = " ", fill = "right")
+
+top_10_bigrams <- bigrams %>%
+  top_n(10)
+
+top_10_bigrams <- top_10_bigrams[order(top_10_bigrams$bigram_frequency, decreasing = TRUE),]
+
+knitr::kable(top_10_bigrams[c(1,4)],
+             caption = "Top 10 most common bigrams overall in our PubMed dataset",
+             col.names = c("Bigram", "Bigram Frequency")) %>%
+    kable_styling(bootstrap_options = c("striped", "bordered"))
+```
+
+Unlike the most commonly occurring individual terms in the PubMed data, a few of the commonly-used bigrams in our PubMed dataset do not contain any stopwords at all, such as "prostate cancer" and "covid 19", whereas other contain 1 or even 2 stopwords. Next, we will visualize these commonly-occurring bigrams in a bar plot.
+
+```{r plot-bigrams, echo = FALSE}
+top_10_bigrams %>% 
+  ggplot(aes(bigram, bigram_frequency)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+Lastly, we will compute the TF-IDF values for each of the possible combinations of words and search terms which occurs in the overall PubMed dataset. 
+
+```{r tf-idf, echo = FALSE}
+tf_idf <- pubmed %>%
+  unnest_tokens(word, abstract) %>%
+  count(word, term) %>%
+  bind_tf_idf(word, term, n)
+
+top_tf_idf <- tf_idf %>%
+  group_by(term) %>%
+  top_n(5, tf_idf) %>%
+  arrange(term, -tf_idf)
+
+knitr::kable(top_tf_idf[c(2, 1, 4, 3)],
+             caption = "Top 5 highest TF-IDF values per search term in the PubMed dataset",
+             col.names = c("Search Term", "Word", "TF-IDF", "Count")) %>%
+    kable_styling(bootstrap_options = c("striped", "bordered")) %>%
+  scroll_box(height = "600px")
+```
+
+Overall, there is some overlap between the words with high TF-IDF values and the words which had high frequencies for a specific search term. For each of the five different search terms, at least one of the top five tokens (arranged by TF-IDF value) was also one of the top five most-occurring tokens overall for that particular search term, while others were less common overall, but are likely more closely related to that particular search term.
+
+The tokens with high TF-IDF values for a particular search term all appear to be very closely related or even synonymous with their corresponding search terms. For example, as seen above, four of the five highest TF-IDF values for the "covid" search term correspond to names of the disease, with the 'odd one out' being the word "pandemic", which many would agree is essentially representative of COVID as a whole.
