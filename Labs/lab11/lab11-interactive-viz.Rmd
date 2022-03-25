@@ -3,13 +3,12 @@ title: "Lab 11 - Interactive Visualization"
 output: html_document
 ---
 
-
 # Learning Goals
 
-- Read in and process the COVID dataset from the New York Times GitHub repository
-- Create interactive graphs of different types using `plot_ly()` and `ggplotly()` functions
-- Customize the hoverinfo and other plot features
-- Create a Choropleth map using `plot_geo()`
+-   Read in and process the COVID dataset from the New York Times GitHub repository
+-   Create interactive graphs of different types using `plot_ly()` and `ggplotly()` functions
+-   Customize the hoverinfo and other plot features
+-   Create a Choropleth map using `plot_geo()`
 
 # Lab Description
 
@@ -42,11 +41,12 @@ opts_chunk$set(
   fig.asp = 0.618,
   out.width = "700px")
 ```
+
 ### 1. Read in the data
 
-- Read in the COVID data with data.table:fread() from the NYT GitHub repository: "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
-- Read in the state population data with data.table:fread() from the repository: "https://raw.githubusercontent.com/COVID19Tracking/associated-data/master/us_census_data/us_census_2018_population_estimates_states.csv""
-- Merge datasets
+-   Read in the COVID data with data.table:fread() from the NYT GitHub repository: "<https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv>"
+-   Read in the state population data with data.table:fread() from the repository: "<https://raw.githubusercontent.com/COVID19Tracking/associated-data/master/us_census_data/us_census_2018_population_estimates_states.csv>""
+-   Merge datasets
 
 ```{r}
 
@@ -64,8 +64,8 @@ cv_states <- merge(cv_states_readin, state_pops, by="state")
 
 ### 2. Look at the data
 
-- Inspect the dimensions, `head`, and `tail` of the data
-- Inspect the structure of each variables. Are they in the correct format?
+-   Inspect the dimensions, `head`, and `tail` of the data
+-   Inspect the structure of each variables. Are they in the correct format?
 
 ```{r}
 dim(cv_states)
@@ -76,11 +76,11 @@ str(cv_states)
 
 ### 3. Format the data
 
-- Make date into a date variable
-- Make state into a factor variable
-- Order the data first by state, second by date
-- Confirm the variables are now correctly formatted
-- Inspect the range values for each variable. What is the date range? The range of cases and deaths?
+-   Make date into a date variable
+-   Make state into a factor variable
+-   Order the data first by state, second by date
+-   Confirm the variables are now correctly formatted
+-   Inspect the range values for each variable. What is the date range? The range of cases and deaths?
 
 ```{r}
 
@@ -109,11 +109,9 @@ max(cv_states$date)
 
 ### 4. Add `new_cases` and `new_deaths` and correct outliers
 
-- Add variables for new cases, `new_cases`, and new deaths, `new_deaths`: 
-  - Hint: You can set `new_cases` equal to the difference between cases on date i and date i-1, starting on date i=2
-  
-- Filter to dates after July 1, 2021
-
+-   Add variables for new cases, `new_cases`, and new deaths, `new_deaths`:
+    -   Hint: You can set `new_cases` equal to the difference between cases on date i and date i-1, starting on date i=2
+-   Filter to dates after July 1, 2021
 
 ```{r}
 
@@ -139,7 +137,7 @@ for (i in 1:length(state_list)) {
 cv_states <- cv_states %>% dplyr::filter(date >= "2021-07-01")
 ```
 
-- Use `ggplotly` for EDA: See if there are outliers or values that don't make sense for `new_cases` and `new_deaths`. Which states and which dates have strange values?
+-   Use `ggplotly` for EDA: See if there are outliers or values that don't make sense for `new_cases` and `new_deaths`. Which states and which dates have strange values?
 
 ```{r}
 
@@ -149,8 +147,8 @@ p1 <- ggplot(cv_states, aes(x = date, y = new_cases, color = state)) +
 ggplotly(p1)
 
 ```
-There were -4678 recorded new cases on January 29, 2022 in Colorado, and -4397 recorded new cases in Pennsylvania on February 8, 2022. Neither of these values seem realistic, as we cannot have negative amounts of new cases.
 
+There were -4678 recorded new cases on January 29, 2022 in Colorado, and -4397 recorded new cases in Pennsylvania on February 8, 2022. Neither of these values seem realistic, as we cannot have negative amounts of new cases.
 
 ```{r}
 
@@ -161,14 +159,13 @@ ggplotly(p2)
 
 ```
 
-There are a few instances in which a negative amount of people were recorded as dying on a particular day, such as -3770 deaths in Massachusetts on March 14, 2022, or -357 deaths in California on August 11, 2021. 
+There are a few instances in which a negative amount of people were recorded as dying on a particular day, such as -3770 deaths in Massachusetts on March 14, 2022, or -357 deaths in California on August 11, 2021.
 
 Additionally, there are other outliers in the data where some states reported incredibly high numbers on a particular day compared to other days, such as the single-day spikes for Missouri and Tennessee.
 
+-   Correct outliers: Set negative values for `new_cases` or `new_deaths` to 0
 
-- Correct outliers: Set negative values for `new_cases` or `new_deaths` to 0
-
-- Inspect data again interactively
+-   Inspect data again interactively
 
 ```{r}
 
@@ -185,15 +182,16 @@ ggplotly(p3)
 
 ### 5. Add additional variables
 
-- Add population-normalized (by 100,000) variables for each variable type (rounded to 1 decimal place). Make sure the variables you calculate are in the correct format (`numeric`). You can use the following variable names:
-  - `per100k` = cases per 100,000 population
-  - `newper100k`= new cases per 100,000
-  - `deathsper100k` = deaths per 100,000
-  - `newdeathsper100k` = new deaths per 100,000
+-   Add population-normalized (by 100,000) variables for each variable type (rounded to 1 decimal place). Make sure the variables you calculate are in the correct format (`numeric`). You can use the following variable names:
 
-- Add a "naive CFR" variable representing `deaths / cases` on each date for each state
+    -   `per100k` = cases per 100,000 population
+    -   `newper100k`= new cases per 100,000
+    -   `deathsper100k` = deaths per 100,000
+    -   `newdeathsper100k` = new deaths per 100,000
 
-- Create a dataframe representing values on the most recent date, `cv_states_today`
+-   Add a "naive CFR" variable representing `deaths / cases` on each date for each state
+
+-   Create a dataframe representing values on the most recent date, `cv_states_today`
 
 ```{r}
 
@@ -213,10 +211,9 @@ cv_states_today = cv_states %>% filter(date==as.Date(max_date))
 
 ### 6. Explore scatterplots using `plot_ly()`
 
-- Create a scatterplot using `plot_ly()` representing `pop_density` vs. various variables (e.g. `cases`, `per100k`, `deaths`, `deathsper100k`) for each state on most recent date (`cv_states_today`)
-  - Color points by state and size points by state population
-  - Use hover to identify any outliers. 
-
+-   Create a scatterplot using `plot_ly()` representing `pop_density` vs. various variables (e.g. `cases`, `per100k`, `deaths`, `deathsper100k`) for each state on most recent date (`cv_states_today`)
+    -   Color points by state and size points by state population
+    -   Use hover to identify any outliers.
 
 ```{r}
 cv_states_today %>% 
@@ -227,7 +224,7 @@ cv_states_today %>%
 
 Washington D.C. is a massive outlier compared to the 50 states, so we will remove it and plot the remaining areas.
 
-- Remove those outliers and replot.
+-   Remove those outliers and replot.
 
 ```{r}
 cv_states_today %>% 
@@ -237,11 +234,11 @@ cv_states_today %>%
           marker = list(sizemode = 'diameter', opacity = 0.5))
 ```
 
-- Choose one plot. For this plot:
-- Add hoverinfo specifying the state name, cases per 100k, and deaths per 100k, similarly to how we did this in the lecture notes
-- Add layout information to title the chart and the axes
-- Enable `hovermode = "compare"`
-  
+-   Choose one plot. For this plot:
+-   Add hoverinfo specifying the state name, cases per 100k, and deaths per 100k, similarly to how we did this in the lecture notes
+-   Add layout information to title the chart and the axes
+-   Enable `hovermode = "compare"`
+
 ```{r}
 cv_states_today %>% 
   filter(state != "District of Columbia") %>%
@@ -258,13 +255,11 @@ cv_states_today %>%
          hovermode = "compare")
 ```
 
- 
-  
 ### 7. Explore scatterplot trend interactively using `ggplotly()`
 
-- For `pop_density` vs. `newdeathsper100k` create a chart with the same variables using `ggplotly()`
-- Explore the pattern between $x$ and $y$
-- Explain what you see. Do you think `pop_density` correlates with `newdeathsper100k`?
+-   For `pop_density` vs. `newdeathsper100k` create a chart with the same variables using `ggplotly()`
+-   Explore the pattern between $x$ and $y$
+-   Explain what you see. Do you think `pop_density` correlates with `newdeathsper100k`?
 
 ```{r}
 p4 <- cv_states_today %>%
@@ -275,14 +270,14 @@ p4 <- cv_states_today %>%
 ggplotly(p4)
 ```
 
+Population density and new deaths per 100k seem to have some amount of correlation with one another, as the deaths per 100k people in a state seems to increase as the population density of the state increases. However, the relationship seems to be non-linear, so there are likely multiple other factors at play in the relationship between these variables.
 
 ### 8. Multiple line chart
 
-- Create a line chart of the `naive_CFR` for all states over time using `plot_ly()`
-  - Use the zoom and pan tools to inspect the `naive_CFR` for the states that had an increase in September. How have they changed over time?
-- Create one more line chart, for Florida only, which shows `new_cases` and `new_deaths` together in one plot. Hint: use `add_layer()`
-  - Use hoverinfo to "eyeball" the approximate peak of deaths and peak of cases. What is the time delay between the peak of cases and the peak of deaths?
-  
+-   Create a line chart of the `naive_CFR` for all states over time using `plot_ly()`
+    -   Use the zoom and pan tools to inspect the `naive_CFR` for the states that had an increase in September. How have they changed over time?
+-   Create one more line chart, for Florida only, which shows `new_cases` and `new_deaths` together in one plot. Hint: use `add_layer()`
+    -   Use hoverinfo to "eyeball" the approximate peak of deaths and peak of cases. What is the time delay between the peak of cases and the peak of deaths?
 
 ```{r}
 cv_states %>%
@@ -296,13 +291,11 @@ cv_states %>%
   add_lines(x = ~date, y = ~new_deaths)
 ```
 
+In many of the states, deaths seemed to peak around November 2021, whereas the new cases seemed to peak around January 2022. This is likely just because of the different strains of COVID which were rampant at these times, as the strain which was more common in January 2022 (Omicron) was significantly less deadly than earlier strains of the virus.
 
 ### 9. Heatmaps
 
-Create a heatmap to visualize `new_cases` for each state on each date greater than July 1st, 2021
-- Start by mapping selected features in the dataframe into a matrix using the **tidyr** package function `pivot_wider()`, naming the rows and columns, as done in the lecture notes
-- Use `plot_ly()` to create a heatmap out of this matrix. Which states stand out?
-
+Create a heatmap to visualize `new_cases` for each state on each date greater than July 1st, 2021 - Start by mapping selected features in the dataframe into a matrix using the **tidyr** package function `pivot_wider()`, naming the rows and columns, as done in the lecture notes - Use `plot_ly()` to create a heatmap out of this matrix. Which states stand out?
 
 ```{r}
 
@@ -322,7 +315,9 @@ plot_ly(x = colnames(cv_states_mat2), y = rownames(cv_states_mat2),
 
 ```
 
-- Create a second heatmap in which the pattern of `new_cases` for each state over time becomes more clear by filtering to only look at dates every two weeks (check out the omicron wave).
+The heatmap above looks almost entirely purple, and the only extraordinarily high values for cases per day seem to occur in the states with higher populations (California, New York, Texas). This information isn't that relevant on its own, as we'd expect states with high populations to have higher case counts.
+
+-   Create a second heatmap in which the pattern of `new_cases` for each state over time becomes more clear by filtering to only look at dates every two weeks (check out the omicron wave).
 
 ```{r}
 
@@ -339,9 +334,8 @@ cv_states_mat2 <- as.matrix(cv_states_mat2)
 
 ### 10. Map
 
-- Create a map to visualize the `naive_CFR` by state on Devember 15, 2021
-- Compare with a map visualizing the `naive_CFR` by state on most recent date
-
+-   Create a map to visualize the `naive_CFR` by state on Devember 15, 2021
+-   Compare with a map visualizing the `naive_CFR` by state on most recent date
 
 ```{r}
 
@@ -395,6 +389,6 @@ set_map_details <- list(
 
 ```
 
-# Deliverables 
+# Deliverables
 
-Lab 10b questions 1-2, lab 11 questions 0-9. Upload html or pdf for both lab Rmd's to quercus. 
+Lab 10b questions 1-2, lab 11 questions 0-9 (only first half of q9). Upload html or pdf for both lab Rmd's to quercus.
