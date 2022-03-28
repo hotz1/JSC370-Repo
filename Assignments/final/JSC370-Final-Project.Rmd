@@ -1,0 +1,52 @@
+---
+title: "JSC370 Final Project"
+author: "Joey Hotz"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: 
+  bookdown::html_document2:
+    theme: readable
+    highlight: tango
+    number_sections: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import-libraries, echo = FALSE, warning = FALSE, message = FALSE}
+library(tidyverse)
+library(dtplyr)
+library(dplyr)
+library(data.table)
+library(xml2)
+library(httr)
+library(stringr)
+library(spotifyr)
+library(knitr)
+library(kableExtra)
+```
+
+```{r}
+xml2::read_html("https://charts.spotify.com/charts/view/citytoptrack-toronto-weekly/2022-03-24")
+
+xml_site %>% rvest::html_element("table")
+library(rvest)
+
+url <-  "https://charts.spotify.com/charts/view/citytoptrack-toronto-weekly/2022-03-24"
+
+url %>% 
+  read_html() %>%
+  html_elements("body") %>%
+  html_elements("table")
+```
+```{r}
+weather_site <- "https://www.wunderground.com/history/monthly/ca/toronto/CYTZ/date/2022-1"
+```
+
+```{r}
+client_id <- read_file("spotify_client_id.txt")
+client_secret <- read_file("spotify_client_secret.txt")
+Sys.setenv(SPOTIFY_CLIENT_ID = client_id)
+Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
+access_token <- get_spotify_access_token()
+```
