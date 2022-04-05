@@ -5,7 +5,7 @@ date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output: 
   bookdown::html_document2:
     theme: readable
-    highlight: tango
+    highlight: zenburn
     number_sections: false
 ---
 
@@ -13,22 +13,458 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r import-packages, echo = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+library(dplyr)
+library(data.table)
+library(dtplyr)
+library(knitr)
+library(kableExtra)
+library(parallel)
+library(foreach)
+library(doParallel)
+library(microbenchmark)
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+library(gbm)
+library(xgboost)
+library(caret)
 ```
 
-## Including Plots
+# High Performance Computing
 
-You can also embed plots, for example:
+## Writing Efficient Code
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Our first task with regard to high-performance computing will be to rewrite two given functions to improve their overall computational efficiency. Both of these functions take in a matrix as input, and return characteristics of the matrix which are relatively simple to compute.
+
+### Function 1
+
+The first function which we will rewrite is `fun1`, which computes and returns the sums of the elements of each row in a matrix. The code for the given implementation of the `fun1` function is shown below:
+
+```{r, eval = FALSE}
+# Total row sums
+fun1 <- function(mat) {
+  n <- nrow(mat)
+  ans <- double(n)
+  for (i in 1:n) {
+    ans[i] <- sum(mat[i, ])
+  }
+  ans
+}
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+To create a faster implementation of the `fun1` function, we will create a function `fun1alt` that utilizes R's built-in `rowSums` function. The `rowSums` function takes a matrix or data frame as input, and it computes and returns a vector containing the sums of the elements of each row, which is identical to the desired output for the `fun1` function shown above.
+
+```{r, echo = FALSE}
+# Total row sums
+fun1 <- function(mat) {
+  n <- nrow(mat)
+  ans <- double(n)
+  for (i in 1:n) {
+    ans[i] <- sum(mat[i, ])
+  }
+  ans
+}
+
+fun1alt <- function(mat) {
+# YOUR CODE HERE
+  rowSums(dat)
+}
+```
+
+To test whether the newly-defined `fun1alt` function is more computationally efficient than the `fun1` function shown above, we will use the `microbenchmark` library to compare the runtimes of these two functions on a randomly generated matrix.
+
+We will randomly generate a matrix with 200 rows and 100 columns using the `rnorm` function, and we will then compare the relative speeds of our two functions by running each of the functions 100 times on this random matrix. Additionally, we will check whether the results of our two functions match, to ensure that the `fun1alt` function which we defined returns the same results as the given `fun1` function.
+
+```{r, echo = FALSE}
+# Use the data with this code
+set.seed(2315)
+dat <- matrix(rnorm(200 * 100), nrow = 200)
+
+# Test for the first
+microbench1 <- microbenchmark::microbenchmark(fun1(dat), fun1alt(dat), 
+                                              unit = "microseconds", check = "equivalent") %>% summary()
+
+microbench1 %>%
+  kable(digits = 3, caption = "Summaries of 100 executions of fun1 and fun1alt, measured in microseconds.",
+        col.names = c("Function Call", "Minimum Runtime", "1st Quartile", "Mean Runtime",
+                      "Median Runtime", "3rd Quartile", "Maximum Runtime", "Evaluations"))
+```
+
+As we can see in the table displayed above, the `fun1alt` function runs significantly faster than the given `fun1` function. The median runtime of the `fun1` function on our randomly-generated input matrix was `r microbench1$median[1]` microseconds, whereas the median runtime of the `fun1alt` function on this matrix was `r microbench1$median[2]` microseconds. 
+
+On average, the alternative function which we defined to improve the efficiency ran approximately `r microbench1$median[1] / microbench1$median[2]` times faster than the given function did on the same input.
+
+### Function 2
+
+Similar to the previous section, we will create a faster implementation of the function `fun2` to improve its computational efficiency. 
+Like `fun1`, the `fun2` function also takes in a matrix as input, but its output is a matrix with the same size as the input matrix, instead of a vector. The elements of the output matrix represent the cumulative sum of the elements in that row, starting from the leftmost column of the matrix, and stopping at the given column.
+
+The code for the given implementation of the `fun2` function is shown below:
+
+```{r, eval = FALSE}
+# Cumulative sum by row
+fun2 <- function(mat) {
+  n <- nrow(mat)
+  k <- ncol(mat)
+  ans <- mat
+  for (i in 1:n) {
+    for (j in 2:k) {
+      ans[i,j] <- mat[i, j] + ans[i, j - 1]
+    }
+  }
+  ans
+}
+```
+
+To create a faster implementation of the `fun2` function, we will use a singular for-loop to compute the sums instead of a nested for-loop as shown in the `fun2` implementation above.
+
+In our `fun2alt` function, we will start by defining a new array containing the same elements as the input array, as we did in the given `fun2` function. However, instead of performing element-wise addition to update the values of the new array, we will iteratively alter the values of the array using vector addition, by adding the elements of the entire column of the input array to the previous column in our new array. 
+
+```{r, echo = FALSE}
+# Cumulative sum by row
+fun2 <- function(mat) {
+  n <- nrow(mat)
+  k <- ncol(mat)
+  ans <- mat
+  for (i in 1:n) {
+    for (j in 2:k) {
+      ans[i,j] <- mat[i, j] + ans[i, j - 1]
+    }
+  }
+  ans
+}
+
+fun2alt <- function(mat) {
+# YOUR CODE HERE
+  ans <- mat
+  for (j in 2:ncol(mat)){
+    ans[, j] <- mat[, j] + ans[, j-1]
+  }
+  ans
+}
+```
+
+To test whether our newly-defined `fun2alt` function is more computationally efficient than the `fun2` function shown above, we will again use the `microbenchmark` library to compare the runtimes of these two functions. 
+
+We will compare these functions' runtimes on the same randomly-generated matrix which we used to compare the runtimes of `fun1` and `fun1alt` earlier.
+
+```{r, echo = FALSE}
+# Test for the second
+microbench2 <- microbenchmark::microbenchmark(fun2(dat), fun2alt(dat), 
+                                              unit = "microseconds", check = "equivalent") %>% summary()
+
+microbench2 %>%
+  kable(digits = 3, caption = "Summaries of 100 executions of fun2 and fun2alt, measured in microseconds.",
+        col.names = c("Function Call", "Minimum Runtime", "1st Quartile", "Mean Runtime",
+                      "Median Runtime", "3rd Quartile", "Maximum Runtime", "Evaluations"))
+```
+
+As we can see in the table displayed above, the `fun2alt` function runs significantly faster than the given `fun2` function. The median runtime of the `fun2` function on our randomly-generated input matrix was `r microbench2$median[1]` microseconds, whereas the median runtime of the `fun2alt` function on this matrix was `r microbench2$median[2]` microseconds. 
+
+On average, the alternative function which we defined to improve the efficiency ran approximately `r microbench2$median[1] / microbench2$median[2]` times faster than the given function did on the same input.
+
+## Parallel Computing
+
+Our next task will be to rewrite code which simulates the value of π using Monte Carlo simulations. 
+
+We will rewrite this function to be more efficient by implementing parallelization in the computation process, which will help us distribute the computational load among different processors.
+
+The code for simulating π using Monte Carlo simulations is shown below:
+
+```{r, eval = FALSE}
+sim_pi <- function(n = 1000, i = NULL) {
+  p <- matrix(runif(n*2), ncol = 2)
+  mean(rowSums(p^2) < 1) * 4
+}
+```
+
+In order to increase the accuracy of our Monte Carlo estimates of π, we can run the `sim_pi` function shown above multiple times in order to get a collection of approximations for π.
+
+If we were to run this function multiple consecutive times on the same processor, then we would need to wait for the previous execution of the function to return a result before the next could begin. 
+
+By running this function in parallel on multiple processors, we can increase the number of available processors which can be used to run a single instance of this function at once, which should decrease the overall time required for executing many individual instances of the given function.
+
+```{r pi-sim-functions, echo = FALSE}
+sim_pi <- function(n = 1000, i = NULL) {
+  p <- matrix(runif(n*2), ncol = 2)
+  mean(rowSums(p^2) < 1) * 4
+}
+
+parallel_sim_pi <- function(iterations, n, ncpus = 1L) {
+  
+  # Making the cluster using `ncpus`
+  cl <- makePSOCKcluster(ncpus)
+
+  # STEP 1: GOES HERE
+  clusterExport(cl, varlist = c("sim_pi"),
+                envir = environment())
+    
+  # STEP 2: GOES HERE
+  clusterSetRNGStream(cl, 1231)
+  
+  # STEP 3: THIS FUNCTION NEEDS TO BE REPLACED WITH parLapply
+  ans <- parLapply(cl, 1:iterations, sim_pi, n = n)
+  
+  # Coercing the list into a matrix
+  ans <- do.call(rbind, ans)
+  
+  # STEP 4: GOES HERE
+  stopCluster(cl)
+  ans
+}
+```
+
+To compare the parallelized code for simulating π to the code which exclusively executes on one processor, we will use the `system.time` function in R to examine the exact time required to run the code on one processor when compared to running this code on two, four, or eight processors.
+
+For each of these tests, we will simulate the value of π by computing the mean of 4000 calls to our `sim_pi` function, each of which computes the mean of a sample of 10000 points.
+
+```{r sim-pi-runtimes, echo = FALSE}
+set.seed(1231)
+
+print("1 core:")
+system.time({
+  ans <- unlist(lapply(1:4000, sim_pi, n = 10000))
+  print(mean(ans))
+})
+
+print("2 cores:")
+system.time({
+  ans <- unlist(parallel_sim_pi(iterations = 4000, n = 10000, ncpus = 2))
+  print(mean(ans))
+})
+
+print("4 cores:")
+system.time({
+  ans <- unlist(parallel_sim_pi(iterations = 4000, n = 10000, ncpus = 4))
+  print(mean(ans))
+})
+
+print("8 cores:")
+system.time({
+  ans <- unlist(parallel_sim_pi(iterations = 4000, n = 10000, ncpus = 8))
+  print(mean(ans))
+})
+```
+
+As we can see from the four outputs above, the time for these computations is actually minimized when running these processes on 4 cores, as opposed to 8 cores. The four-core process is significantly faster than the other three processes, which is quite surprising, as one might expect that a higher number of CPUs dedicated to a process would enable it to run faster, instead of hampering the speed of the procedure.
+
+# Machine Learning
+
+In this section, we will use machine learning techniques to predict baseball players' salaries based on their individual batting statistics. In total, we will use five different machine learning methods to create predictions for baseball players' salaries, and we will compare the accuracy of these five methods by comparing their performance on a test dataset.
+
+
+The data which we will use to create our predictive algorithms comes from the [course GitHub page](https://github.com/JSC370/jsc370-2022/tree/main/data/hitters). 
+
+```{r read-baseball-data, echo = FALSE, message = FALSE, warning = FALSE}
+hitters <- read_csv("https://raw.githubusercontent.com/JSC370/jsc370-2022/main/data/hitters/hitters.csv")
+dim(hitters)
+```
+
+The data which we read from the course website consists contains information about 322 individual baseball players, with 20 observed variables per player.
+
+## Data Cleaning
+
+First, we will examine if there are any missing observations in the data which we collected.
+
+```{r}
+hitters_missing <- cbind(colSums(!is.na(hitters)), colSums(is.na(hitters))) 
+knitr::kable(hitters_missing, col.names = c("Present Values", "Missing Values"),
+             caption = "Present and missing values in the baseball player data")
+```
+
+As we can see in the table output above, almost all of the variables in our collected dataset do not have any missing observations. However, the only variable which is not recorded for every player is the player's salary, which is our key variable of interest, and the variable which we aim to predict.
+
+In order to ensure that our predictions are accurate, we will remove each observation in our dataset where the player's salary is unrecorded, as these would otherwise hamper our machine learning algorithms.
+
+Additionally, we need to convert the three non-numeric variables in our dataset (`Division`, `League`, and `NewLeague`) from character-valued variables to factors, which will enable us to use these variables as predictors for the boosting algorithms.
+
+```{r remove-missing-salaries, echo = FALSE}
+hitters <- hitters %>% filter(!is.na(hitters$Salary))
+
+hitters <- hitters %>%
+  mutate(Division = as.factor(Division)) %>%
+  mutate(League = as.factor(League)) %>%
+  mutate(NewLeague = as.factor(NewLeague)) 
+```
+
+Now that we have ensured that our data is clean, we will split the remaining `r nrow(hitters)` observations into testing and training datasets using a randomized 70-30 split. 
+
+Since 70% of `r nrow(hitters)` is `r nrow(hitters) * 0.7`, we will round the size of the training dataset to the nearest integer, which is `r round(nrow(hitters) * 0.7)`. 
+
+```{r split-baseball-data, echo = FALSE}
+set.seed(2001)
+
+sample_indices <- sample(1:nrow(hitters), size = round(0.7 * nrow(hitters)))
+hitters_train <- hitters[sample_indices, ]
+hitters_test <- hitters[-sample_indices, ]
+```
+
+## Regression Tree
+
+The first machine learning method which we will use to predict the baseball players' salaries using the collected data is a regression tree. In particular, we will create a regression tree which is pruned to use the optimal complexity parameter.
+
+To fit this regression tree, we must first determine what the optimal complexity parameter is. To do this, we will use the `rpart` function from the `rpart` library to create a regression tree for the data.
+
+```{r, echo = FALSE, warning = FALSE}
+hitters_reg_tree <- rpart(Salary ~ ., data = hitters_train, method = "anova")
+```
+
+Now that we have created a tree which we can use as a baseline, we can compute the optimal complexity parameter for a pruned regression tree for this data. 
+
+```{r, echo = FALSE, warning = FALSE}
+optimal_cp <- hitters_reg_tree$cptable[which.min(hitters_reg_tree$cptable[, "xerror"]), "CP"]
+```
+
+The optimal complexity parameter for a regression tree for our data is `r optimal_cp`. We will now create a pruned regression tree using this optimal complexity parameter as our parameter, to prune the tree created earlier.
+
+The decision tree shown below is the pruned regression tree for a baseball player's salary, based on all the remaining 19 factors.
+
+```{r, echo = FALSE}
+hitters_reg_tree_pruned <- prune(hitters_reg_tree, cp = optimal_cp)
+rpart.plot(hitters_reg_tree_pruned)
+```
+
+## Bagging
+
+Next, we will use a bagging method to predict baseball players' salaries. 
+
+In total, we have 20 observed values for each of the players in our dataset. Since we want to predict the players' salaries based on the other variables, there are a total of 19 values which we can use to predict an individual player's salary.
+
+Of the remaining 19 variables, 16 of them are numeric, and three of them (`Division`, `League`, and `NewLeague`) are categorical variables, each of which has precisely two categories. Since we can treat one of the categories as a 'baseline' we only need to consider these as binary variables, which means that each categorical variable can also effectively be treated as a singular variable. Thus, there are 19 parameters to consider for our bagging method.
+
+```{r, echo = FALSE}
+hitters_bag <- randomForest(Salary ~ ., data = hitters_train, mtry = 19)
+varImpPlot(hitters_bag, n.var = 19, col = "red")
+```
+
+The plot above depicts the variable importance plot for the variables which we used in a bagging method for our data. We can see that the CRBI variable is a massive outlier in terms of its node purity compared to the remaining variables, with a purity more than twice as high as that of the other nodes.
+
+Additionally, we saw that a player's CRBI was the first node in the regression tree which we created above, which further demonstrates the importance of this variable as a predictor.
+
+## Random Forest
+
+Similar to the variable bagging method used above, we will now train a random forest method based on the data in the training dataset. 
+
+```{r, echo = FALSE}
+hitters_randomForest <- randomForest(as.factor(Salary) ~ ., data = hitters_train)
+varImpPlot(hitters_randomForest, n.var = 19, col = "blue")
+```
+
+The plot displayed above shows the mean decrease in the Gini Index of our random forest classifier with respect to each of the predictive variables in the random forest model. 
+
+This variable importance plot seems to disagree somewhat with the previous two models, as the variables which were deemed to be of the highest importance in the random forest model which we trained are not seen as highly important in either of the previous two models.
+
+There is some agreement among these models, but the rankings of variable importance in the random forest model deviate significantly from the rankings in the other two models.
+
+## Boosting
+
+Next, we will train a variety of models using a variable boosting method. In particular, we will use the `gbm` function to create generalized boosted regression models. These GBMs will each be modeled assuming a Gaussian distribution, using 1000 trees, an interaction depth of 1, and 10-fold cross-validation, alongside a varying shrinkage parameter.
+
+We will create multiple boosted regression models by changing the shrinkage parameter of the `gbm` function, to examine how the MSE of these models on the test set changes relative to the shrinkage parameter for our boosting function.
+
+To change the shrinkage parameter, we will create 11 GBMs, each of which has a shrinkage parameter half as large as the previous model. The shrinkage parameters for these 11 models will be $\Big\{1, \frac{1}{2}, \frac{1}{2^2}, \frac{1}{2^3}, \frac{1}{2^4}, \frac{1}{2^5}, \frac{1}{2^6}, \frac{1}{2^7}, \frac{1}{2^8}, \frac{1}{2^9}, \frac{1}{2^{10}}\Big\}$ respectively.
+
+
+```{r, echo = FALSE, warning = FALSE}
+boosting_MSES <- c()
+
+for (i in seq(0, -10, -1)){
+  hitters_boost <- gbm(Salary ~., data = hitters_train, distribution = "gaussian",
+                       n.trees = 1000, shrinkage = 2^i, interaction.depth = 1,
+                       cv.folds = 10)
+  
+  pred_boost <- predict(hitters_boost, hitters_test, n.trees = 1000)
+  squared_errors <- (pred_boost - hitters_test[, "Salary"])^2 %>%
+    unlist()
+  boosting_MSES <- rbind(boosting_MSES, c(i, 2^i, mean(squared_errors)))
+}
+
+boosting_MSES <- as_tibble(boosting_MSES)
+
+boosting_MSES %>%
+  ggplot(aes(x = V1, y = V3)) + 
+  geom_point() + 
+  labs(x = "log of shrinkage parameter", y = "Test Set MSE",
+       title = "Shrinkage Parameters and Test Set MSEs for our Boosting Algorithm") +
+  theme_bw()
+```
+
+As we can see from the plot above, the Test Set MSE is minimized when the logarithm of our shrinkage parameter is -6, which corresponds to a shrinkage parameter of $\frac{1}{2^6}$. 
+
+In addition to the plot above, we will also create a table and a plot of the variable importance for the boosting model which had the smallest MSE among our GBM models. As we saw above, this is the boosting model with a shrinkage parameter of $\frac{1}{2^6}$, and all other things held equal.
+
+```{r, echo = FALSE}
+hitters_boost_best <- gbm(Salary ~., data = hitters_train, distribution = "gaussian",
+                          n.trees = 1000, shrinkage = 2^-6, interaction.depth = 1,
+                          cv.folds = 10)
+summary(hitters_boost_best)
+```
+
+
+## XGBoost
+
+The final machine learning method which we will use to create a predictive model for players' salaries is an XGBoost (Extreme Gradient Boost) model.
+
+To fit this model, we will use the `caret` packages to create an XGBoost Tree for our data, which automatically will choose the optimal parameters. As we did with the regular boosting model, we will also create a variable importance plot for this model to showcase the importance of the different predictors according to this model.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, include = FALSE}
+train_control = trainControl(method = "cv", number = 10, search = "grid")
+
+tune_grid <- expand.grid(max_depth = c(1, 3, 5, 7),
+                         nrounds = c(1:10) * 50,
+                         eta = c(0.01, 0.1, 0.3),
+                         gamma = 0,
+                         subsample = 1,
+                         min_child_weight = 1,
+                         colsample_bytree = 0.6)
+
+hitters_xgb <- caret::train(Salary ~ ., data = hitters_train, method = "xgbTree",
+                            trControl = train_control, tuneGrid = tune_grid)
+                         
+plot(varImp(hitters_xgb, scale = F))
+```
+
+
+
+## Comparing Methods
+
+Lastly, we will compare each of the five models which we created in the previous sections. To compare these models, we will use these models to predict the salaries of players in the test dataset, and we will compute the mean squared error (MSE) of the estimated salaries for each of these models.
+
+```{r compute-MSEs, echo = FALSE}
+# Compute MSE for regression tree
+pred_reg_tree <- predict(hitters_reg_tree_pruned, hitters_test)
+reg_tree_squared_errors <- (pred_reg_tree - hitters_test[, "Salary"])^2 %>% 
+  unlist()
+
+# Compute MSE for bagging
+pred_bagging <- predict(hitters_bag, hitters_test)
+bagging_squared_errors <- (pred_bagging - hitters_test[, "Salary"])^2 %>% 
+  unlist()
+
+# Compute MSE for random forest
+pred_randomForest <- predict(hitters_randomForest, hitters_test)
+hitters_test_randomForest <- cbind(pred_randomForest, hitters_test)
+hitters_test_randomForest <- hitters_test_randomForest %>% 
+  mutate(pred_randomForest = as.numeric(pred_randomForest))
+randomForest_squared_errors <- sum((hitters_test_randomForest$pred_randomForest - hitters_test_randomForest$Salary)^2)
+randomForest_MSE <- randomForest_squared_errors / nrow(hitters_test_randomForest)
+
+# Compute MSE for XGBoost
+pred_xgboost <- predict(hitters_xgb, newdata = hitters_test)
+xgboost_squared_errors <- (pred_xgboost - hitters_test[, "Salary"])^2 %>% 
+  unlist()
+
+MSES_table <- c("Regression Tree", "Bagging", "Random Forest", "Boosting", "XGBoost")
+MSES_table <- cbind(MSES_table, c(mean(reg_tree_squared_errors),
+                                  mean(bagging_squared_errors),
+                                  randomForest_MSE,
+                                  min(boosting_MSES$V3),
+                                  mean(xgboost_squared_errors)))
+
+kable(MSES_table, col.names = c("Machine Learning Algorithm", "Mean Squared Error"),
+      caption = "Mean Squared Error on the Test Dataset for each of the ML Algorithms")
+```
+
+As we can see in the table shown above, every machine learning method except for the random forest method produced similar results in terms of the MSE when applied to the testing dataset, while the random forest had a significantly higher MSE than any of the other four methods, with an MSE nearly four times as large as the next-highest MSE among our models.

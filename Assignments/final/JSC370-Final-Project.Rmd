@@ -13,7 +13,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r import-libraries, echo = FALSE, warning = FALSE, message = FALSE}
+```{r libraries, echo = FALSE, warning = FALSE, message = FALSE}
 library(tidyverse)
 library(dtplyr)
 library(dplyr)
@@ -49,4 +49,7 @@ client_secret <- read_file("spotify_client_secret.txt")
 Sys.setenv(SPOTIFY_CLIENT_ID = client_id)
 Sys.setenv(SPOTIFY_CLIENT_SECRET = client_secret)
 access_token <- get_spotify_access_token()
+```
+
+```{r load-spotify-data, echo = FALSE, message = FALSE}
 ```
